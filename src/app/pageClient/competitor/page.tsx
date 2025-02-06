@@ -8,40 +8,46 @@ import TopRankingCard from "./components/TopRankingCard";
 
 const Competitor = () => {
     return (
-        <div className="h-screen justify-self-auto">
+        <div className="min-h-screen justify-self-auto overflow-auto">
             {/* Header */}
-            <div className="bg-white shadow-md rounded-lg p-4">
-                <h1 className="text-xl font-bold">Competitor Daily</h1>
-                <p className="text-gray-600">Monitor your competitor every single day</p>
+            <div className="">
+                <h1 className="text-xl text-white font-bold">Competitor Daily</h1>
+                <p className="text-white">Monitor your competitor every single day</p>
             </div>
             {/* FAIR Score & Top Ranking */}
-			<div className="grid grid-cols-12 gap-4 mt-4">
-                    {/* FAIR Score */}
-                    <div className="lg:col-span-8 bg-white shadow-md rounded-lg p-4">
-                        <FairScoreCard />
-                    </div>
-
-                    {/* Top Ranking */}
-                    <div className="lg:col-span-4 bg-white shadow-md rounded-lg p-4">
-                        <TopRankingCard />
-                    </div>
+            <div className="grid grid-cols-12 gap-4 mt-4">
+                {/* FAIR Score */}
+                <div className="lg:col-span-8 rounded-lg">
+                    <FairScoreCard />
                 </div>
 
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-12 gap-4 mt-4">
-                    <div className="lg:col-span-3 bg-white shadow-md rounded-lg p-4">
-                        <FollowerCard />
-                    </div>
-                    <div className="lg:col-span-3 bg-white shadow-md rounded-lg p-4">
-                        <ActivityCard />
-                    </div>
-                    <div className="lg:col-span-3 bg-white shadow-md rounded-lg p-4">
-                        <InteractionCard />
-                    </div>
-                    <div className="lg:col-span-3 bg-white shadow-md rounded-lg p-4">
-                        <ResponsivenessCard />
-                    </div>
+                {/* Top Ranking */}
+                <div className="lg:col-span-4 rounded-lg">
+                    <TopRankingCard />
                 </div>
+            </div>
+
+            <div className="flex w-full items-center my-4">
+                <img src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" />
+                <div className="mr-3 w-auto text-lg font-bold">Fair</div>
+                <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-12 gap-4 mt-4">
+                <div className="lg:col-span-3 rounded-lg">
+                    <FollowerCard />
+                </div>
+                <div className="lg:col-span-3 rounded-lg">
+                    <ActivityCard />
+                </div>
+                <div className="lg:col-span-3 rounded-lg">
+                    <InteractionCard />
+                </div>
+                <div className="lg:col-span-3 rounded-lg">
+                    <ResponsivenessCard />
+                </div>
+            </div>
         </div>
     );
 };

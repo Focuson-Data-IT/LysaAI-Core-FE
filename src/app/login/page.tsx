@@ -1,49 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { signIn, useSession} from "next-auth/react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import Cookies from "js-cookie"; // Import js-cookie
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const { login, isLoading } = useAuth();
     const router = useRouter();
-    const { data: session, status } = useSession();
 
-    useEffect(() => {
-        if (status === "authenticated") {
-            // Redirect berdasarkan role
-            const role = session?.user?.role;
-            if (role === "admin") {
-                router.push("/pageAdmin/home");
-            } else {
-                router.push("/pageClient/home");
-            }
-        }
-    }, [session, status, router]);
-
-    async function handleSubmit(e: React.FormEvent) {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const result = await signIn("credentials", {
-            email,
-            password,
-            redirect: false, // Hindari redirect otomatis NextAuth
-        });
-
-        if (result?.error) {
-            alert("Login gagal! Periksa email dan password.");
-        } else {
-            // Ambil role dari response backend atau localStorage
-            const role = session?.user?.role || localStorage.getItem("role");
-
-            // Redirect berdasarkan role
-            if (role === "admin") {
-                router.push("/pageAdmin/home");
-            } else {
-                router.push("/pageClient/home");
-            }
+        await login(email, password);
+        const storedUser = Cookies.get("authUser");
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            console.log("User after login:", user); // Add logging
+            redirectBasedOnRole(user.role);
         }
-    }
+    };
+
+    const redirectBasedOnRole = (role: string) => {
+        if (role === "admin") {
+            router.push("/pageAdmin/home");
+        } else {
+            router.push("/pageClient/home");
+        }
+    };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -74,8 +59,9 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700"
+                        disabled={isLoading}
                     >
-                        Login
+                        {isLoading ? "Logging in..." : "Login"}
                     </button>
                 </form>
                 <p className="mt-4 text-center text-gray-600 dark:text-gray-400 text-sm">

@@ -1,28 +1,39 @@
 "use client";
 
-import { SessionProvider, useSession } from "next-auth/react";
 import Layout from "@/components/Layout";
 import "@/app/globals.css";
 import OurLoading from "@/components/OurLoading";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <SessionProvider>
-      <html lang="en">
-        <body>
-          <AuthWrapper>{children}</AuthWrapper>
-        </body>
-      </html>
-    </SessionProvider>
-  );
-}
+    const { isLoading, isAuthenticated } = useAuth();
+    const router = useRouter();
 
-function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+    useEffect(() => {
+        const pathname = window.location.pathname;
+        if (!isLoading && !isAuthenticated && pathname !== "/login") {
+            router.push("/login"); // Redirect to login page if not authenticated and not already on login page
+        }
+    }, [isLoading, isAuthenticated, router]);
 
-  if (status === "loading") {
-    return <OurLoading />; // FIXED: Menjadikannya JSX valid
-  }
+    // useEffect(() => {
+    //   document.body.style.overflow = "auto";
+    //   return () => {
+    //     document.body.style.overflow = "";
+    //   };
+    // }, []);    
 
-  return session ? <Layout>{children}</Layout> : <>{children}</>;
+    if (isLoading) {
+        return <OurLoading />;
+    }
+
+    return (
+        <html lang="en">
+            <body>
+                {isAuthenticated ? <Layout>{children}</Layout> : children}
+            </body>
+        </html>
+    );
 }

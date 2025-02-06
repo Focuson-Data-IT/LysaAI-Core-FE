@@ -1,17 +1,13 @@
+// filepath: /Users/macbook/Documents/Kerja/Project Program/lysaAI/LysaAI-Core-FE/src/components/UserNav.tsx
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { User2 } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function UserNav() {
-    const { data: session } = useSession(); // Ambil session NextAuth
-    const authUser = session?.user; // Ambil user dari session
-
-    async function logout() {
-        await signOut({ callbackUrl: "/login" });
-    }
+    const { authUser, logout } = useAuth();
 
     return (
         <DropdownMenu.Root>
@@ -29,7 +25,7 @@ export default function UserNav() {
                     <DropdownMenu.Label className="font-normal p-2">
                         <div className="flex flex-col space-y-1">
                             <p className="text-sm font-medium leading-none">
-                                {authUser?.name || "-"}
+                                {authUser?.username || "-"}
                             </p>
                             <p className="text-xs leading-none text-gray-500 dark:text-gray-400">
                                 {authUser?.role || "-"}
