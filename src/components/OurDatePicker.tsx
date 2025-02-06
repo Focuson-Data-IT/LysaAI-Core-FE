@@ -15,7 +15,7 @@ const customDatePickerStyles = {
 					? "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white"
 					: "bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
 		} hover:bg-gray-300 dark:hover:bg-gray-500`,
-	popper: () => `absolute z-[1050]`,
+	popper: () => `absolute z-[10]`,
 };
 
 const DateRangePicker: React.FC<{ applyCallback: (dates: [Date | null, Date | null]) => void }> = ({applyCallback}) => {
@@ -24,7 +24,7 @@ const DateRangePicker: React.FC<{ applyCallback: (dates: [Date | null, Date | nu
 
 	return (
 		<div className="flex flex-col">
-			<div className="relative" style={{zIndex: 1050}}>
+			<div className="relative" style={{zIndex: 10}}>
 				<DatePicker
 					selected={startDate}
 					onChange={(dates) => {

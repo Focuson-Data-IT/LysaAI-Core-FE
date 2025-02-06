@@ -32,7 +32,16 @@
     "shadcn": "^2.3.0",
     "shadcn-ui": "^0.9.4",
     "tailwind-merge": "^3.0.1",
-    "uuid": "^11.0.5"
+    "uuid": "^11.0.5",
+    "camelize": "^1.0.1",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "flowbite": "^2.5.2",
+    "flowbite-react": "^0.10.2",
+    "lodash": "^4.17.21",
+    "react-date-range": "^2.0.1",
+    "recoil": "^0.7.7",
+    "tailwind-scrollbar": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -45,6 +54,8 @@
     "eslint-config-next": "15.1.6",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "daisyui": "^4.12.23",
+    "prettier": "^3.4.2"
   }
 }
