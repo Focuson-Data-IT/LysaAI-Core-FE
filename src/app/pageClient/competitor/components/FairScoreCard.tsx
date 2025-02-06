@@ -1,5 +1,4 @@
 import React from 'react';
-import FairScoreGraph from './mainComponents/fairScore/FairScoreGraph';
 
 const FairScoreCard = () => {
     return (
@@ -35,7 +34,7 @@ const FairScoreCard = () => {
             <div className="h-[250px] pt-3 flex items-center justify-center">
                 <div className="my-3 w-full text-center text-muted-foreground">
 
-                        no. data....
+                    no. data....
 
                 </div>
             </div>
