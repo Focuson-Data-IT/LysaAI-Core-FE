@@ -21,6 +21,11 @@ export const clientRoutes: clientRoute[] = [
 		link: '/pageClient/home',
 		icon: Icons.Home
 	},
+    {
+		title: 'Performance',
+		link: '/pageClient/competitor',
+		icon: Icons.UserRoundSearch,
+	},
 	{
 		title: 'Lysa AI',
 		link: '/pageClient/lysa-ai/monitoring',
@@ -34,23 +39,6 @@ export const clientRoutes: clientRoute[] = [
 			{
 				title: 'Netizen Monitoring',
 				link: '/pageClient/lysa-ai/profiling',
-				icon: Icons.CircleDot
-			}
-		]
-	},
-	{
-		title: 'Perform',
-		link: '/pageClient/competitor/daily',
-		icon: Icons.UserRoundSearch,
-		children: [
-			{
-				title: 'Daily',
-				link: '/pageClient/competitor/daily',
-				icon: Icons.CircleDot
-			},
-			{
-				title: 'Monthly',
-				link: '/pageClient/competitor/monthly',
 				icon: Icons.CircleDot
 			}
 		]

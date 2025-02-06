@@ -3,7 +3,7 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import Layout from "@/components/Layout";
 import "@/app/globals.css";
-import Image from "next/image";
+import OurLoading from "@/components/OurLoading";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,18 +21,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="flex items-center justify-center w-full h-full">
-          <Image
-            src="/logo-focus-on-d.png" 
-            alt="Loading" 
-            width={500}
-            height={500}
-          />
-        </div>
-      </div>
-    );
+    return <OurLoading />; // FIXED: Menjadikannya JSX valid
   }
 
   return session ? <Layout>{children}</Layout> : <>{children}</>;

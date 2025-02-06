@@ -9,13 +9,14 @@ import ModeToggle from "@/components/ModeToggle";
 import UserNav from "@/components/UserNav";
 import { Dot } from "lucide-react";
 import { getRoutesByRole } from "@/config/routes";
+import OurLoading from "./OurLoading";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { data: session, status } = useSession();
 
     if (status === "loading") {
-        return null
+        return <OurLoading />;
     }
 
     if (!session?.user?.role) {
@@ -58,9 +59,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
                 <div className="h-1" />
                 {/* Page Content */}
-                <div className="h-[calc(100vh-55px)] w-full overflow-scroll rounded-tl-xl bg-white pl-1 dark:bg-black">
-                    <div className="px-3 pt-3">{children}</div>
+                <div className="flex-1 h-[calc(100vh-55px)] overflow-auto bg-white dark:bg-black">
+                    <div className="w-full px-6 pt-3">{children}</div>
                 </div>
+
             </div>
         </div>
     );
