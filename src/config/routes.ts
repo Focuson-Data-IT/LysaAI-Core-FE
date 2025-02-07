@@ -5,6 +5,7 @@ interface clientRoute {
     link: string;
     icon?: React.ElementType;
     children?: clientRoute[];
+    dynamic?: boolean;
 }
 
 interface adminRoute {
@@ -25,6 +26,20 @@ export const clientRoutes: clientRoute[] = [
 		title: 'Performance',
 		link: '/pageClient/competitor',
 		icon: Icons.UserRoundSearch,
+        children: [
+			{
+				title: 'Instagram',
+				link: '/pageClient/instagram',
+				icon: Icons.CircleDot,
+                dynamic: true
+			},
+			{
+				title: 'Tiktok',
+				link: '/pageClient/tiktok',
+				icon: Icons.CircleDot,
+                dynamic: true
+			}
+		]
 	},
 	{
 		title: 'Lysa AI',

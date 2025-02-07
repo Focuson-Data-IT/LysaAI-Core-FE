@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import moment from "moment";
 import OurEmptyData from "@/components/OurEmptyData";
 import OurLoading from "@/components/OurLoading";
-import data from "@/app/pageClient/competitor/dummyData/detailPost.json"; // Import data dummy
+import data from "../dummyData/detailPost.json"; // Import data dummy
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 
 interface Post {
     username: string;
@@ -24,6 +26,7 @@ interface Post {
 const PostsTable = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
+    const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: "asc" | "desc" } | null>(null);
 
     // Simulasi fetching data dari JSON
     useEffect(() => {
@@ -34,6 +37,41 @@ const PostsTable = () => {
         }, 1000); // Simulasi delay 1 detik
     }, []);
 
+    const sortedPosts = React.useMemo(() => {
+        const sortablePosts = [...posts];
+        if (sortConfig !== null) {
+            sortablePosts.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === "asc" ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === "asc" ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortablePosts;
+    }, [posts, sortConfig]);
+
+    const requestSort = (key: keyof Post) => {
+        let direction: "asc" | "desc" = "asc";
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+            direction = "desc";
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortIcon = (key: keyof Post) => {
+        if (!sortConfig || sortConfig.key !== key) {
+            return null;
+        }
+        return sortConfig.direction === "asc" ? (
+            <FontAwesomeIcon icon={faSortUp} className="ml-2" />
+        ) : (
+            <FontAwesomeIcon icon={faSortDown} className="ml-2" />
+        );
+    };
+
     return (
         <section className="mb-6 2xl:mb-0 2xl:flex-1 shadow-md rounded-lg bg-gray-200 dark:bg-gray-800 p-5">
             <div className="max-h-[500px] flex flex-col space-y-5">
@@ -41,15 +79,33 @@ const PostsTable = () => {
                     <table className="w-full border-collapse border border-gray-300 dark:border-gray-700">
                         <thead className="bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
                             <tr>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Username</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Content</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Date</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Likes</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Comments</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Views</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Shares</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Collections</th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600">Downloads</th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("username")}>
+                                    Username {getSortIcon("username")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("caption")}>
+                                    Content {getSortIcon("caption")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("created_at")}>
+                                    Date {getSortIcon("created_at")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("likes")}>
+                                    Likes {getSortIcon("likes")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("comments")}>
+                                    Comments {getSortIcon("comments")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("playCount")}>
+                                    Views {getSortIcon("playCount")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("shareCount")}>
+                                    Shares {getSortIcon("shareCount")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("collectCount")}>
+                                    Collections {getSortIcon("collectCount")}
+                                </th>
+                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("downloadCount")}>
+                                    Downloads {getSortIcon("downloadCount")}
+                                </th>
                             </tr>
                         </thead>
 
@@ -60,8 +116,8 @@ const PostsTable = () => {
                                         <OurLoading />
                                     </td>
                                 </tr>
-                            ) : posts.length > 0 ? (
-                                posts.map((post, key) => (
+                            ) : sortedPosts.length > 0 ? (
+                                sortedPosts.map((post, key) => (
                                     <tr key={key} className="border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
                                         <td className="px-6 py-4">{post.username}</td>
                                         <td className="px-6 py-4">

@@ -57,7 +57,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-6">
                 <img
                     className="h-14"
-                    src={theme === "light" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
+                    src={theme === "dark" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
                     alt="logo"
                 />
             </div>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useParams } from "next/navigation";
 import React from "react";
 import FairDetailBar from "./components/FairBar";
 import FairScoreCard from "./components/FairScoreCard";
@@ -5,26 +8,27 @@ import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
 
 const Competitor = () => {
+    const { platform } = useParams(); // Mengambil parameter dinamis dari URL
+
     return (
         <div className="min-h-screen justify-self-auto overflow-auto mb-5">
             {/* Header */}
             <div className="">
-                <h1 className="text-xl text-white font-bold">Competitor Daily</h1>
+                <h1 className="text-xl text-white font-bold">Competitor Analysis for {Array.isArray(platform) ? platform.join(', ').toUpperCase() : platform?.toUpperCase()}</h1>
                 <p className="text-white">Monitor your competitor every single day</p>
             </div>
+
             {/* FAIR Score & Top Ranking */}
             <div className="grid grid-cols-12 gap-4 mt-4">
-                {/* FAIR Score */}
                 <div className="lg:col-span-8 rounded-lg">
                     <FairScoreCard />
                 </div>
-
-                {/* Top Ranking */}
                 <div className="lg:col-span-4 rounded-lg">
                     <TopRankingCard />
                 </div>
             </div>
 
+            {/* FAIR Section */}
             <div className="flex w-full items-center my-4">
                 <img src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" />
                 <div className="mr-3 w-auto text-lg font-bold">Fair</div>
@@ -33,12 +37,21 @@ const Competitor = () => {
 
             {/* Metrics Grid */}
             <div className="grid grid-cols-12 gap-4 mt-4">
-                <FairDetailBar label="Followers" description="Jumlah pengikut" unit="followers" category="followers" />
-                <FairDetailBar label="Activity" description="Tingkat aktivitas" unit="posts" category="activity" />
-                <FairDetailBar label="Interaction" description="Interaksi pengguna" unit="likes" category="interaction" />
-                <FairDetailBar label="Responsive" description="Tingkat responsivitas" unit="%" category="responsive" />
+                <div className="lg:col-span-3 rounded-lg">
+                    <FairDetailBar label="Followers" description="Jumlah pengikut" unit="followers" category="followers" />
+                </div>
+                <div className="lg:col-span-3 rounded-lg">
+                    <FairDetailBar label="Activity" description="Tingkat aktivitas" unit="posts" category="activity" />
+                </div>
+                <div className="lg:col-span-3 rounded-lg">
+                    <FairDetailBar label="Interaction" description="Interaksi pengguna" unit="likes" category="interaction" />
+                </div>
+                <div className="lg:col-span-3 rounded-lg">
+                    <FairDetailBar label="Responsive" description="Tingkat responsivitas" unit="%" category="responsive" />
+                </div>
             </div>
 
+            {/* POST DETAIL Section */}
             <div className="flex w-full items-center my-4">
                 <img src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" />
                 <div className="mr-3 w-auto text-lg font-bold">Post Detail</div>
@@ -48,10 +61,9 @@ const Competitor = () => {
             {/* Detail Post */}
             <div className="grid grid-cols-12 gap-4 mt-4">
                 <div className="lg:col-span-12 rounded-lg">
-                    <PostsTable/>
+                    <PostsTable />
                 </div>
             </div>
-
         </div>
     );
 };
