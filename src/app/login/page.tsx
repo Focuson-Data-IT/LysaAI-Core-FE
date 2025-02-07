@@ -52,7 +52,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 dark:bg-gray-900 px-4">
             {/* Logo */}
             <div className="flex justify-center mb-6">
                 <img
@@ -63,7 +63,7 @@ export default function LoginPage() {
             </div>
 
             {/* Heading */}
-            <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6">
+            <h1 className="text-3xl font-bold text-center text-white mb-6">
                 Hatch Your Idea
             </h1>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
                             placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-3 border rounded-lg bg-yellow-100 text-gray-900"
+                            className="w-full p-3 rounded-lg bg-gray-900 text-white focus:outline-none"
                             required
                         />
                     </div>
