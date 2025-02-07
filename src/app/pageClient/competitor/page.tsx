@@ -1,8 +1,5 @@
 import React from "react";
-import FollowerCard from "./components/FollowerCard";
-import ActivityCard from "./components/ActivityCard";
-import InteractionCard from "./components/InteractionCard";
-import ResponsivenessCard from "./components/ResponsivenessCard";
+import FairDetailBar from "./components/FairBar";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
@@ -36,18 +33,10 @@ const Competitor = () => {
 
             {/* Metrics Grid */}
             <div className="grid grid-cols-12 gap-4 mt-4">
-                <div className="lg:col-span-3 rounded-lg">
-                    <FollowerCard />
-                </div>
-                <div className="lg:col-span-3 rounded-lg">
-                    <ActivityCard />
-                </div>
-                <div className="lg:col-span-3 rounded-lg">
-                    <InteractionCard />
-                </div>
-                <div className="lg:col-span-3 rounded-lg">
-                    <ResponsivenessCard />
-                </div>
+                <FairDetailBar label="Followers" description="Jumlah pengikut" unit="followers" category="followers" />
+                <FairDetailBar label="Activity" description="Tingkat aktivitas" unit="posts" category="activity" />
+                <FairDetailBar label="Interaction" description="Interaksi pengguna" unit="likes" category="interaction" />
+                <FairDetailBar label="Responsive" description="Tingkat responsivitas" unit="%" category="responsive" />
             </div>
 
             <div className="flex w-full items-center my-4">

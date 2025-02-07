@@ -2,7 +2,7 @@ import React from 'react';
 
 const FairScoreCard = () => {
     return (
-        <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-900 transition-colors">
+        <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors">
             {/* Header with Icon and Title */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center">

@@ -1,0 +1,22 @@
+{
+    "followers": [
+        { "username": "user1", "value": 1500, "max_value": 5000 },
+        { "username": "user2", "value": 2500, "max_value": 5000 },
+        { "username": "user3", "value": 1000, "max_value": 5000 }
+    ],
+    "activity": [
+        { "username": "user1", "value": 100, "max_value": 300 },
+        { "username": "user2", "value": 200, "max_value": 300 },
+        { "username": "user3", "value": 50, "max_value": 300 }
+    ],
+    "interaction": [
+        { "username": "user1", "value": 800, "max_value": 2000 },
+        { "username": "user2", "value": 1200, "max_value": 2000 },
+        { "username": "user3", "value": 600, "max_value": 2000 }
+    ],
+    "responsive": [
+        { "username": "user1", "value": 70, "max_value": 100 },
+        { "username": "user2", "value": 85, "max_value": 100 },
+        { "username": "user3", "value": 60, "max_value": 100 }
+    ]
+}

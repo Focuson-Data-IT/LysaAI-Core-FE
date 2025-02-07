@@ -12,12 +12,20 @@ interface BrandProps {
 export default function Brand({ isCollapsed }: BrandProps) {
     const [theme, setTheme] = useState<"light" | "dark">("light");
 
-    // Check theme preference in localStorage on initial load
+    // Sinkronkan tema dengan class <html> saat halaman dimuat
     useEffect(() => {
-        const savedTheme = localStorage.getItem("theme") as "light" | "dark";
-        if (savedTheme) {
-            setTheme(savedTheme);
-        }
+        const currentTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+        setTheme(currentTheme);
+
+        // Tambahkan event listener untuk mendeteksi perubahan class <html>
+        const observer = new MutationObserver(() => {
+            const updatedTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+            setTheme(updatedTheme);
+        });
+
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+        return () => observer.disconnect();
     }, []);
 
     return (
@@ -29,7 +37,7 @@ export default function Brand({ isCollapsed }: BrandProps) {
             aria-label="OBE"
         >
             <Image
-                src={theme === "dark" ? "/logo_icon.svg" : "/logo_icon_d.svg"}
+                src={theme === "light" ? "/logo_icon_d.svg" : "/logo_icon.svg"}
                 alt="brand"
                 width={30}
                 height={30}
