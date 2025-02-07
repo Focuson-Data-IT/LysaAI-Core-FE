@@ -34,7 +34,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
             <div className="w-full max-w-sm p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
                 <div className="flex justify-center mb-6">
-                    <img className="h-12" src="/logo_horizontal_d.svg" alt="logo" />
+                    <img className="h-12" src="/logo_horizontal.svg" alt="logo" />
                 </div>
                 <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-4">
                     Hatch Your Idea

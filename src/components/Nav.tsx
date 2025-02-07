@@ -82,7 +82,7 @@ export default function Nav({ isCollapsed }: SidebarProps) {
                                         {route.children.map((routeChild) => {
                                             const isActiveChild = isRouteActiveChild(pathname, routeChild.link);
                                             return (
-                                                <div key={routeChild.link} className="ml-1">
+                                                <div key={routeChild.link}>
                                                     {isCollapsed ? (
                                                         <NavItemTooltips isActive={isActiveChild} isLoading={isLoading} route={routeChild} isChild />
                                                     ) : (

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { v4 as uuidv4 } from "uuid"; // Import UUID library
+import Router from "next/router";
 
 interface AuthUser {
     id: number;
@@ -57,6 +58,7 @@ export function useAuth() {
         setIsAuthenticated(false);
         Cookies.remove("authToken"); // Remove token from cookies
         Cookies.remove("authUser"); // Remove user data from cookies
+        Router.push("/login"); // Redirect to login page
     };
 
     return {
