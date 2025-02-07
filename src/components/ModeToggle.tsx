@@ -9,18 +9,23 @@ export default function ModeToggle() {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
-    // Hindari render di server untuk menghindari Mismatch di Hydration
+    // Avoid rendering on the server to prevent hydration mismatch
     useEffect(() => {
         setMounted(true);
     }, []);
 
     if (!mounted) return null;
 
+    const handleClick = () => {
+        console.log("Button clicked");
+        setTheme(theme === "dark" ? "light" : "dark");
+    };
+
     return (
         <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={handleClick}
         >
             {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>

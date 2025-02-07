@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeProvider } from "next-themes";
 import Layout from "@/components/Layout";
 import "@/app/globals.css";
 import OurLoading from "@/components/OurLoading";
@@ -18,13 +19,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }
     }, [isLoading, isAuthenticated, router]);
 
-    // useEffect(() => {
-    //   document.body.style.overflow = "auto";
-    //   return () => {
-    //     document.body.style.overflow = "";
-    //   };
-    // }, []);    
-
     if (isLoading) {
         return <OurLoading />;
     }
@@ -32,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <body>
-                {isAuthenticated ? <Layout>{children}</Layout> : children}
+                <ThemeProvider attribute="class">
+                    {isAuthenticated ? <Layout>{children}</Layout> : children}
+                </ThemeProvider>
             </body>
         </html>
     );

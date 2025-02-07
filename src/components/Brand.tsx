@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/configs/site";
 import Image from "next/image";
@@ -10,7 +11,16 @@ interface BrandProps {
 }
 
 export default function Brand({ isCollapsed }: BrandProps) {
-    const { theme } = useTheme();
+    const { theme, systemTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    // Pastikan komponen sudah dimount sebelum membaca theme
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Menentukan theme yang sedang aktif (baik dari system maupun manual)
+    const currentTheme = mounted ? (theme === "system" ? systemTheme : theme) : "light";
 
     return (
         <div
@@ -21,7 +31,7 @@ export default function Brand({ isCollapsed }: BrandProps) {
             aria-label="OBE"
         >
             <Image
-                src={theme === "light" ? "/logo_icon_d.svg" : "/logo_icon.svg"}
+                src={currentTheme === "light" ? "/logo_icon.svg" : "/logo_icon_d.svg"}
                 alt="brand"
                 width={30}
                 height={30}

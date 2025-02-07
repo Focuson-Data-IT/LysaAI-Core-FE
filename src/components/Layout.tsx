@@ -32,22 +32,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {/* Sidebar */}
             <div
                 className={cn(
-                    "fixed top-0 left-0 h-full w-[250px] bg-gray-800 text-white transition-all",
+                    "border border-r border-r-gray-200 dark:border-r-gray-800",
                     isCollapsed ? "w-[57px]" : "sm:w-[250px]"
                 )}
             >
-                <div className={cn("mt-3 flex justify-between px-2")}>
+                <div className={cn("mt-3 flex justify-between", isCollapsed ? "justify-center" : "px-2")}>
                     <button onClick={() => setIsCollapsed(!isCollapsed)} title="Home">
                         <Brand isCollapsed={isCollapsed} />
                     </button>
                 </div>
-                <div className="mt-2">
-                    <Nav isCollapsed={isCollapsed} routes={routes} />
-                </div>
+                <div className="h-1" />
+                <Nav isCollapsed={isCollapsed} routes={routes} />
             </div>
 
             {/* Main Content */}
-            <div className="flex flex-col w-full ml-[250px] transition-all">
+            <div className="w-full">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex h-[50px] w-[400px] items-center px-3 pt-2 font-bold">
@@ -60,6 +59,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
 
+                <div className="h-1" />
                 {/* Page Content */}
                 <div className="flex-1 h-[calc(100vh-55px)] overflow-auto bg-white dark:bg-black">
                     <div className="w-full px-6 pt-3">{children}</div>
