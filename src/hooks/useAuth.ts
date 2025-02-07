@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { v4 as uuidv4 } from "uuid"; // Import UUID library
-import Router from "next/router";
+import { v4 as uuidv4 } from "uuid";
+import { useRouter } from "next/navigation";
 
 interface AuthUser {
     id: number;
@@ -15,18 +15,19 @@ interface AuthUser {
 
 export function useAuth() {
     const [authUser, setAuthUser] = useState<AuthUser | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // Set initial loading state to true
+    const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const storedUser = Cookies.get("authUser");
         if (storedUser) {
             const user = JSON.parse(storedUser);
-            console.log("Retrieved user from cookies:", user); // Add logging
+            console.log("Retrieved user from cookies:", user);
             setAuthUser(user);
             setIsAuthenticated(true);
         }
-        setIsLoading(false); // Set loading state to false after checking cookies
+        setIsLoading(false);
     }, []);
 
     const login = async (email: string, password: string) => {
@@ -36,12 +37,14 @@ export function useAuth() {
             if (response.data.code === 200) {
                 const user = response.data.data;
                 user.role = "client"; // Hardcode role as client for now
-                console.log("Setting user:", user); // Add logging
+                console.log("Setting user:", user);
                 setAuthUser(user);
                 setIsAuthenticated(true);
-                const token = uuidv4(); // Generate a token using UUID
-                Cookies.set("authToken", token); // Store token in cookies
-                Cookies.set("authUser", JSON.stringify(user)); // Store user data in cookies
+                const token = uuidv4();
+                Cookies.set("authToken", token);
+                Cookies.set("authUser", JSON.stringify(user));
+
+                router.replace("/"); // Redirect to homepage after login
             } else {
                 throw new Error("Login failed");
             }
@@ -56,9 +59,10 @@ export function useAuth() {
     const logout = () => {
         setAuthUser(null);
         setIsAuthenticated(false);
-        Cookies.remove("authToken"); // Remove token from cookies
-        Cookies.remove("authUser"); // Remove user data from cookies
-        Router.push("/login"); // Redirect to login page
+        Cookies.remove("authToken");
+        Cookies.remove("authUser");
+
+        router.replace("/login"); // Redirect to login page after logout
     };
 
     return {
