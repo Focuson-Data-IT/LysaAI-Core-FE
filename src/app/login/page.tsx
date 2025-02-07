@@ -87,7 +87,7 @@ export default function LoginPage() {
                             placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-3 rounded-lg bg-gray-900 text-white focus:outline-none"
+                            className="w-full rounded-lg bg-gray-900 text-white focus:outline-none p-2 text-sm pl-4"
                             required
                         />
                     </div>
@@ -103,7 +103,7 @@ export default function LoginPage() {
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full p-3 border rounded-lg bg-yellow-100 text-gray-900 pr-10" // pr-10 untuk ruang ikon
+                                className="w-full rounded-lg bg-gray-900 text-white focus:outline-none p-2 text-sm pl-4"
                                 required
                             />
                             {/* Tombol Lihat Password */}

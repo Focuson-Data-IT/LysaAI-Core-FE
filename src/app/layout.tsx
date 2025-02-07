@@ -12,22 +12,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const router = useRouter();
     const [isReady, setIsReady] = useState(false);
 
+
     useEffect(() => {
+        console.info(isLoading, isAuthenticated, isReady)
+
         if (!isLoading) {
             if (!isAuthenticated && window.location.pathname !== "/login") {
-                router.replace("/login"); // Redirect to login if not authenticated
+                router.replace("/login");
             } else {
                 setIsReady(true);
             }
         }
     }, [isLoading, isAuthenticated, router]);
-
-    if (isLoading || !isReady) {
-        return <OurLoading />;
-    }
-
-    // Check if user is on the login page
-    const isLoginPage = typeof window !== "undefined" && window.location.pathname === "/login";
 
     return (
         <html lang="en">
@@ -37,11 +33,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             </head>
             <body className="bg-gray-100 dark:bg-gray-900">
-                {isLoginPage ? (
-                    <main>{children}</main> // Do not use Layout on login page
-                ) : (
-                    <Layout key={authUser?.id || "guest"}>{children}</Layout>
-                )}
+                {
+                    isLoading
+                    ? <OurLoading />
+                        : !isAuthenticated
+                        ? (<main>{children}</main>)
+                        : (<Layout key={authUser?.id || "guest"}>{children}</Layout>)
+                }
             </body>
         </html>
     );

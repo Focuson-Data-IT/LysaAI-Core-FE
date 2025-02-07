@@ -24,5 +24,5 @@ export default function EntryPage() {
         }
     }, [authUser, isLoading, isAuthenticated, router]);
 
-    return null; // No need to render anything as it redirects immediately
+    return null;
 }
