@@ -7,7 +7,7 @@
     --text-color: #000000;
 }
 
-[data-theme="dark"] {
+.dark {
     --background-color: #000000;
     --text-color: #ffffff;
 }

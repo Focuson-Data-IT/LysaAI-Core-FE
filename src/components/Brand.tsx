@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/configs/site";
@@ -11,16 +10,23 @@ interface BrandProps {
 }
 
 export default function Brand({ isCollapsed }: BrandProps) {
-    const { theme, systemTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
+    const [theme, setTheme] = useState<"light" | "dark">("light");
 
-    // Pastikan komponen sudah dimount sebelum membaca theme
+    // Sinkronkan tema dengan class <html> saat halaman dimuat
     useEffect(() => {
-        setMounted(true);
-    }, []);
+        const currentTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+        setTheme(currentTheme);
 
-    // Menentukan theme yang sedang aktif (baik dari system maupun manual)
-    const currentTheme = mounted ? (theme === "system" ? systemTheme : theme) : "light";
+        // Tambahkan event listener untuk mendeteksi perubahan class <html>
+        const observer = new MutationObserver(() => {
+            const updatedTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+            setTheme(updatedTheme);
+        });
+
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <div
@@ -31,7 +37,7 @@ export default function Brand({ isCollapsed }: BrandProps) {
             aria-label="OBE"
         >
             <Image
-                src={currentTheme === "light" ? "/logo_icon.svg" : "/logo_icon_d.svg"}
+                src={theme === "light" ? "/logo_icon_d.svg" : "/logo_icon.svg"}
                 alt="brand"
                 width={30}
                 height={30}

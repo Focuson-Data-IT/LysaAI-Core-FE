@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Brand from "@/components/Brand";
 import Nav from "@/components/Nav";
@@ -15,6 +15,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { authUser, isLoading } = useAuth();
 
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+        if (savedTheme) {
+            document.documentElement.classList.toggle("dark", savedTheme === "dark");
+        }
+    }, []);
+
     if (isLoading) {
         return <OurLoading />;
     }
@@ -28,10 +35,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const routes = getRoutesByRole(authUser.role);
 
     return (
-        <div className="flex items-start text-black dark:text-white bg-gray-200 dark:bg-gray-800">
+        <div className="w-screen h-screen flex items-start text-black dark:text-white bg-gray-200 dark:bg-gray-800">
             {/* Sidebar */}
             <div
                 className={cn(
+                    "border-r-gray-200 dark:border-r-gray-800",
                     isCollapsed ? "w-[57px]" : "sm:w-[250px]"
                 )}
             >
@@ -45,7 +53,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Main Content */}
-            <div className="w-full bg-gray-200 dark:bg-gray-800">
+            <div className="w-full h-full bg-gray-200 dark:bg-gray-800">
                 {/* Header */}
                 <div className="flex items-center justify-between bg-gray-200 dark:bg-gray-800">
                     <div className="flex h-[50px] w-[400px] items-center px-3 pt-2 font-bold">

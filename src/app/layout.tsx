@@ -1,6 +1,5 @@
 "use client";
 
-import { ThemeProvider } from "next-themes";
 import Layout from "@/components/Layout";
 import "@/app/globals.css";
 import OurLoading from "@/components/OurLoading";
@@ -26,9 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <body>
-                <ThemeProvider attribute="class">
-                    {isAuthenticated ? <Layout>{children}</Layout> : children}
-                </ThemeProvider>
+                {isAuthenticated ? <Layout>{children}</Layout> : children}
             </body>
         </html>
     );
