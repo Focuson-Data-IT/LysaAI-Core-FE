@@ -1,15 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import Cookies from "js-cookie"; // Import js-cookie
+import Cookies from "js-cookie";
+import { Eye, EyeOff } from "lucide-react"; // Import ikon mata
 
 export default function LoginPage() {
+    const [theme, setTheme] = useState<"light" | "dark">("light");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false); // State untuk toggle password
     const { login, isLoading } = useAuth();
     const router = useRouter();
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+
+        const observer = new MutationObserver(() => {
+            const newTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+            setTheme(newTheme);
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"],
+        });
+
+        return () => observer.disconnect();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -17,7 +39,6 @@ export default function LoginPage() {
         const storedUser = Cookies.get("authUser");
         if (storedUser) {
             const user = JSON.parse(storedUser);
-            console.log("User after login:", user); // Add logging
             redirectBasedOnRole(user.role);
         }
     };
@@ -31,43 +52,86 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-            <div className="w-full max-w-sm p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-                <div className="flex justify-center mb-6">
-                    <img className="h-12" src="/logo_horizontal.svg" alt="logo" />
-                </div>
-                <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-4">
-                    Hatch Your Idea
-                </h1>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4">
+            {/* Logo */}
+            <div className="flex justify-center mb-6">
+                <img
+                    className="h-14"
+                    src={theme === "dark" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
+                    alt="logo"
+                />
+            </div>
+
+            {/* Heading */}
+            <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6">
+                Hatch Your Idea
+            </h1>
+
+            {/* Login Form Card */}
+            <div className="w-full max-w-sm p-6 bg-gray-800 dark:bg-gray-700 rounded-lg shadow-lg">
+                <h3 className="font-bold text-gray-100 dark:text-white text-lg">
+                    Login Form
+                </h3>
+                <p className="text-sm text-gray-400 dark:text-gray-300 mb-4">
+                    Please fill the form
+                </p>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                        required
-                    />
+                    {/* Username */}
+                    <div>
+                        <label className="block text-gray-100 dark:text-white font-semibold mb-1">
+                            Username <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full p-3 border rounded-lg bg-yellow-100 text-gray-900"
+                            required
+                        />
+                    </div>
+
+                    {/* Password */}
+                    <div className="relative">
+                        <label className="block text-gray-100 dark:text-white font-semibold mb-1">
+                            Password <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"} // Toggle tipe input
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full p-3 border rounded-lg bg-yellow-100 text-gray-900 pr-10" // pr-10 untuk ruang ikon
+                                required
+                            />
+                            {/* Tombol Lihat Password */}
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                            >
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Login Button */}
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700"
+                        className="w-full bg-gray-200 dark:bg-white text-gray-900 dark:text-black p-3 rounded-lg font-semibold"
                         disabled={isLoading}
                     >
                         {isLoading ? "Logging in..." : "Login"}
                     </button>
                 </form>
-                <p className="mt-4 text-center text-gray-600 dark:text-gray-400 text-sm">
-                    With Idea Generator V2.0 get daily fresh idea and monitor your competitors
-                </p>
             </div>
+
+            {/* Footer */}
+            <p className="mt-6 text-center text-gray-400 dark:text-gray-300 text-sm">
+                With Idea Generator V2.0 get daily fresh idea and monitor your competitors
+            </p>
         </div>
     );
 }

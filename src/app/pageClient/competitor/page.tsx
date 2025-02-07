@@ -5,7 +5,7 @@ import InteractionCard from "./components/InteractionCard";
 import ResponsivenessCard from "./components/ResponsivenessCard";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
-import PostDetailCard from "./components/PostDetailCard";
+import PostsTable from "./components/PostDetailCard";
 
 const Competitor = () => {
     return (
@@ -59,7 +59,7 @@ const Competitor = () => {
             {/* Detail Post */}
             <div className="grid grid-cols-12 gap-4 mt-4">
                 <div className="lg:col-span-12 rounded-lg">
-                    <PostDetailCard />
+                    <PostsTable/>
                 </div>
             </div>
 
