@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import React from "react";
+import Image from "next/image";
 import FairDetailBar from "./components/FairBar";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
@@ -14,8 +15,8 @@ const Competitor = () => {
         <div className="min-h-screen justify-self-auto overflow-auto mb-5">
             {/* Header */}
             <div className="">
-                <h1 className="text-xl text-white font-bold">Competitor Analysis for {Array.isArray(platform) ? platform.join(', ').toUpperCase() : platform?.toUpperCase()}</h1>
-                <p className="text-white">Monitor your competitor every single day</p>
+                <h1 className="text-xl text-black dark:text-white font-bold">Competitor Analysis for {Array.isArray(platform) ? platform.join(', ').toUpperCase() : platform?.toUpperCase()}</h1>
+                <p className="text-black dark:text-white">Monitor your competitor every single day</p>
             </div>
 
             {/* FAIR Score & Top Ranking */}
@@ -30,7 +31,7 @@ const Competitor = () => {
 
             {/* FAIR Section */}
             <div className="flex w-full items-center my-4">
-                <img src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" />
+                <Image src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" width={28} height={28} />
                 <div className="mr-3 w-auto text-lg font-bold">Fair</div>
                 <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
             </div>
