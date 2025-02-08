@@ -1,28 +1,28 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function HomePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+export default function EntryPage() {
+    const { authUser, isLoading, isAuthenticated } = useAuth();
+    const router = useRouter();
 
-  useEffect(() => {
-    if (status === "loading") return; // Jangan lakukan redirect saat masih loading
-    if (!session) {
-      router.replace("/login"); // Jika belum login, arahkan ke halaman login
-      return;
-    }
+    useEffect(() => {
+        if (isLoading) return; // Do not redirect while loading
+        if (!isAuthenticated) {
+            router.replace("/login"); // Redirect to login if not authenticated
+            return;
+        }
 
-    // Cek role user dan redirect sesuai role
-    const userRole = session?.user?.role; // Pastikan `session.user.role` ada
-    if (userRole === "admin") {
-      router.replace("/pageAdmin/home");
-    } else {
-      router.replace("/pageClient/home");
-    }
-  }, [session, status, router]);
+        // Check user role and redirect accordingly
+        const userRole = authUser?.role;
+        if (userRole === "admin") {
+            router.replace("/pageAdmin/home");
+        } else {
+            router.replace("/pageClient/home");
+        }
+    }, [authUser, isLoading, isAuthenticated, router]);
 
-  return null; // Tidak perlu render apapun karena langsung redirect
+    return null;
 }

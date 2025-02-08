@@ -1,28 +1,37 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ModeToggle() {
-    const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
+    const [theme, setTheme] = useState<"light" | "dark">("light");
 
-    // Hindari render di server untuk menghindari Mismatch di Hydration
+    // Check theme preference in localStorage on initial load
     useEffect(() => {
-        setMounted(true);
+        const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+        if (savedTheme) {
+            setTheme(savedTheme);
+            document.documentElement.classList.toggle("dark", savedTheme === "dark");
+            console.log(`Theme set to ${savedTheme}`);
+        }
     }, []);
 
-    if (!mounted) return null;
+    // Change theme and save to localStorage
+    const changeTheme = (mode: "light" | "dark") => {
+        setTheme(mode);
+        localStorage.setItem("theme", mode);
+        document.documentElement.classList.toggle("dark", mode === "dark");
+        console.log(`Theme changed to ${mode}`);
+    };
 
     return (
         <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => changeTheme(theme === "dark" ? "light" : "dark")}
         >
-            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === "dark" ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-blue-400" />}
         </Button>
     );
 }

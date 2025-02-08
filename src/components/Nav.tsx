@@ -1,11 +1,12 @@
+// filepath: /Users/macbook/Documents/Kerja/Project Program/lysaAI/LysaAI-Core-FE/src/components/Nav.tsx
 "use client";
 
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import NavItemTooltips from "./NavItemTooltips";
 import NavItemButton from "./NavItemButton";
 import { getRoutesByRole } from "@/config/routes";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Route {
     title: string;
@@ -20,18 +21,18 @@ interface SidebarProps {
 }
 
 export default function Nav({ isCollapsed }: SidebarProps) {
-    const { data: session, status } = useSession();
+    const { authUser } = useAuth();
     const pathname = usePathname();
     const [routes, setRoutes] = useState<Route[]>([]);
     const [navigatingPath, setNavigatingPath] = useState<string | null>(null);
 
     // Ambil role dari session setelah tersedia
     useEffect(() => {
-        if (status === "authenticated" && session?.user?.role) {
-            const roleRoutes = getRoutesByRole(session.user.role) || []; // Gunakan [] jika null
+        if (authUser?.role) {
+            const roleRoutes = getRoutesByRole(authUser.role) || []; // Gunakan [] jika null
             setRoutes(roleRoutes);
         }
-    }, [session, status]);
+    }, [authUser]);
 
     useEffect(() => {
         setNavigatingPath(null);
@@ -52,7 +53,7 @@ export default function Nav({ isCollapsed }: SidebarProps) {
         return navigatingPath === link;
     }
 
-    if (status === "loading") {
+    if (!authUser) {
         return <div>Loading routes...</div>;
     }
 
@@ -61,7 +62,7 @@ export default function Nav({ isCollapsed }: SidebarProps) {
     }
 
     return (
-        <div className="h-[calc(100vh-55px)] overflow-auto">
+        <div>
             <div data-collapsed={isCollapsed} className="group flex flex-col gap-4 py-2">
                 <nav className="grid gap-1 px-2">
                     {routes.map((route) => {
@@ -77,11 +78,11 @@ export default function Nav({ isCollapsed }: SidebarProps) {
                                 )}
 
                                 {route.children && route.children.length > 0 && isActive && (
-                                    <div className="ml-4">
+                                    <div className="ml-1">
                                         {route.children.map((routeChild) => {
                                             const isActiveChild = isRouteActiveChild(pathname, routeChild.link);
                                             return (
-                                                <div key={routeChild.link} className="ml-1">
+                                                <div key={routeChild.link}>
                                                     {isCollapsed ? (
                                                         <NavItemTooltips isActive={isActiveChild} isLoading={isLoading} route={routeChild} isChild />
                                                     ) : (

@@ -1,28 +1,46 @@
 "use client";
 
-import { SessionProvider, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/Layout";
-import "@/app/globals.css";
 import OurLoading from "@/components/OurLoading";
+import "@/app/globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <SessionProvider>
-      <html lang="en">
-        <body>
-          <AuthWrapper>{children}</AuthWrapper>
-        </body>
-      </html>
-    </SessionProvider>
-  );
-}
+    const { isLoading, isAuthenticated, authUser } = useAuth();
+    const router = useRouter();
+    const [isReady, setIsReady] = useState(false);
 
-function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
 
-  if (status === "loading") {
-    return <OurLoading />; // FIXED: Menjadikannya JSX valid
-  }
+    useEffect(() => {
+        console.info(isLoading, isAuthenticated, isReady)
 
-  return session ? <Layout>{children}</Layout> : <>{children}</>;
+        if (!isLoading) {
+            if (!isAuthenticated && window.location.pathname !== "/login") {
+                router.replace("/login");
+            } else {
+                setIsReady(true);
+            }
+        }
+    }, [isLoading, isAuthenticated, router]);
+
+    return (
+        <html lang="en">
+            <head>
+                <title>Monitoring</title>
+                <meta charSet="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            </head>
+            <body className="bg-gray-100 dark:bg-gray-900">
+                {
+                    isLoading
+                    ? <OurLoading />
+                        : !isAuthenticated
+                        ? (<main>{children}</main>)
+                        : (<Layout key={authUser?.id || "guest"}>{children}</Layout>)
+                }
+            </body>
+        </html>
+    );
 }

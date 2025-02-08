@@ -2,12 +2,12 @@ import React from 'react';
 
 const FairScoreCard = () => {
     return (
-        <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-900 transition-colors">
+        <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors">
             {/* Header with Icon and Title */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                    {/* <img src="/icon-circle.png" alt="FAIR Score Icon" className="mr-3 h-7" /> */}
-                    <div className="font-bold">
+                    <img src="/icon-circle.png" alt="widgets_separator_ticon" className="h-7" />
+                    <div className="font-bold mx-3 ">
                         FAIR Score
                     </div>
                 </div>
@@ -32,7 +32,11 @@ const FairScoreCard = () => {
 
             {/* Data Section */}
             <div className="h-[250px] pt-3 flex items-center justify-center">
-                <div className="my-3 w-full text-center text-muted-foreground">No data found.</div>
+                <div className="my-3 w-full text-center text-muted-foreground">
+
+                    no. data....
+
+                </div>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import Cookies from 'js-cookie';
 
 const request = axios.create({
@@ -13,7 +13,7 @@ const request = axios.create({
 });
 
 request.interceptors.request.use(
-	(config: AxiosRequestConfig) => {
+	(config: any) => {
 		const token = Cookies.get('token');
 		if (token) {
 			config.headers = {
