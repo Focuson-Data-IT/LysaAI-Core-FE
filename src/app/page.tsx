@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
-export default function EntryPage() {
+export default function App() {
     const { authUser, isLoading, isAuthenticated } = useAuth();
     const router = useRouter();
 
