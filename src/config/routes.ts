@@ -19,23 +19,23 @@ interface adminRoute {
 export const clientRoutes: clientRoute[] = [
     {
 		title: 'Home',
-		link: '/pageClient/home',
+		link: '/home',
 		icon: Icons.Home
 	},
     {
 		title: 'Performance',
-		link: '/pageClient/competitor',
+		link: '/performance/instagram',
 		icon: Icons.UserRoundSearch,
         children: [
 			{
 				title: 'Instagram',
-				link: '/pageClient/instagram',
+				link: '/performance/instagram',
 				icon: Icons.CircleDot,
                 dynamic: true
 			},
 			{
-				title: 'Tiktok',
-				link: '/pageClient/tiktok',
+				title: 'TikTok',
+				link: '/performance/TikTok',
 				icon: Icons.CircleDot,
                 dynamic: true
 			}
@@ -43,17 +43,17 @@ export const clientRoutes: clientRoute[] = [
 	},
 	{
 		title: 'Lysa AI',
-		link: '/pageClient/lysa-ai/monitoring',
+		link: '/lysa-ai/monitoring',
 		icon: Icons.LayoutDashboard,
 		children: [
 			{
 				title: 'Media Monitoring',
-				link: '/pageClient/lysa-ai/monitoring',
+				link: '/lysa-ai/monitoring',
 				icon: Icons.CircleDot
 			},
 			{
 				title: 'Netizen Monitoring',
-				link: '/pageClient/lysa-ai/profiling',
+				link: '/lysa-ai/profiling',
 				icon: Icons.CircleDot
 			}
 		]
@@ -228,7 +228,7 @@ export const adminRoutes: adminRoute[] = [
 export function getRoutesByRole(role: string) {
     if (role === "admin") {
         return adminRoutes;
-    } else if (role === "client") {
+    } else if (role === "mitra") {
         return clientRoutes;
     }
     return []; // Jangan return null, biar aman.

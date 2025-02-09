@@ -38,11 +38,16 @@ export const groupDataByUsername = (data) => {
 
 export const buildDatasets = (groupedData, labels, options: any) => {
 	// Filter data berdasarkan username yang diinginkan
-	const filteredData: any = Object.entries(groupedData).filter(
-		([username]: any) =>
-			options?.filterByUsername?.length === 0 ||
-			options?.filterByUsername?.includes(username)
-	);
+
+	let filteredData: any = Object.entries(groupedData);
+
+	if (options) {
+		filteredData = Object.entries(groupedData).filter(
+			([username]: any) =>
+				options?.filterByUsername?.length === 0 ||
+				options?.filterByUsername?.includes(username)
+		);
+	}
 
 	// Menghitung total nilai (value) dari masing-masing pengguna
 	const sortedData = filteredData

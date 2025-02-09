@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import moment from "moment";
 import OurEmptyData from "@/components/OurEmptyData";
 import OurLoading from "@/components/OurLoading";
-import data from "../dummyData/detailPost.json"; // Import data dummy
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
+import request from "@/utils/request";
 
 interface Post {
     username: string;
@@ -23,19 +23,29 @@ interface Post {
     downloadCount: number;
 }
 
-const PostsTable = () => {
+const PostsTable = ({platform = null}) => {
+    const user = JSON.parse(localStorage.getItem('user')) || null;
+
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: "asc" | "desc" } | null>(null);
 
+    const getPosts = async () => {
+        setLoading(true);
+        // const response = await request.get(`/getAllPost?kategori=${user?.username}&start_date=${moment(period?.startDate)?.format("YYYY-MM-DD")}&end_date=${moment(period?.endDate || period?.startDate)?.format("YYYY-MM-DD")}`);
+        const response = await request.get(`/getAllPost?kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09&platform=${platform}`);
+
+        if (response.status === 200) {
+            setPosts(response.data.data);
+        }
+    }
+
     // Simulasi fetching data dari JSON
     useEffect(() => {
-        setLoading(true);
-        setTimeout(() => {
-            setPosts(data); // Langsung ambil data tanpa filtering
+        getPosts().then(() => {
             setLoading(false);
-        }, 1000); // Simulasi delay 1 detik
-    }, []);
+        });
+    }, [platform]);
 
     const sortedPosts = React.useMemo(() => {
         const sortablePosts = [...posts];

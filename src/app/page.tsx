@@ -10,18 +10,18 @@ export default function App() {
     const router = useRouter();
 
     useEffect(() => {
-        if (isLoading) return; // Jangan redirect saat loading
+        if (isLoading) return;
         if (!isAuthenticated) {
-            router.replace("/login"); 
+            router.replace("/login");
             return;
         }
 
-        // Redirect berdasarkan role user
+        // Check user role and redirect accordingly
         const userRole = authUser?.role;
         if (userRole === "admin") {
-            router.replace("/pageAdmin/home");
+            router.replace("/admin/home");
         } else {
-            router.replace("/pageClient/home");
+            router.replace("/home");
         }
     }, [authUser, isLoading, isAuthenticated, router]);
 
