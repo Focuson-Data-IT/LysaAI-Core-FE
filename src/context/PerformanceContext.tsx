@@ -1,18 +1,19 @@
 import React, {createContext, useContext, useState, ReactNode} from "react";
-import {TPerformanceContext, TPeriod} from "@/types/PerformanceTypes";
+import {TPerformanceContext, TPeriod, TSingleMonthPeriod} from "@/types/PerformanceTypes";
 import moment from "moment";
-import {performanceContextInitialValue} from "@/constant/PerfomanceContants";
+import {performanceContextInitialValue, singleMonthPeriodInitialValue} from "@/constant/PerfomanceContants";
 
 
 
 const PerformanceContext = createContext<TPerformanceContext | null>(performanceContextInitialValue);
 
 const PerformanceContextProvider= ({children}) => {
-    const [period, setPeriod] = useState<TPeriod>();
-    const [platform, setPlatform] = useState<string>();
+    const [period, setPeriod] = useState<TSingleMonthPeriod>(singleMonthPeriodInitialValue);
+    const [platform, setPlatform] = useState<string>("instagram");
+    const [selectedCompetitor, setSelectedCompetitor] = useState([]);
 
     return (
-        <PerformanceContext.Provider value={{period, platform, setPeriod, setPlatform}}>
+        <PerformanceContext.Provider value={{period, platform, selectedCompetitor, setPeriod, setPlatform, setSelectedCompetitor}}>
             {children}
         </PerformanceContext.Provider>
     );

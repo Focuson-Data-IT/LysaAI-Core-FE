@@ -1,4 +1,4 @@
-import {TOption, TPerformanceContext, TPeriod} from "@/types/PerformanceTypes";
+import {TOption, TPerformanceContext, TPeriod, TSingleMonthPeriod} from "@/types/PerformanceTypes";
 import moment from "moment/moment";
 
 export const periodInitialValue: TPeriod =  {
@@ -6,11 +6,15 @@ export const periodInitialValue: TPeriod =  {
     end: moment().format("YYYY-MM-DD")
 }
 
+export const singleMonthPeriodInitialValue: TSingleMonthPeriod = moment().format("YYYY-MM");
+
 export const performanceContextInitialValue: TPerformanceContext = {
-    period: periodInitialValue,
+    period: singleMonthPeriodInitialValue,
     platform: "instagram",
+    selectedCompetitor: [],
     setPeriod: () => {},
-    setPlatform: () => {}
+    setPlatform: () => {},
+    setSelectedCompetitor: () => {}
 };
 
 export const optionInitialValue: TOption = {

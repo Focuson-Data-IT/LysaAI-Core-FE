@@ -3,12 +3,230 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Chart from "chart.js/auto";
 import moment from "moment";
 import request from "@/utils/request";
-import {TOption, TPeriod} from "@/types/PerformanceTypes";
-import {optionInitialValue, periodInitialValue} from "@/constant/PerfomanceContants";
 import {buildDatasets, buildLabels, createGradient, groupDataByUsername} from "@/utils/chart";
+import {usePerformanceContext} from "@/context/PerformanceContext";
+import {useParams} from "next/navigation";
+import OurDatePicker from "@/components/OurDatePicker";
+import OurSelect from "@/components/OurSelect";
+
 
 const FairScoreCard = () => {
+    const user = JSON.parse(localStorage.getItem('user')) || null;
+    const { platform } = useParams();
+    const {period, setPeriod, selectedCompetitor, setSelectedCompetitor} = usePerformanceContext();
 
+
+    const chartRef = useRef<HTMLCanvasElement | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [fairScoreChart, setFairScoreChart] = useState<Chart | null>(null);
+    const [fairScoreData, setFairScoreData] = useState<any>(null);
+    const [isShowDatepicker, setIsShowDatepicker] = useState<boolean>(false);
+    const [options, setOptions] = useState<any>(null);
+
+    const getFairScoreChartData = async () => {
+        setIsLoading(true);
+        const url = `http://103.30.195.110:7770/api/getFairScores?platform=${platform}&kategori=${user?.username}&start_date=2025-01-01&end_date=2025-02-19`;
+
+        const payload = {
+            startDate: period,
+            endDate: moment(period).endOf("month").format("YYYY-MM-DD")
+        };
+
+        const response = await request.get(
+            `/getFairScores?kategori=${user?.username}&start_date=${payload.startDate}&end_date=${payload.endDate}&platform=${platform}`,
+            // url
+        );
+
+        return response.data?.data;
+    };
+
+    const drawChart = (labels: any, datasets: any) => {
+        if (chartRef && chartRef.current) {
+            const ctx = chartRef.current?.getContext("2d");
+
+            if (fairScoreChart) {
+                fairScoreChart.destroy();
+            }
+
+            if (ctx) {
+                const allDataPoints = datasets.flatMap((dataset) => dataset.data);
+
+                const sortedData = [...allDataPoints].sort((a, b) => a - b);
+                const median =
+                    sortedData.length % 2 === 0
+                        ? (sortedData[sortedData.length / 2 - 1] + sortedData[sortedData.length / 2]) / 2
+                        : sortedData[Math.floor(sortedData.length / 2)];
+
+                const totalSum = allDataPoints.reduce((sum, val) => sum + val, 0);
+                const average = totalSum / allDataPoints.length;
+
+                const newChart: any = new Chart(ctx, {
+                    type: "line",
+                    plugins: [
+                        {
+                            id: "medianLine",
+                            afterDraw(chart) {
+                                const {
+                                    ctx,
+                                    chartArea: { left, right },
+                                    scales: { y },
+                                } = chart;
+
+                                const yPos = y.getPixelForValue(median);
+
+                                ctx.save();
+                                ctx.beginPath();
+                                ctx.moveTo(left, yPos);
+                                ctx.lineTo(right, yPos);
+                                ctx.lineWidth = 2;
+                                ctx.setLineDash([5, 5]);
+                                ctx.strokeStyle = "#FF0000"; // Warna merah untuk median
+                                ctx.stroke();
+                                ctx.restore();
+
+                                ctx.fillStyle = "#FFFFFF";
+                                ctx.fillRect(left + 5, yPos - 15, 80, 15);
+
+                                ctx.fillStyle = "#FF0000";
+                                ctx.font = "bold 12px Arial";
+                                ctx.fillText(`Median: ${median.toFixed(2)}`, left + 10, yPos - 3);
+                            },
+                        },
+                        {
+                            id: "averageLine",
+                            afterDraw(chart) {
+                                const {
+                                    ctx,
+                                    chartArea: { left, right },
+                                    scales: { y },
+                                } = chart;
+
+                                const yPos = y.getPixelForValue(average);
+
+                                ctx.save();
+                                ctx.beginPath();
+                                ctx.moveTo(left, yPos);
+                                ctx.lineTo(right, yPos);
+                                ctx.lineWidth = 2;
+                                ctx.setLineDash([5, 5]);
+                                ctx.strokeStyle = "#008000"; // Warna hijau untuk rata-rata
+                                ctx.stroke();
+                                ctx.restore();
+
+                                // Pindahkan label rata-rata ke kanan
+                                const labelWidth = 100;
+                                ctx.fillStyle = "#FFFFFF";
+                                ctx.fillRect(right - labelWidth - 5, yPos - 15, labelWidth, 15);
+
+                                ctx.fillStyle = "#008000";
+                                ctx.font = "bold 12px Arial";
+                                ctx.fillText(`Average: ${average.toFixed(2)}`, right - labelWidth, yPos - 3);
+                            },
+                        },
+                    ],
+                    data: {
+                        labels: labels,
+                        datasets: datasets,
+                    },
+                    options: {
+                        interaction: {
+                            mode: "index",
+                            axis: "x",
+                            intersect: false,
+                        },
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback(value) {
+                                        return `${value} `;
+                                    },
+                                },
+                            },
+                            x: {
+                                ticks: {
+                                    callback: function (value, index, ticks) {
+                                        return `${moment(labels[index]).format("DD")}`;
+                                    },
+                                },
+                            },
+                        },
+                        plugins: {
+                            legend: { position: "top", display: false },
+                        },
+                        elements: {
+                            point: {
+                                radius: 0,
+                                hoverRadius: 4,
+                            },
+                        },
+                    },
+                });
+
+                setFairScoreChart(newChart);
+            }
+        }
+    };
+
+
+
+    useEffect(() => {
+        getFairScoreChartData().then((v) => {
+            const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
+                return {
+                    label: e[0],
+                    value: e[0]
+                }
+            })
+            setFairScoreData(v);
+            setOptions(groupedUsername)
+            setIsLoading(false);
+        });
+    }, [period, platform]);
+
+    useEffect(() => {
+        console.info(selectedCompetitor)
+        const dateArray = buildLabels(period, moment(period).endOf("month").format("YYYY-MM-DD"));
+        const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
+
+        const filterByUsername: any = selectedCompetitor?.map((v: any) => {
+            return v?.value;
+        });
+
+        let datasetsBuilderOption = {
+            filterByUsername: filterByUsername,
+        };
+
+        const dataGroupedByUsername = groupDataByUsername(fairScoreData);
+
+        let datasetsBuilded = buildDatasets(
+            dataGroupedByUsername,
+            labels,
+            datasetsBuilderOption,
+        );
+
+        const generateColors = (index) => {
+            const primaryColors = [
+                "#FFA500", "#FFD700", "#FF4500", "#DA70D6", "#BA55D3", "#9370DB", "#8A2BE2", "#6A5ACD", "#7B68EE", "#483D8B",
+                "#D2691E", "#CD853F", "#F4A460", "#DEB887", "#BC8F8F", "#8B4513", "#A0522D", "#D2B48C", "#F0E68C", "#FFE4B5"
+            ];
+
+            return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
+        };
+
+        const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+            return {
+                ...v,
+                backgroundColor: createGradient(chartRef),
+                borderColor: generateColors(index),
+                pointBackgroundColor: generateColors(index),
+            };
+        });
+
+        drawChart(labels, datasetsWithColor);
+    }, [fairScoreData, selectedCompetitor]);
 
     return (
         <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors">
@@ -23,19 +241,14 @@ const FairScoreCard = () => {
 
                 {/* Buttons */}
                 <div className="flex gap-2">
-                    <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]">
-                        Data Record
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide-icon lucide lucide-chevron-down ml-2 h-4 w-4">
-                            <path d="m6 9 6 6 6-6"></path>
-                        </svg>
-                    </button>
+                    <OurDatePicker
+                        onClick={() => setIsShowDatepicker(!isShowDatepicker)}
+                        type={"monthOnly"}
+                        applyCallback={
+                            (e) => setPeriod(moment(e).format("YYYY-MM-DD"))
+                        }/>
 
-                    <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]">
-                        Hide/Show Competitor
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide-icon lucide lucide-chevron-down ml-2 h-4 w-4">
-                            <path d="m6 9 6 6 6-6"></path>
-                        </svg>
-                    </button>
+                    <OurSelect options={options} disabled={isLoading} />
                 </div>
             </div>
 
@@ -44,7 +257,7 @@ const FairScoreCard = () => {
                 <div className="my-3 w-full text-center text-muted-foreground">
                     <canvas
                         id="fairScoreCanvas"
-                        // ref={chartRef}
+                        ref={chartRef}
                         height="280"
                     ></canvas>
                 </div>
