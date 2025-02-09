@@ -7,9 +7,25 @@ import FairDetailBar from "./components/FairBar";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import OurLoading from "@/components/OurLoading";
 
 const Competitor = () => {
     const { platform } = useParams(); // Mengambil parameter dinamis dari URL
+
+    const { isLoading } = useAuth();
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading) {
+            setIsReady(true);
+        }
+    }, [isLoading]);
+
+    if (isLoading || !isReady) {
+        return <OurLoading />;
+    }
 
     return (
         <div className="min-h-screen justify-self-auto overflow-auto mb-5">
