@@ -54,7 +54,7 @@ const Competitor = () => {
 
             {/* POST DETAIL Section */}
             <div className="flex w-full items-center my-4">
-                <img src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" />
+                <Image src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" width={28} height={28} />
                 <div className="mr-3 w-auto text-lg font-bold">Post Detail</div>
                 <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
             </div>
