@@ -1,6 +1,15 @@
-import React from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+
+import Chart from "chart.js/auto";
+import moment from "moment";
+import request from "@/utils/request";
+import {TOption, TPeriod} from "@/types/PerformanceTypes";
+import {optionInitialValue, periodInitialValue} from "@/constant/PerfomanceContants";
+import {buildDatasets, buildLabels, createGradient, groupDataByUsername} from "@/utils/chart";
 
 const FairScoreCard = () => {
+
+
     return (
         <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors">
             {/* Header with Icon and Title */}
@@ -33,9 +42,11 @@ const FairScoreCard = () => {
             {/* Data Section */}
             <div className="h-[250px] pt-3 flex items-center justify-center">
                 <div className="my-3 w-full text-center text-muted-foreground">
-
-                    no. data....
-
+                    <canvas
+                        id="fairScoreCanvas"
+                        // ref={chartRef}
+                        height="280"
+                    ></canvas>
                 </div>
             </div>
         </div>

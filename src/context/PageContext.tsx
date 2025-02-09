@@ -1,16 +1,7 @@
 import { createContext, useContext, useState, ReactNode } from "react";
+import {PageContextProps, PageStore} from "@/interface/ContextInterface";
 
-interface PageStore {
-    from: string;
-    to: string;
-    action: string;
-    detail: boolean;
-}
 
-interface PageContextProps {
-    pageStore: PageStore;
-    setPageStore: (store: PageStore) => void;
-}
 
 const PageContext = createContext<PageContextProps | undefined>(undefined);
 

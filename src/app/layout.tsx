@@ -12,6 +12,7 @@ import { Dot } from "lucide-react";
 import { getRoutesByRole } from "@/config/routes";
 import OurLoading from "@/components/OurLoading";
 import "@/app/globals.css";
+import PerformanceContextProvider from "@/context/PerformanceContext";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const { isLoading, isAuthenticated, authUser } = useAuth();
@@ -20,8 +21,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
-        console.info(isLoading, isAuthenticated, isReady);
-
         if (!isLoading) {
             if (!isAuthenticated && window.location.pathname !== "/login") {
                 router.replace("/login");

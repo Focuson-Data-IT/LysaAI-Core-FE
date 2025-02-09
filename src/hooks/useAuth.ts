@@ -20,10 +20,9 @@ export function useAuth() {
     const router = useRouter();
 
     useEffect(() => {
-        const storedUser = Cookies.get("authUser");
+        const storedUser = Cookies.get("user");
         if (storedUser) {
             const user = JSON.parse(storedUser);
-            console.log("Retrieved user from cookies:", user);
             setAuthUser(user);
             setIsAuthenticated(true);
         }
@@ -36,20 +35,19 @@ export function useAuth() {
             const response = await axios.post("http://103.30.195.110:7770/api/auth/login", { email, password });
             if (response.data.code === 200) {
                 const user = response.data.data;
-                user.role = "client"; // Hardcode role as client for now
-                console.log("Setting user:", user);
+                user.role = "mitra";
                 setAuthUser(user);
                 setIsAuthenticated(true);
                 const token = uuidv4();
                 Cookies.set("authToken", token);
-                Cookies.set("authUser", JSON.stringify(user));
+                Cookies.set("user", JSON.stringify(user));
 
-                router.replace("/"); // Redirect to homepage after login
+                router.replace("/home");
             } else {
                 throw new Error("Login failed");
             }
         } catch (error) {
-            console.error("Login error:", error);
+            console.error("Login failed:", error);
             setIsAuthenticated(false);
         } finally {
             setIsLoading(false);
@@ -60,9 +58,9 @@ export function useAuth() {
         setAuthUser(null);
         setIsAuthenticated(false);
         Cookies.remove("authToken");
-        Cookies.remove("authUser");
+        Cookies.remove("user");
 
-        router.replace("/login"); // Redirect to login page after logout
+        router.replace("/login");
     };
 
     return {

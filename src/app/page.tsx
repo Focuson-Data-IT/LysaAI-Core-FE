@@ -9,18 +9,17 @@ export default function App() {
     const router = useRouter();
 
     useEffect(() => {
-        if (isLoading) return; // Do not redirect while loading
+        if (isLoading) return;
         if (!isAuthenticated) {
-            router.replace("/login"); // Redirect to login if not authenticated
+            router.replace("/login");
             return;
         }
 
-        // Check user role and redirect accordingly
         const userRole = authUser?.role;
         if (userRole === "admin") {
-            router.replace("/pageAdmin/home");
+            router.replace("/admin/home");
         } else {
-            router.replace("/pageClient/home");
+            router.replace("/home");
         }
     }, [authUser, isLoading, isAuthenticated, router]);
 

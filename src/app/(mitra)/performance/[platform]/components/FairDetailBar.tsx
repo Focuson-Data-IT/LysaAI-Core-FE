@@ -3,67 +3,49 @@
 import React, { useEffect, useState } from "react";
 import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
-import { useParams } from "next/navigation";
-import data from "@/app/pageClient/[platform]/dummyData/fairDetailDummy.json"; // Import data dummy
+import request from "@/utils/request";
+import moment from "moment";
 
-interface FairData {
-    [key: string]: {
-        [key: string]: {
-            username: string;
-            value: number;
-            max_value: number;
-        }[];
-    };
-}
 
-interface FairDetailBarProps {
-    label: string;
-    description: string;
-    unit: string;
-    category: string;
-}
 
-const FairDetailBar: React.FC<FairDetailBarProps> = ({ label, description, unit, category }) => {
-    const { platform } = useParams() as { platform: string }; // Ambil platform dari URL
+const FairDetailBar = ({platform = null, label = null, description = null, unit = null, period = null}) => {
+    const user = JSON.parse(localStorage.getItem('user')) || null;
+
     const [loading, setLoading] = useState<boolean>(true);
+    const [fairChartData, setFairChartData] = useState<any>(null);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-    interface FairChartData {
-        username: string;
-        value: number;
-        max_value: number;
-        percentage?: number;
-    }
+    const getFairChartData = async (payload: any) => {
+        // const url = `/get${label}?platform=${platform}&kategori=${user?.username}&start_date=${moment(payload?.startDate)?.format("YYYY-MM-DD")}&end_date=${moment(payload?.endDate || payload?.startDate)?.format("YYYY-MM-DD")}`;
+        const url = `http://103.30.195.110:7770/api/getFollowers?platform=${platform}&kategori=${user?.username}&start_date=2025-01-09&end_date=2025-02-19`;
+        const response = await request.get(url);
+        const newResponse = response.data?.data?.map((v: any) => {
+            return {
+                ...v,
+                percentage: (v.value / v.max_value) * 100,
+            };
+        });
 
-    const [fairChartData, setFairChartData] = useState<FairChartData[]>([]);
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-
-    // Simulasi fetching data dari JSON
-    useEffect(() => {
-        setLoading(true);
-        setTimeout(() => {
-            if (platform && category && (data as FairData)[platform] && (data as FairData)[platform][category]) {
-                const categoryData = (data as FairData)[platform][category];
-                const maxValue = Math.max(...categoryData.map((v) => v.value));
-                const processedData = categoryData.map((v: FairChartData) => ({
-                    ...v,
-                    percentage: (v.value / maxValue) * 100,
-                }));
-                console.log("Processed data:", processedData); // Debugging statement
-                setFairChartData(processedData);
-            } else {
-                setFairChartData([]); // Jika platform atau kategori tidak ditemukan
-            }
-            setLoading(false);
-        }, 1000); // Simulasi delay 1 detik
-    }, [category, platform]);
+        setFairChartData(newResponse);
+    };
 
     const sortData = () => {
-        const sortedData = [...fairChartData].sort((a, b) =>
-            sortOrder === "asc" ? a.value - b.value : b.value - a.value
-        );
-        setFairChartData(sortedData);
-        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        if (fairChartData) {
+            const sortedData = [...fairChartData].sort((a, b) =>
+                sortOrder === 'asc' ? a.value - b.value : b.value - a.value
+            );
+            setFairChartData(sortedData);
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        }
     };
+
+    useEffect(() => {
+        if (period) {
+        }
+            getFairChartData(period).then(() => {
+                setLoading(false);
+            });
+    }, [platform]);
 
     return (
         <div className={`flex-1 xl:block shadow-[4px_0_8px_rgba(0,0,0,0.05)]`}>

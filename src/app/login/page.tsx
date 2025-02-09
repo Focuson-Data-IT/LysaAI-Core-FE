@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Cookies from "js-cookie";
-import { Eye, EyeOff } from "lucide-react"; // Import ikon mata
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
     const [theme, setTheme] = useState<"light" | "dark">("light");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false); // State untuk toggle password
+    const [showPassword, setShowPassword] = useState(false);
     const { login, isLoading } = useAuth();
     const router = useRouter();
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         await login(email, password);
-        const storedUser = Cookies.get("authUser");
+        const storedUser = Cookies.get("user");
         if (storedUser) {
             const user = JSON.parse(storedUser);
             redirectBasedOnRole(user.role);
@@ -45,9 +45,9 @@ export default function LoginPage() {
 
     const redirectBasedOnRole = (role: string) => {
         if (role === "admin") {
-            router.push("/pageAdmin/home");
+            router.push("/home");
         } else {
-            router.push("/pageClient/home");
+            router.push("/home");
         }
     };
 
@@ -57,7 +57,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-6">
                 <img
                     className="h-14"
-                    src={theme === "dark" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
+                    src={theme !== "dark" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
                     alt="logo"
                 />
             </div>
