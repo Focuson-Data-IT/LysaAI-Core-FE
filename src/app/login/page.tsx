@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Cookies from "js-cookie";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react"; // Import ikon mata
+import Image from "next/image"; // Import Image from next/image
 
 export default function LoginPage() {
     const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -55,10 +56,12 @@ export default function LoginPage() {
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 dark:bg-gray-900 px-4">
             {/* Logo */}
             <div className="flex justify-center mb-6">
-                <img
+                <Image
                     className="h-14"
                     src={theme !== "dark" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
                     alt="logo"
+                    width={56} // Adjust width and height as needed
+                    height={56}
                 />
             </div>
 

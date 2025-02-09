@@ -14,7 +14,7 @@ import performanceContext from "@/context/PerformanceContext";
 const Competitor = () => {
     const {platform} = useParams();
 
-    const { period, setPeriod } = usePerformanceContext();
+    // const { period, setPeriod } = usePerformanceContext();
 
     return (
         <PerformanceContextProvider>
