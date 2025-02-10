@@ -4,9 +4,8 @@ import React, { useEffect, useState } from "react";
 import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
 import request from "@/utils/request";
-import moment from "moment";
-import { usePerformanceContext } from "@/context/PerformanceContext";
-import { useAuth } from "@/hooks/useAuth";
+import {usePerformanceContext} from "@/context/PerformanceContext";
+import {useAuth} from "@/hooks/useAuth";
 
 const FairDetailBar = ({ platform = null, label = null, description = null, unit = null }) => {
     const { authUser } = useAuth();
@@ -17,8 +16,9 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [filteredData, setFilteredData] = useState<any[]>([]);
 
+
     const getFairDetailData = async () => {
-        const url = `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period).endOf('month').format("YYYY-MM-DD")}`;
+        const url = `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`;
         const response = await request.get(url);
         const newResponse = response.data?.data?.map((v: any) => {
             return {
@@ -30,28 +30,51 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
         return newResponse;
     };
 
-    const sortData = (data: any[]) => {
-        const sortedData = [...data].sort((a, b) =>
-            sortOrder === 'asc' ? a.value - b.value : b.value - a.value
-        );
-        setFairDetailData(sortedData);
-        setSortOrder(sortOrder === 'desc' ? 'desc' : 'asc');
+    const sortData = (v) => {
+        if (v) {
+            const sortedData = [...v].sort((a, b) =>
+                sortOrder === 'asc' ? a.value - b.value : b.value - a.value
+            );
+            setFairChartData(sortedData);
+        }
     };
-
+//TODO:Betulin:
+//  1.⁠ ⁠Logo Focuson di awal DONE
+//  2.⁠ ⁠Periode dibuat per tanggal DONE
+//  3.⁠ ⁠grafis awal hanya 5 akun teratras -> dibuat garisnya melengkung -> kalao FAIRnya 0, garisnya hilang DONE
+//  4.⁠ ⁠Bintang FAIR score putih -> kalao 0 dibuat jadi -  / logo bintang 5 teratas dibuat kuning
+//  5.⁠ ⁠tabel satuan FAIR dibuat defult besar ke kecil DONE
+//  6.⁠ ⁠tool SEARCH masih bug
+//  7.⁠ ⁠tabel conten-> dibuat titik ... kalau tidak cukup
+//  8.⁠ ⁠tabel post -> tambahin tabel ER ; tambahin tanda merah atau hijau  -> kasih deskripsi Lysa
+//  9.⁠ ⁠Deskripsi ToolTip  -> Lysa
+// 10.⁠ ⁠logo tulisan IG dan TiTok diganti logo resmi
+// 11.⁠ ⁠Tabel grafis dibuat defult ke bulan sedang berlangsung
+    // 12. format number top rank 2 angka di belakang koma, activity 1 angka dibelakang koma, ,interaction dibulatkan keatas,
+    // 13. font color calendar putih
+    //
     useEffect(() => {
         getFairDetailData().then((v) => {
             let filteredData = v;
+
+            setFairChartData(filteredData);
 
             if (selectedCompetitor && selectedCompetitor.length > 0) {
                 filteredData = v.filter((item: any) => {
                     return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
                 });
             }
-            setFilteredData(filteredData);
+
             sortData(filteredData);
+
             setLoading(false);
         });
     }, [period, platform, selectedCompetitor]);
+
+    useEffect(() => {
+        sortData(fairChartData);
+    }, [sortOrder]);
+
 
     return (
         <div className={`flex-1 xl:block shadow-[4px_0_8px_rgba(0,0,0,0.05)]`}>
@@ -86,7 +109,9 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
                                 </span>
                             </h3>
                             <button
-                                onClick={() => sortData(filteredData)}
+                                onClick={(e) => {
+                                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                                }}
                                 className="text-gray-500 hover:text-gray-700"
                                 title="Sort"
                             >

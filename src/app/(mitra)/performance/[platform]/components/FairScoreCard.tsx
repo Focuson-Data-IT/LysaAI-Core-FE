@@ -10,6 +10,7 @@ import {useParams} from "next/navigation";
 import OurDatePicker from "@/components/OurDatePicker";
 import OurSelect from "@/components/OurSelect";
 import {useAuth} from "@/hooks/useAuth";
+import {getDefaultAutoSelectFamilyAttemptTimeout} from "node:net";
 
 
 const FairScoreCard = () => {
@@ -28,14 +29,8 @@ const FairScoreCard = () => {
     const getFairScoreChartData = async () => {
         setIsLoading(true);
 
-        const payload = {
-            startDate: period,
-            endDate: moment(period).endOf("month").format("YYYY-MM-DD")
-        };
-
         const response = await request.get(
-            `/getFairScores?kategori=${authUser?.username}&start_date=${payload.startDate}&end_date=${payload.endDate}&platform=${platform}`,
-            // url
+            `/getFairScores?kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&platform=${platform}`,
         );
 
         return response.data?.data;
@@ -81,7 +76,7 @@ const FairScoreCard = () => {
                                 ctx.lineTo(right, yPos);
                                 ctx.lineWidth = 2;
                                 ctx.setLineDash([5, 5]);
-                                ctx.strokeStyle = "#FF0000"; // Warna merah untuk median
+                                ctx.strokeStyle = "#FF0000";
                                 ctx.stroke();
                                 ctx.restore();
 
@@ -110,11 +105,10 @@ const FairScoreCard = () => {
                                 ctx.lineTo(right, yPos);
                                 ctx.lineWidth = 2;
                                 ctx.setLineDash([5, 5]);
-                                ctx.strokeStyle = "#008000"; // Warna hijau untuk rata-rata
+                                ctx.strokeStyle = "#008000";
                                 ctx.stroke();
                                 ctx.restore();
 
-                                // Pindahkan label rata-rata ke kanan
                                 const labelWidth = 100;
                                 ctx.fillStyle = "#FFFFFF";
                                 ctx.fillRect(right - labelWidth - 5, yPos - 15, labelWidth, 15);
@@ -127,7 +121,7 @@ const FairScoreCard = () => {
                     ],
                     data: {
                         labels: labels,
-                        datasets: datasets,
+                        datasets: datasets
                     },
                     options: {
                         interaction: {
@@ -188,7 +182,7 @@ const FairScoreCard = () => {
     }, [period, platform]);
 
     useEffect(() => {
-        const dateArray = buildLabels(period, moment(period).endOf("month").format("YYYY-MM-DD"));
+        const dateArray = buildLabels(period?.start, period?.end);
         const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
 
         const filterByUsername: any = selectedCompetitor?.map((v: any) => {
@@ -209,8 +203,7 @@ const FairScoreCard = () => {
 
         const generateColors = (index) => {
             const primaryColors = [
-                "#FFA500", "#FFD700", "#FF4500", "#DA70D6", "#BA55D3", "#9370DB", "#8A2BE2", "#6A5ACD", "#7B68EE", "#483D8B",
-                "#D2691E", "#CD853F", "#F4A460", "#DEB887", "#BC8F8F", "#8B4513", "#A0522D", "#D2B48C", "#F0E68C", "#FFE4B5"
+                "#FFA500", "#FFD700", "#FF4500", "#DA70D6", "#BA55D3"
             ];
 
             return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
@@ -244,9 +237,7 @@ const FairScoreCard = () => {
                     <OurDatePicker
                         onClick={() => setIsShowDatepicker(!isShowDatepicker)}
                         type={"monthOnly"}
-                        applyCallback={
-                            (e) => setPeriod(moment(e).format("YYYY-MM-DD"))
-                        }/>
+                    />
 
                     <OurSelect options={options} disabled={isLoading} />
                 </div>

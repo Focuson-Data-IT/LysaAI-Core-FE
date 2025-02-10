@@ -13,12 +13,8 @@ const TopRankingCard = ({platform = null}) => {
     const [fairRankingData, setFairRankingData] = useState(null);
 
     const getFairRanking = async () => {
-        setLoading(true);
-
-        console.info(authUser)
-
-        const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`)
-        // const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09`)
+        setLoading(true)
+        const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`)
 
         return response.data?.data;
     }

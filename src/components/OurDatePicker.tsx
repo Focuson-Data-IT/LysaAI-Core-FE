@@ -1,12 +1,16 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import moment from "moment";
+import {usePerformanceContext} from "@/context/PerformanceContext";
+import {TPeriod} from "@/types/PerformanceTypes";
+import {periodInitialValue} from "@/constant/PerfomanceContants";
 
 const customDatePickerStyles = {
 	input: () =>
-		`rounded-md flex items-center justify-between rounded-2xl h-[42px] block w-full border border-gray-300 dark:border-gray-600 outline-none disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 px-4 text-sm transition-all`,
+		`dark:text-white focus:border-0 inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]`,
 	calendar: () =>
-		`rounded-2xl border border-gray-300 dark:border-gray-600 mt-2 shadow-lg dark:bg-gray-800 bg-white`,
+		`text-white dark:text-white rounded-2xl border border-gray-300 dark:border-[#41c2cb] mt-2 shadow-lg dark:bg-gray-900 bg-white`,
 	day: (state: { isSelected: boolean; isToday: boolean }) =>
 		`cursor-pointer px-2 py-1 rounded-md ${
 			state.isSelected
@@ -16,7 +20,7 @@ const customDatePickerStyles = {
 					: "bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
 		} hover:bg-gray-300 dark:hover:bg-gray-500`,
 	popper: () => `absolute z-[10]`,
-	month: () => `cursor-pointer px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500`,
+	month: () => `dark:bg-gray-900 cursor-pointer px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500`,
 };
 
 type OurDatePickerProps = {
@@ -25,28 +29,42 @@ type OurDatePickerProps = {
 	type?: "calendar" | "range";
 };
 
-const DateRangePicker = ({applyCallback, onClick, type = "calendar"}) => {
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
-	const [startDate, endDate] = dateRange;
+const DateRangePicker = ({applyCallback = null, onClick, type = "calendar"}) => {
+	const { period, setPeriod } = usePerformanceContext();
+
+	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([moment().toDate(), moment().toDate()]);
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+	useEffect(() => {
+		// Update `dateRange` saat `period` berubah
+		setDateRange([moment(period.start).toDate(), moment(period.end).toDate()]);
+	}, [period]);
 
 
 	return (
 		<div className="flex flex-col">
 			<div className="relative" style={{zIndex: 10}}>
 				<DatePicker
-					selected={selectedDate}
-					onChange={(date: Date) => {
-						setSelectedDate(date);
-						applyCallback(date); // Kirim tanggal yang dipilih ke fungsi callback
+					selected={moment(period.start).toDate()}
+					onChange={(dates) => {
+						const [start, end] = dates as [Date | null, Date | null];
+						setDateRange([start, end]);
+
+						if (start && end) {
+							setPeriod({
+								start: moment(start).format("YYYY-MM-DD"),
+								end: moment(end).format("YYYY-MM-DD"),
+							})
+						}
 					}}
-					dateFormat="MM/yyyy" // Format tampilan bulan dan tahun
-					showMonthYearPicker // Hanya menampilkan pemilihan bulan dan tahun
-					placeholderText="Pilih bulan dan tahun"
-					// className={customDatePickerStyles.input()}
-					className={"focus:border-0 inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]"}
+					startDate={dateRange[0]}
+					endDate={dateRange[1]}
+					selectsRange
+					isClearable
+					placeholderText="Select period"
+					className={customDatePickerStyles.input()}
 					calendarClassName={customDatePickerStyles.calendar()}
-					dayClassName={customDatePickerStyles.month}
+					// monthClassName={customDatePickerStyles.month()}
 					popperPlacement="bottom-start"
 				/>
 			</div>
