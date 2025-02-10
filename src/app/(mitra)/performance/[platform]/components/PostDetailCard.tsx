@@ -7,9 +7,9 @@ import OurLoading from "@/components/OurLoading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import request from "@/utils/request";
-import {usePerformanceContext} from "@/context/PerformanceContext";
-import {useAuth} from "@/hooks/useAuth";
-import {performanceBuilder} from "@/resolver";
+import { usePerformanceContext } from "@/context/PerformanceContext";
+import { useAuth } from "@/hooks/useAuth";
+import { performanceBuilder } from "@/resolver";
 
 interface Post {
     username: string;
@@ -27,38 +27,43 @@ interface Post {
     performaKonten: number;
 }
 
-const PostsTable = ({platform = null}) => {
+const PostsTable = ({ platform = null }) => {
     const { authUser } = useAuth();
-
     const { period, selectedCompetitor } = usePerformanceContext();
 
-    const [posts, setPosts] = useState([]);
+    const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: "asc" | "desc" } | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const getPosts = async () => {
         setLoading(true);
-        const response = await request.get(`/getAllPost?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`);
-
-        return response.data?.data;
-    }
-
-    // Simulasi fetching data dari JSON
-    useEffect(() => {
-        getPosts().then((v) => {
-            let contentPerformance = performanceBuilder(v);
-            console.info(contentPerformance);
-            setPosts(contentPerformance);
-
-            if (selectedCompetitor && selectedCompetitor.length > 0) {
-                const filteredData = contentPerformance.filter((item: any) => {
-                    return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
-                });
-
-                setPosts(filteredData);
-            }
-
+        try {
+            const response = await request.get(
+                `/getAllPost?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`
+            );
+            console.info("API Response:", response.data); // Debugging
+            return response.data?.data || [];
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            return [];
+        } finally {
             setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getPosts().then((data) => {
+            let contentPerformance = performanceBuilder(data);
+            
+            if (selectedCompetitor?.length > 0) {
+                contentPerformance = contentPerformance.filter((item) =>
+                    selectedCompetitor.some((competitor) => competitor.value === item.username)
+                );
+            }
+            
+            setPosts(contentPerformance);
         });
     }, [platform, period, selectedCompetitor]);
 
@@ -66,264 +71,62 @@ const PostsTable = ({platform = null}) => {
         const sortablePosts = [...posts];
         if (sortConfig !== null) {
             sortablePosts.sort((a, b) => {
-                if (a[sortConfig.key] < b[sortConfig.key]) {
-                    return sortConfig.direction === "asc" ? -1 : 1;
-                }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
-                    return sortConfig.direction === "asc" ? 1 : -1;
-                }
+                if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === "asc" ? -1 : 1;
+                if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === "asc" ? 1 : -1;
                 return 0;
             });
         }
         return sortablePosts;
     }, [posts, sortConfig]);
 
-    const requestSort = (key: keyof Post) => {
-        let direction: "asc" | "desc" = "asc";
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
-            direction = "desc";
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: keyof Post) => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return null;
-        }
-        return sortConfig.direction === "asc" ? (
-            <FontAwesomeIcon icon={faSortUp} className="ml-2" />
-        ) : (
-            <FontAwesomeIcon icon={faSortDown} className="ml-2" />
-        );
-    };
+    const totalPages = Math.max(1, Math.ceil(sortedPosts.length / itemsPerPage));
+    const paginatedPosts = sortedPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-            <div className="box box-sizing overflow-x-hidden py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
-                <div className="info flex justify-end space-x-2 mr-5">
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <p className="text-sm">Best</p>
-
-                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                    <p className="text-sm">Mediocre</p>
-
-                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                    <p className="text-sm">Worst</p>
-                </div>
-                
-                <div className="table-content flex-grow overflow-y-auto
-">
-                    <table className="w-full flex-grow justify-center items-center table-fixed border-collapse border-gray-300 dark:border-gray-700
-">
-                        <thead className="bg-gray-100 dark:bg-gray-700 text-black dark:text-white">
-                        <tr>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("username")}>
-                                Username {getSortIcon("username")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("caption")}>
-                                Content {getSortIcon("caption")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("created_at")}>
-                                Date {getSortIcon("created_at")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("likes")}>
-                                Likes {getSortIcon("likes")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("comments")}>
-                                Comments {getSortIcon("comments")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("playCount")}>
-                                Views {getSortIcon("playCount")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("shareCount")}>
-                                Shares {getSortIcon("shareCount")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("collectCount")}>
-                                Collections {getSortIcon("collectCount")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("downloadCount")}>
-                                Downloads {getSortIcon("downloadCount")}
-                            </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("performaKonten")}>
-                                Content Performance {getSortIcon("performaKonten")}
-                            </th>
-                        </tr>
-                        </thead>
-
-                        <tbody className="h-[500px] bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700"
-                        >
-                        {loading ? (
-                            <tr>
-                                <td colSpan={10} className="text-center p-5">
-                                    <OurLoading/>
-                                </td>
-                            </tr>
-                        ) : sortedPosts.length > 0 ? (
-                            sortedPosts.map((post, key) => {
-                                return (
-                                    <tr key={key}
-                                        className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                                        <td className="px-6 py-4 break-words">{post.username}</td>
-                                        <td className="px-6 py-4 text-sm">
-                                            {post.caption.split(" ").length > 20
-                                                ? `${post.caption.split(" ").slice(0, 10).join(" ")}...`
-                                                : post.caption} <br/>
-                                            <span
-                                                onClick={() =>
-                                                    window.open(
-                                                        post.platform === "Instagram"
-                                                            ? `https://www.instagram.com/p/${post.post_code}`
-                                                            : `https://www.tiktok.com/@${post.username}/video/${post.unique_id_post}`,
-                                                        "_blank"
-                                                    )
-                                                }
-                                                className="text-blue-500 dark:text-blue-300 cursor-pointer"
-                                            >
-                                                Original Post
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">{moment(post.created_at).format("DD MMM YYYY")}</td>
-                                        <td className="px-6 py-4 text-end">{post.likes}</td>
-                                        <td className="px-6 py-4 text-end">{post.comments}</td>
-                                        <td className="px-6 py-4 text-end">{post.playCount}</td>
-                                        <td className="px-6 py-4 text-end">{post.shareCount}</td>
-                                        <td className="px-6 py-4 text-end">{post.collectCount}</td>
-                                        <td className="px-6 py-4 text-end">{post.downloadCount}</td>
-                                        <td className="px-6 py-4 text-end">{
-                                            post?.level === 'Best'
-                                                ?
-                                                <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                                                :
-                                                    post?.level === 'Medioker'
-                                                        ?
-                                                        <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                                                        :
-                                                        <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                        }</td>
-                                    </tr>
-                                )
-                            })
-                        ) : (
-                            <tr>
-                                <td colSpan={10} className="text-center p-5">
-                                    <OurEmptyData width={100}/>
-                                </td>
-                            </tr>
-                        )}
-                        </tbody>
-                    </table>
-
-                    <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
-                        <div className="flex w-full items-center justify-center lg:justify-between">
-                            {/* Dropdown Jumlah Per Halaman */}
-                            <div className="hidden items-center space-x-4 lg:flex">
-      <span className="text-sm font-semibold text-bgray-600 dark:text-bgray-50">
-        Show result:
-      </span>
-                                <div className="relative">
-                                    <select
-                                        // value={itemsPerPage}
-                                        // onChange={handleItemsPerPageChange}
-                                        className="rounded-lg border border-bgray-300 px-2.5 py-[14px] dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-white dark:bg-darkblack-500"
-                                    >
-                                        { [5, 10, 20, 50].map((size) => (
-                                            <option key={size} value={size}>
-                                                {size}
-                                            </option>
-                                        )) }
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Tombol Pagination */}
-                            <div className="flex items-center space-x-5 sm:space-x-[35px]">
-                                {/* Tombol Previous */}
-                                <button
-                                    type="button"
-                                    // disabled={currentPage === 1}
-                                    // onClick={handlePreviousPage}
-                                    className={`px-2 disabled:opacity-50`}
-                                >
-        <span>
-          <svg
-              width="21"
-              height="21"
-              viewBox="0 0 21 21"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-                d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327"
-                stroke="#A0AEC0"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-                                </button>
-
-                                {/* Nomor Halaman */}
-                                <div className="flex items-center space-x-2">
-                                    {Array(20)
-                                        .fill(null)
-                                        .map((_, index) => (
-                                            <button
-                                                key={index + 1}
-                                                // onClick={() => handlePageClick(index + 1)}
-                                                className={`rounded-lg px-4 py-1.5 text-xs font-bold ${
-                                                    'bg-success-50 text-success-300'
-                                                    // currentPage === index + 1
-                                                    //     ? "bg-success-50 text-success-300"
-                                                    //     : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
-                                                } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                            >
-                                                {index + 1}
-                                            </button>
-                                        ))}
-                                </div>
-
-                                {/* Tombol Next */}
-                                <button
-                                    type="button"
-                                    // disabled={currentPage === totalPages}
-                                    // onClick={handleNextPage}
-                                    className={`px-2 disabled:opacity-50`}
-                                >
-        <span>
-          <svg
-              width="21"
-              height="21"
-              viewBox="0 0 21 21"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-                d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327"
-                stroke="#A0AEC0"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-                                </button>
-                            </div>
+        <div className="box py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
+            {loading ? <OurLoading /> : paginatedPosts.length === 0 ? <OurEmptyData width={20} /> : (
+                <div className="w-full flex flex-col">
+                    {paginatedPosts.map((post) => (
+                        <div key={post.unique_id_post} className="p-4 border-b border-gray-300 dark:border-gray-700">
+                            <p><strong>{post.username}</strong>: {post.caption}</p>
+                            <p>{moment(post.created_at).format("DD MMM YYYY HH:mm")}</p>
                         </div>
+                    ))}
+                </div>
+            )}
+            <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
+                <div className="flex w-full items-center justify-center lg:justify-between">
+                    <div className="hidden items-center space-x-4 lg:flex">
+                        <span className="text-sm font-semibold"> Show result: </span>
+                        <select
+                            value={itemsPerPage}
+                            onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                            className="rounded-lg border px-2.5 py-2 text-black bg-white dark:border-darkblack-400 dark:text-white dark:bg-darkblack-500"
+                        >
+                            {[5, 10, 20, 50].map((size) => (
+                                <option key={size} value={size}>{size}</option>
+                            ))}
+                        </select>
+                    </div>
+                    
+                    <div className="flex items-center space-x-5">
+                        <button type="button" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)} className="px-2 disabled:opacity-50">◀</button>
+                        <div className="flex items-center space-x-2">
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <button
+                                    key={index + 1}
+                                    onClick={() => setCurrentPage(index + 1)}
+                                    className={`rounded-lg px-4 py-1.5 text-xs font-bold ${currentPage === index + 1 ? "bg-success-50 text-success-300" : "text-gray-500 hover:bg-success-50 hover:text-success-300"}`}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
+                        </div>
+                        <button type="button" disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)} className="px-2 disabled:opacity-50">▶</button>
                     </div>
                 </div>
             </div>
-        // <section className="h-[700px] mb-6 2xl:mb-0 2xl:flex-1 shadow-md rounded-lg bg-gray-200 dark:bg-gray-800 p-5">
-        // </section>
+        </div>
     );
 };
 
