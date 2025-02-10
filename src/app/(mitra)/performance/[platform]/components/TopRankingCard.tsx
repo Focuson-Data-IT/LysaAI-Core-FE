@@ -57,7 +57,7 @@ const TopRankingCard = ({platform = null}) => {
             </div>
 
             {/* Ranking List */}
-            <div className="overflow-auto h-[250px]">
+            <div className="overflow-y-scroll h-[350px]">
                 {
                     loading ? (
                             <div className="flex items-center justify-center h-full">

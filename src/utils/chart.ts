@@ -24,7 +24,16 @@ export const groupDataByUsername = (data) => {
 		if (!groupedByUsername[key]) {
 			groupedByUsername[key] = [];
 		}
-		groupedByUsername[key].push(item);
+		const existing = groupedByUsername[key].find(entry =>
+			moment(entry.date).isSame(moment(item.date), 'day')
+		);
+
+		if (existing) {
+			// Tambahkan nilai `value` jika tanggal sama
+			existing.value = (parseFloat(existing.value || 0) + parseFloat(item.value || 0)).toFixed(2);
+		} else {
+			groupedByUsername[key].push(item);
+		}
 	});
 
 	Object.keys(groupedByUsername).forEach((key) => {
@@ -37,6 +46,7 @@ export const groupDataByUsername = (data) => {
 };
 
 export const buildDatasets = (groupedData, labels, options: any) => {
+	console.info(groupedData);
 	// Filter data berdasarkan username yang diinginkan
 
 	let filteredData: any = Object.entries(groupedData);
@@ -50,21 +60,23 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 	}
 
 	// Menghitung total nilai (value) dari masing-masing pengguna
-	const sortedData = filteredData
+	let sortedData = filteredData
 		.map(([username, userData]) => {
-			const totalValue = userData.reduce((sum, item) => sum + item.value, 0);
+			const totalValue = userData.reduce((sum, item) => sum + parseFloat(String(item.value || 0)), 0);
 			return { username, userData, totalValue };
-		})
-		.sort((a, b) => b.totalValue - a.totalValue) // Urutkan dari terbesar ke terkecil
+		});
+
+
+		sortedData.sort((a, b) => b.totalValue - a.totalValue) // Urutkan dari terbesar ke terkecil
 		.slice(0, 10); // Ambil hanya 10 pengguna teratas
 
 	// Membuat dataset hanya untuk 10 pengguna dengan nilai terbesar
 	const datasets = sortedData.map(({ username, userData }) => {
 		const dataWithZeroes = labels.map((label) => {
-			const dataPoint = userData.find((item) =>
-				moment(item.date, "YYYY-MM-DD").isSame(moment(label, "YYYY-MM-DD"))
-			);
-			return dataPoint ? dataPoint?.value : null;
+			const dataPoint = userData.find((item) => {
+				return moment(item.date, "YYYY-MM-DD").isSame(moment(label, "YYYY-MM-DD"));
+			});
+			return parseFloat(String(dataPoint?.value || 0));
 		});
 
 		return {
