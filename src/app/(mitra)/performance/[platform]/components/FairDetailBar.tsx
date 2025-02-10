@@ -35,7 +35,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
             const sortedData = [...v].sort((a, b) =>
                 sortOrder === 'asc' ? a.value - b.value : b.value - a.value
             );
-            setFairChartData(sortedData);
+            setFairDetailData(sortedData);
         }
     };
     
@@ -43,7 +43,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
         getFairDetailData().then((v) => {
             let filteredData = v;
 
-            setFairChartData(filteredData);
+            setFairDetailData(filteredData);
 
             if (selectedCompetitor && selectedCompetitor.length > 0) {
                 filteredData = v.filter((item: any) => {
