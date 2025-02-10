@@ -13,7 +13,7 @@ import OurSelect from "@/components/OurSelect";
 const FairScoreCard = () => {
     const user = JSON.parse(localStorage.getItem('user')) || null;
     const { platform } = useParams();
-    const {period, setPeriod, selectedCompetitor, setSelectedCompetitor} = usePerformanceContext();
+    const { period, setPeriod, selectedCompetitor } = usePerformanceContext();
 
 
     const chartRef = useRef<HTMLCanvasElement | null>(null);
@@ -179,7 +179,7 @@ const FairScoreCard = () => {
                     label: e[0],
                     value: e[0]
                 }
-            })
+            });
             setFairScoreData(v);
             setOptions(groupedUsername)
             setIsLoading(false);
@@ -187,7 +187,6 @@ const FairScoreCard = () => {
     }, [period, platform]);
 
     useEffect(() => {
-        console.info(selectedCompetitor)
         const dateArray = buildLabels(period, moment(period).endOf("month").format("YYYY-MM-DD"));
         const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
 

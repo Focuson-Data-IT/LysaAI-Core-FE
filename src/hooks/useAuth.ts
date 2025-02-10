@@ -43,11 +43,8 @@ export function useAuth() {
                 Cookies.set("user", JSON.stringify(user));
 
                 router.replace("/home");
-            } else {
-                throw new Error("Login failed");
             }
         } catch (error) {
-            console.error("Login failed:", error);
             setIsAuthenticated(false);
         } finally {
             setIsLoading(false);

@@ -14,11 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { authUser } = useAuth();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
-    if (!authUser) {
-        return <div className="text-red-500 text-center mt-10">Error: User not found</div>;
-    }
-
-    const routes = getRoutesByRole(authUser.role);
+    const routes = getRoutesByRole(authUser?.role);
 
     return (
         <div className="w-screen h-screen flex items-start text-black dark:text-white bg-gray-200 dark:bg-gray-800">
@@ -44,7 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="flex items-center justify-between bg-gray-200 dark:bg-gray-800">
                     <div className="flex h-[50px] w-[400px] items-center px-3 pt-2 font-bold">
                         <Dot className="mr-2 h-3 w-3 rounded-full bg-[#0ED1D6] text-[#0ED1D6]" />
-                        {authUser.username || ""}
+                        {authUser?.username || ""}
                     </div>
                     <div className="ml-auto mr-2 mt-1 flex w-full items-center justify-end space-x-2 text-lg">
                         <ModeToggle />

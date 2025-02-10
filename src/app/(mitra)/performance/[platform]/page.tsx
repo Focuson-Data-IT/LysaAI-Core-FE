@@ -6,15 +6,11 @@ import FairDetailBar from "./components/FairDetailBar";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
-import PerformanceContextProvider, {usePerformanceContext} from "@/context/PerformanceContext";
-import {useContext, useEffect} from "react";
-import performanceContext from "@/context/PerformanceContext";
+import PerformanceContextProvider from "@/context/PerformanceContext";
 
 
 const Competitor = () => {
     const {platform} = useParams();
-
-    // const { period, setPeriod } = usePerformanceContext();
 
     return (
         <PerformanceContextProvider>
@@ -48,13 +44,13 @@ const Competitor = () => {
                         <FairDetailBar platform={platform} label="Followers" description="Jumlah pengikut" unit="followers" />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Activity" description="Tingkat aktivitas" unit="posts" />
+                        <FairDetailBar platform={platform} label="Activities" description="Tingkat aktivitas" unit="posts" />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Interaction" description="Interaksi pengguna" unit="likes" />
+                        <FairDetailBar platform={platform} label="Interactions" description="Interaksi pengguna" unit="likes" />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Responsive" description="Tingkat responsivitas" unit="%" />
+                        <FairDetailBar platform={platform} label="Responsiveness" description="Tingkat responsivitas" unit="%" />
                     </div>
                 </div>
 

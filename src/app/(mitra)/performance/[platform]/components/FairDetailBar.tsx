@@ -5,19 +5,23 @@ import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
 import request from "@/utils/request";
 import moment from "moment";
+import {usePerformanceContext} from "@/context/PerformanceContext";
 
 
 
-const FairDetailBar = ({platform = null, label = null, description = null, unit = null, period = null}) => {
+const FairDetailBar = ({platform = null, label = null, description = null, unit = null}) => {
     const user = JSON.parse(localStorage.getItem('user')) || null;
+
+    const { period, selectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState<boolean>(true);
     const [fairChartData, setFairChartData] = useState<any>(null);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-    const getFairChartData = async (payload: any) => {
-        // const url = `/get${label}?platform=${platform}&kategori=${user?.username}&start_date=${moment(payload?.startDate)?.format("YYYY-MM-DD")}&end_date=${moment(payload?.endDate || payload?.startDate)?.format("YYYY-MM-DD")}`;
-        const url = `http://103.30.195.110:7770/api/getFollowers?platform=${platform}&kategori=${user?.username}&start_date=2025-01-09&end_date=2025-02-19`;
+
+    const getFairChartData = async () => {
+        const url = `/get${label}?platform=${platform}&kategori=${user?.username}&start_date=${period}&end_date=${moment(period).endOf('month').format("YYYY-MM-DD")}`;
+        // const url = `http://103.30.195.110:7770/api/getFollowers?platform=${platform}&kategori=${user?.username}&start_date=2025-01-09&end_date=2025-02-19`;
         const response = await request.get(url);
         const newResponse = response.data?.data?.map((v: any) => {
             return {
@@ -26,7 +30,7 @@ const FairDetailBar = ({platform = null, label = null, description = null, unit 
             };
         });
 
-        setFairChartData(newResponse);
+        return newResponse;
     };
 
     const sortData = () => {
@@ -40,12 +44,20 @@ const FairDetailBar = ({platform = null, label = null, description = null, unit 
     };
 
     useEffect(() => {
-        if (period) {
-        }
-            getFairChartData(period).then(() => {
-                setLoading(false);
-            });
-    }, [platform]);
+        getFairChartData().then((v) => {
+            setFairChartData(v);
+
+            if (selectedCompetitor && selectedCompetitor.length > 0) {
+                const filteredData = v.filter((item: any) => {
+                    return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
+                });
+                setFairChartData(filteredData);
+            }
+
+            setLoading(false);
+        });
+    }, [period, platform, selectedCompetitor]);
+
 
     return (
         <div className={`flex-1 xl:block shadow-[4px_0_8px_rgba(0,0,0,0.05)]`}>
