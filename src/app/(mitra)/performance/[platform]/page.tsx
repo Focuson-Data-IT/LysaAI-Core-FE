@@ -14,7 +14,7 @@ const Competitor = () => {
 
     return (
         <PerformanceContextProvider>
-            <div className="min-h-screen justify-self-auto overflow-auto mb-5">
+            <div className="min-h-screen justify-self-auto overflow-auto mb-5 overflow-x-hidden">
                 {/* Header */}
                 <div className="">
                     <h1 className="text-xl text-black dark:text-white font-bold">Competitor Analysis</h1>
@@ -22,11 +22,11 @@ const Competitor = () => {
                 </div>
 
                 {/* FAIR Score & Top Ranking */}
-                <div className="grid grid-cols-12 gap-4 mt-4">
-                    <div className="lg:col-span-8 rounded-lg">
-                        <FairScoreCard />
+                <div className="grid grid-cols-12 gap-4 mt-4 h-[400px]">
+                    <div className="lg:col-span-8 rounded-lg h-full">
+                        <FairScoreCard platform={platform}/>
                     </div>
-                    <div className="lg:col-span-4 rounded-lg">
+                    <div className="lg:col-span-4 rounded-lg h-full">
                         <TopRankingCard platform={platform}/>
                     </div>
                 </div>
@@ -41,16 +41,16 @@ const Competitor = () => {
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-12 gap-4 mt-4">
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Followers" description="Jumlah pengikut" unit="followers" />
+                        <FairDetailBar platform={platform} label="Followers" description="banyaknya orang yang mengikuti akun" unit="followers" />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Activities" description="Tingkat aktivitas" unit="posts" />
+                        <FairDetailBar platform={platform} label="Activities" description="produktifitas konten yang dibuat dan diunggah setiap hari" unit="posts" />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Interactions" description="Interaksi pengguna" unit="likes" />
+                        <FairDetailBar platform={platform} label="Interactions" description="banyaknya warganet yang berinteraksi dengan akun pada setiap konten yang diunggah" unit="likes/post" />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Responsiveness" description="Tingkat responsivitas" unit="%" />
+                        <FairDetailBar platform={platform} label="Responsiveness" description="presentase respon dari team pengelola kepada warganet yang berkomentar" unit="%" />
                     </div>
                 </div>
 

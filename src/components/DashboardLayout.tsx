@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const routes = getRoutesByRole(authUser?.role);
 
     return (
-        <div className="w-screen h-screen flex items-start text-black dark:text-white bg-gray-200 dark:bg-gray-800">
+        <div className="overflow-x-hidden w-screen h-screen flex items-start text-black dark:text-white bg-gray-200 dark:bg-gray-800">
             {/* Sidebar */}
             <div
                 className={cn(

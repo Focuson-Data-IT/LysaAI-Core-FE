@@ -13,10 +13,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { getDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
 
 
-const FairScoreCard = () => {
+const FairScoreCard = ({ platform }) => {
     const { authUser } = useAuth();
-    const { platform } = useParams();
-    const { period, setPeriod, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedCompetitor } = usePerformanceContext();
 
 
     const chartRef = useRef<HTMLCanvasElement | null>(null);
@@ -37,6 +36,7 @@ const FairScoreCard = () => {
     };
 
     const drawChart = (labels: any, datasets: any) => {
+        console.info(datasets)
         if (chartRef && chartRef.current) {
             const ctx = chartRef.current?.getContext("2d");
 
@@ -222,7 +222,7 @@ const FairScoreCard = () => {
     }, [fairScoreData, selectedCompetitor]);
 
     return (
-        <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors">
+        <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors h-full">
             {/* Header with Icon and Title */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -250,11 +250,11 @@ const FairScoreCard = () => {
 
             {/* Data Section */}
             <div className="h-[250px] pt-3 flex items-center justify-center">
-                <div className="my-3 w-full text-center text-muted-foreground">
+                <div className="my-3 w-full text-center text-muted-foreground pt-[90px]">
                     <canvas
                         id="fairScoreCanvas"
                         ref={chartRef}
-                        height="280"
+                        height="300"
                     ></canvas>
                 </div>
             </div>
