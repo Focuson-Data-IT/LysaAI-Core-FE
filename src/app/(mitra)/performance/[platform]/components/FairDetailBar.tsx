@@ -5,24 +5,19 @@ import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
 import request from "@/utils/request";
 import moment from "moment";
-import {usePerformanceContext} from "@/context/PerformanceContext";
-import {useAuth} from "@/hooks/useAuth";
+import { usePerformanceContext } from "@/context/PerformanceContext";
+import { useAuth } from "@/hooks/useAuth";
 
-
-
-const FairDetailBar = ({platform = null, label = null, description = null, unit = null}) => {
+const FairDetailBar = ({ platform = null, label = null, description = null, unit = null }) => {
     const { authUser } = useAuth();
-
     const { period, selectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState<boolean>(true);
-    const [fairChartData, setFairChartData] = useState<any>(null);
+    const [fairChartData, setFairChartData] = useState<any>([]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
 
     const getFairChartData = async () => {
         const url = `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period).endOf('month').format("YYYY-MM-DD")}`;
-        // const url = `http://103.30.195.110:7770/api/getFollowers?platform=${platform}&kategori=${user?.username}&start_date=2025-01-09&end_date=2025-02-19`;
         const response = await request.get(url);
         const newResponse = response.data?.data?.map((v: any) => {
             return {
@@ -34,31 +29,28 @@ const FairDetailBar = ({platform = null, label = null, description = null, unit 
         return newResponse;
     };
 
-    const sortData = () => {
-        if (fairChartData) {
-            const sortedData = [...fairChartData].sort((a, b) =>
-                sortOrder === 'asc' ? a.value - b.value : b.value - a.value
-            );
-            setFairChartData(sortedData);
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        }
+    const sortData = (data: any[]) => {
+        const sortedData = [...data].sort((a, b) =>
+            sortOrder === 'asc' ? a.value - b.value : b.value - a.value
+        );
+        setFairChartData(sortedData);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'desc');
     };
 
     useEffect(() => {
         getFairChartData().then((v) => {
-            setFairChartData(v);
+            let filteredData = v;
 
             if (selectedCompetitor && selectedCompetitor.length > 0) {
-                const filteredData = v.filter((item: any) => {
+                filteredData = v.filter((item: any) => {
                     return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
                 });
-                setFairChartData(filteredData);
             }
 
+            sortData(filteredData);
             setLoading(false);
         });
     }, [period, platform, selectedCompetitor]);
-
 
     return (
         <div className={`flex-1 xl:block shadow-[4px_0_8px_rgba(0,0,0,0.05)]`}>
@@ -93,7 +85,7 @@ const FairDetailBar = ({platform = null, label = null, description = null, unit 
                                 </span>
                             </h3>
                             <button
-                                onClick={sortData}
+                                onClick={() => sortData(fairChartData)}
                                 className="text-gray-500 hover:text-gray-700"
                                 title="Sort"
                             >
