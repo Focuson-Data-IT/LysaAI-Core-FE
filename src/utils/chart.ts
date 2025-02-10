@@ -64,7 +64,7 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 			const dataPoint = userData.find((item) =>
 				moment(item.date, "YYYY-MM-DD").isSame(moment(label, "YYYY-MM-DD"))
 			);
-			return dataPoint ? dataPoint.value : 0;
+			return dataPoint ? dataPoint?.value : null;
 		});
 
 		return {
@@ -74,9 +74,9 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 			pointBorderColor: "#ffffff",
 			pointBackgroundColor: "#22C55E",
 			pointBorderWidth: 4,
-			borderWidth: 2,
+			borderWidth: 3,
 			fill: true,
-			tension: 0,
+			tension: 0.3,
 		};
 	});
 
