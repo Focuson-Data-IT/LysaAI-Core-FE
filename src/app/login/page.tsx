@@ -60,8 +60,8 @@ export default function LoginPage() {
                     className="h-14"
                     src={theme !== "dark" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
                     alt="logo"
-                    width={56} // Adjust width and height as needed
-                    height={56}
+                    width={200} // Adjust width and height as needed
+                    height={200}
                 />
             </div>
 
