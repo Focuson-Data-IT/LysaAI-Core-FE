@@ -9,7 +9,7 @@ export const periodInitialValue: TPeriod =  {
 export const singleMonthPeriodInitialValue: TSingleMonthPeriod = moment().format("YYYY-MM-DD");
 
 export const performanceContextInitialValue: TPerformanceContext = {
-    period: singleMonthPeriodInitialValue,
+    period: periodInitialValue,
     platform: "instagram",
     selectedCompetitor: [],
     setPeriod: () => {},

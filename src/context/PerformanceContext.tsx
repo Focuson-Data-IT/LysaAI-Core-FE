@@ -1,14 +1,14 @@
 import React, {createContext, useContext, useState, ReactNode} from "react";
 import {TPerformanceContext, TPeriod, TSingleMonthPeriod} from "@/types/PerformanceTypes";
 import moment from "moment";
-import {performanceContextInitialValue, singleMonthPeriodInitialValue} from "@/constant/PerfomanceContants";
+import {performanceContextInitialValue, periodInitialValue} from "@/constant/PerfomanceContants";
 
 
 
-const PerformanceContext = createContext<TPerformanceContext | null>(performanceContextInitialValue);
+const PerformanceContext = createContext<TPerformanceContext>(performanceContextInitialValue);
 
 const PerformanceContextProvider= ({children}) => {
-    const [period, setPeriod] = useState<TSingleMonthPeriod>(singleMonthPeriodInitialValue);
+    const [period, setPeriod] = useState<TPeriod>(periodInitialValue);
     const [platform, setPlatform] = useState<string>("instagram");
     const [selectedCompetitor, setSelectedCompetitor] = useState([]);
 
