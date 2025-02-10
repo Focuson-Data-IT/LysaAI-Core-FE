@@ -172,7 +172,7 @@ const PostsTable = ({ platform = null }) => {
                             </th>
                             <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("performaKonten")}>
-                                Content<br/>Performance {getSortIcon("performaKonten")}
+                                Content<br />Performance {getSortIcon("performaKonten")}
                             </th>
                         </tr>
                     </thead>
@@ -240,65 +240,64 @@ const PostsTable = ({ platform = null }) => {
                     </tbody>
                 </table>
 
-                    <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
-                        <div className="flex w-full items-center justify-center lg:justify-between">
-                            <div className="hidden items-center space-x-4 lg:flex">
-      <span className="text-sm font-semibold text-bgray-600 dark:text-white">
-        Show result:
-      </span>
-                                <div className="relative dark:bg-darkblack-500">
-                                    <select
-                                        value={perPage}
-                                        onChange={(e) => setPerPage(parseInt(e?.target?.value))}
-                                        className="rounded-lg border border-bgray-300 p-2 dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-black dark:bg-gray-800 focus:outline-none focus:border-bgray-500 focus:ring-0"
-                                    >
-                                        { [5, 10, 20, 50].map((size) => (
-                                            <option key={size} value={size}>
-                                                {size}
-                                            </option>
-                                        )) }
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center space-x-5 sm:space-x-[35px]">
-                                <button
-                                    type="button"
-                                    disabled={currentPage === 1}
-                                    onClick={handlePreviousPage}
-                                    className={`px-2 disabled:opacity-50`}
+                <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
+                    <div className="flex w-full items-center justify-center lg:justify-between">
+                        <div className="hidden items-center space-x-4 lg:flex">
+                            <span className="text-sm font-semibold text-bgray-600 dark:text-white">
+                                Show result:
+                            </span>
+                            <div className="relative dark:bg-darkblack-500">
+                                <select
+                                    value={perPage}
+                                    onChange={(e) => setPerPage(parseInt(e?.target?.value))}
+                                    className="rounded-lg border border-bgray-300 p-2 dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-black dark:bg-gray-800 focus:outline-none focus:border-bgray-500 focus:ring-0"
                                 >
-        <span>
-          <svg
-              width="21"
-              height="21"
-              viewBox="0 0 21 21"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-                d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327"
-                stroke="#A0AEC0"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-                                </button>
+                                    {[5, 10, 20, 50].map((size) => (
+                                        <option key={size} value={size}>
+                                            {size}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
 
-                                {/* Nomor Halaman */}
-                                <div className="flex items-center space-x-2">
-                                    {Array(Math.min(5, totalPages)) // Set maximum number of pages displayed to 5 or totalPages, whichever is smaller
-                                        .fill(null)
-                                        .map((_, index) => (
-                                            <button
-                                                key={index + 1}
-                                                onClick={() => handlePageClick(index + 1)}
-                                                className={`rounded-lg px-1 py-1.5 text-xs font-bold ${
-                                                    currentPage === index + 1
-                                                        ? "bg-success-50 text-success-300"
-                                                        : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
+                        <div className="flex items-center space-x-5 sm:space-x-[35px]">
+                            <button
+                                type="button"
+                                disabled={currentPage === 1}
+                                onClick={handlePreviousPage}
+                                className={`px-2 disabled:opacity-50`}
+                            >
+                                <span>
+                                    <svg
+                                        width="21"
+                                        height="21"
+                                        viewBox="0 0 21 21"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327"
+                                            stroke="#A0AEC0"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </span>
+                            </button>
+
+                            {/* Nomor Halaman */}
+                            <div className="flex items-center space-x-2">
+                                {Array(Math.min(5, totalPages)) // Set maximum number of pages displayed to 5 or totalPages, whichever is smaller
+                                    .fill(null)
+                                    .map((_, index) => (
+                                        <button
+                                            key={index + 1}
+                                            onClick={() => handlePageClick(index + 1)}
+                                            className={`rounded-lg px-1 py-1.5 text-xs font-bold ${currentPage === index + 1
+                                                    ? "bg-success-50 text-success-300"
+                                                    : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
                                                 } lg:px-6 lg:py-2.5 lg:text-sm`}
                                         >
                                             {index + 1}
@@ -306,36 +305,36 @@ const PostsTable = ({ platform = null }) => {
                                     ))}
                             </div>
 
-                                {/* Tombol Next */}
-                                <button
-                                    type="button"
-                                    disabled={currentPage === totalPages}
-                                    onClick={handleNextPage}
-                                    className={`px-2 disabled:opacity-50`}
-                                >
-        <span>
-          <svg
-              width="21"
-              height="21"
-              viewBox="0 0 21 21"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-                d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327"
-                stroke="#A0AEC0"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-                                </button>
-                            </div>
+                            {/* Tombol Next */}
+                            <button
+                                type="button"
+                                disabled={currentPage === totalPages}
+                                onClick={handleNextPage}
+                                className={`px-2 disabled:opacity-50`}
+                            >
+                                <span>
+                                    <svg
+                                        width="21"
+                                        height="21"
+                                        viewBox="0 0 21 21"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327"
+                                            stroke="#A0AEC0"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         // <section className="h-[700px] mb-6 2xl:mb-0 2xl:flex-1 shadow-md rounded-lg bg-gray-200 dark:bg-gray-800 p-5">
         // </section>
     );
