@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
+import React from "react";
 import Select from "react-select";
+import { usePerformanceContext } from "@/context/PerformanceContext";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 
 const customSelectStyles = {
@@ -47,8 +49,10 @@ const customSelectStyles = {
 };
 
 const OurSelect = ({ options, disabled = false }) => {
+const OurSelect = ({ options, disabled = false }) => {
 	const { selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
 
+	const handleChange = (selected) => {
 	const handleChange = (selected) => {
 		setSelectedCompetitor(selected);
 	};
