@@ -1,4 +1,5 @@
 import * as Icons from "lucide-react"; // Import icon dari lucide-react
+import { FaInstagram, FaTiktok } from "react-icons/fa";
 
 interface clientRoute {
     title: string;
@@ -30,13 +31,13 @@ export const clientRoutes: clientRoute[] = [
 			{
 				title: 'Instagram',
 				link: '/performance/instagram',
-				icon: Icons.CircleDot,
+				icon: FaInstagram,
                 dynamic: true
 			},
 			{
 				title: 'TikTok',
 				link: '/performance/TikTok',
-				icon: Icons.CircleDot,
+				icon: FaTiktok,
                 dynamic: true
 			}
 		]
