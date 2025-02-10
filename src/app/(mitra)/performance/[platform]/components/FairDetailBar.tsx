@@ -13,10 +13,11 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
     const { period, selectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState<boolean>(true);
-    const [fairChartData, setFairChartData] = useState<any>([]);
+    const [fairChartData, setFairDetailData] = useState<any>([]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [filteredData, setFilteredData] = useState<any[]>([]);
 
-    const getFairChartData = async () => {
+    const getFairDetailData = async () => {
         const url = `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period).endOf('month').format("YYYY-MM-DD")}`;
         const response = await request.get(url);
         const newResponse = response.data?.data?.map((v: any) => {
@@ -33,12 +34,12 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
         const sortedData = [...data].sort((a, b) =>
             sortOrder === 'asc' ? a.value - b.value : b.value - a.value
         );
-        setFairChartData(sortedData);
-        setSortOrder(sortOrder === 'asc' ? 'desc' : 'desc');
+        setFairDetailData(sortedData);
+        setSortOrder(sortOrder === 'desc' ? 'desc' : 'asc');
     };
 
     useEffect(() => {
-        getFairChartData().then((v) => {
+        getFairDetailData().then((v) => {
             let filteredData = v;
 
             if (selectedCompetitor && selectedCompetitor.length > 0) {
@@ -46,7 +47,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
                     return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
                 });
             }
-
+            setFilteredData(filteredData);
             sortData(filteredData);
             setLoading(false);
         });
@@ -85,7 +86,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
                                 </span>
                             </h3>
                             <button
-                                onClick={() => sortData(fairChartData)}
+                                onClick={() => sortData(filteredData)}
                                 className="text-gray-500 hover:text-gray-700"
                                 title="Sort"
                             >
