@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -16,7 +16,6 @@ const customDatePickerStyles = {
 					: "bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
 		} hover:bg-gray-300 dark:hover:bg-gray-500`,
 	popper: () => `absolute z-[10]`,
-	month: () => `cursor-pointer px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500`,
 };
 
 type OurDatePickerProps = {
@@ -25,28 +24,23 @@ type OurDatePickerProps = {
 	type?: "calendar" | "range";
 };
 
-const DateRangePicker = ({applyCallback, onClick, type = "calendar"}) => {
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
-	const [startDate, endDate] = dateRange;
+const DateRangePicker = ({ applyCallback, onClick, type = "calendar" }) => {
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-
 	return (
-		<div className="flex flex-col">
-			<div className="relative" style={{zIndex: 10}}>
+		<div className="flex-grow w-full">
+			<div className="relative" style={{ zIndex: 10 }}>
 				<DatePicker
 					selected={selectedDate}
 					onChange={(date: Date) => {
 						setSelectedDate(date);
-						applyCallback(date); // Kirim tanggal yang dipilih ke fungsi callback
+						applyCallback(date);
 					}}
-					dateFormat="MM/yyyy" // Format tampilan bulan dan tahun
-					showMonthYearPicker // Hanya menampilkan pemilihan bulan dan tahun
+					dateFormat="MM/yyyy"
+					showMonthYearPicker
 					placeholderText="Pilih bulan dan tahun"
-					// className={customDatePickerStyles.input()}
-					className={"focus:border-0 inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]"}
-					calendarClassName={customDatePickerStyles.calendar()}
-					dayClassName={customDatePickerStyles.month}
+					className="h-[42px] w-full min-w-[200px] rounded-md border border-gray-300 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 px-4 text-sm transition-all"
+					calendarClassName="rounded-md border border-gray-300 shadow-lg bg-white"
 					popperPlacement="bottom-start"
 				/>
 			</div>

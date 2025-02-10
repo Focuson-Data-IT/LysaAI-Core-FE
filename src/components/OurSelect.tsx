@@ -1,60 +1,87 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Select from "react-select";
-import { TOurSelect } from "@/components/constants";
-import {TOption} from "@/types/PerformanceTypes";
-import {usePerformanceContext} from "@/context/PerformanceContext";
+import { usePerformanceContext } from "@/context/PerformanceContext";
 
-const customClassNames = {
-	control: (state: any) =>
-		`bg-gray-900 inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border ${
-			state.isDisabled ? "opacity-50 !important" : "border-[#41c2cb] !important"
-		}`,
-	input: (state: any) =>
-		`bg-gray-900 text-gray-900 dark:text-[#41c2cb] flex-grow bg-transparent border-none outline-none px-0 !important`,
-	menu: (state: any) =>
-		`dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-2xl mt-1 shadow-lg !important`,
-	menuList: (state: any) =>
-		`max-h-[200px] overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700 !important`,
-	option: (state: any) =>
-		`cursor-pointer px-4 py-2 flex items-center justify-center ${
-			state.isSelected
-				? "bg-gray-100 text-[#41c2cb] !important"
-				: state.isFocused
-					? "bg-gray-300 dark:bg-gray-500 text-gray-900 dark:text-[#41c2cb] !important"
-					: "bg-gray-500 dark:bg-gray-700 text-gray-900 dark:text-[#41c2cb] !important"
-		} bg-gray-100 hover:bg-gray-300 dark:hover:bg-gray-500`,
+const customSelectStyles = {
+	control: (provided, state) => ({
+		...provided,
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "space-between",
+		height: "42px", // Sama dengan DateRangePicker
+		width: "100%",
+		borderRadius: "8px", // Sesuai dengan input DatePicker
+		border: "1px solid #d1d5db",
+		backgroundColor: "#f9fafb",
+		boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "none",
+		transition: "all 0.2s",
+		"&:hover": {
+			backgroundColor: "#e5e7eb",
+		},
+	}),
+	menu: (provided) => ({
+		...provided,
+		borderRadius: "8px",
+		border: "1px solid #d1d5db",
+		boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+		backgroundColor: "white",
+		zIndex: 10,
+	}),
+	option: (provided, state) => ({
+		...provided,
+		backgroundColor: state.isSelected ? "#3b82f6" : state.isFocused ? "#e5e7eb" : "white",
+		color: state.isSelected ? "white" : "black",
+		cursor: "pointer",
+		transition: "all 0.2s",
+		"&:hover": {
+			backgroundColor: "#d1d5db",
+		},
+	}),
+	placeholder: (provided) => ({
+		...provided,
+		color: "#6b7280",
+		fontSize: "14px",
+	}),
 };
 
-const OurSelect = ({
-	options,
-	disabled = false,
-}) => {
+const OurSelect = ({ options, disabled = false }) => {
 	const { selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
 
-	const handleChange = (selected: any) => {
+	const handleChange = (selected) => {
 		setSelectedCompetitor(selected);
 	};
 
 	return (
-		<Select
-			placeholder={"Hide/Show Competitor"}
-			classNames={customClassNames}
-			components={{
-				IndicatorSeparator: () => null,
-				ClearIndicator: () => null,
-				MultiValueContainer: () => null,
-			}}
-			// className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]"
-			options={options}
-			isMulti
-			value={selectedCompetitor}
-			onChange={handleChange}
-			closeMenuOnSelect={false}
-			hideSelectedOptions={false}
-			controlShouldRenderValue={false}
-		/>
+		<div className="flex-grow w-full min-w-[200px] max-w-[250px]">
+			<div className="relative" style={{ zIndex: 10 }}>
+				<Select
+					placeholder="Hide/Show Competitor"
+					styles={{
+						...customSelectStyles,
+						control: (provided, state) => ({
+							...provided,
+							height: "42px",
+							minWidth: "200px",
+							maxWidth: "250px",
+							borderRadius: "8px",
+							border: "1px solid #d1d5db",
+							backgroundColor: "#f9fafb",
+							boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "none",
+						}),
+					}}
+					options={options}
+					isMulti
+					value={selectedCompetitor}
+					onChange={handleChange}
+					closeMenuOnSelect={false}
+					hideSelectedOptions={false}
+					controlShouldRenderValue={false}
+					isDisabled={disabled}
+				/>
+			</div>
+		</div>
 	);
 };
 
