@@ -65,7 +65,7 @@ const PostsTable = ({ platform = null }) => {
             
             setPosts(contentPerformance);
         });
-    }, [platform, period, selectedCompetitor]);
+    }, [authUser, platform, period, selectedCompetitor]);
 
     const sortedPosts = React.useMemo(() => {
         const sortablePosts = [...posts];

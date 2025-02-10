@@ -36,7 +36,6 @@ const FairScoreCard = ({ platform }) => {
     };
 
     const drawChart = (labels: any, datasets: any) => {
-        console.info(datasets)
         if (chartRef && chartRef.current) {
             const ctx = chartRef.current?.getContext("2d");
 
@@ -179,7 +178,7 @@ const FairScoreCard = ({ platform }) => {
             setOptions(groupedUsername)
             setIsLoading(false);
         });
-    }, [period, platform]);
+    }, [authUser, period, platform]);
 
     useEffect(() => {
         const dateArray = buildLabels(period?.start, period?.end);

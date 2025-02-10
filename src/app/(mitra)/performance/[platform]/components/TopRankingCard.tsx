@@ -46,7 +46,7 @@ const TopRankingCard = ({platform = null}) => {
 
             setLoading(false);
         })
-    }, [platform, period, selectedCompetitor])
+    }, [authUser, platform, period, selectedCompetitor])
 
     return (
         <div className="rounded-lg bg-gray-200 p-3 dark:bg-gray-900 transition-colors h-full">

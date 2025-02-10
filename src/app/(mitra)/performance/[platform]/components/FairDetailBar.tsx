@@ -56,7 +56,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
 
             setLoading(false);
         });
-    }, [period, platform, selectedCompetitor]);
+    }, [authUser, period, platform, selectedCompetitor]);
 
     useEffect(() => {
         sortData(fairChartData);
