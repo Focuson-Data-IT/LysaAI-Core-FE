@@ -28,14 +28,8 @@ const FairScoreCard = () => {
     const getFairScoreChartData = async () => {
         setIsLoading(true);
 
-        const payload = {
-            startDate: period,
-            endDate: moment(period).endOf("month").format("YYYY-MM-DD")
-        };
-
         const response = await request.get(
-            `/getFairScores?kategori=${authUser?.username}&start_date=${payload.startDate}&end_date=${payload.endDate}&platform=${platform}`,
-            // url
+            `/getFairScores?kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&platform=${platform}`,
         );
 
         return response.data?.data;
@@ -188,7 +182,7 @@ const FairScoreCard = () => {
     }, [period, platform]);
 
     useEffect(() => {
-        const dateArray = buildLabels(period, moment(period).endOf("month").format("YYYY-MM-DD"));
+        const dateArray = buildLabels(period?.start, period?.end);
         const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
 
         const filterByUsername: any = selectedCompetitor?.map((v: any) => {
@@ -245,7 +239,7 @@ const FairScoreCard = () => {
                         onClick={() => setIsShowDatepicker(!isShowDatepicker)}
                         type={"monthOnly"}
                         applyCallback={
-                            (e) => setPeriod(moment(e).format("YYYY-MM-DD"))
+                            (e) => setPeriod(e)
                         }/>
 
                     <OurSelect options={options} disabled={isLoading} />

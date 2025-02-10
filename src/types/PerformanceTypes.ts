@@ -1,8 +1,8 @@
 export type TPerformanceContext = {
-    period: TSingleMonthPeriod;
+    period: TPeriod;
     platform: string;
     selectedCompetitor: Array<TOption>;
-    setPeriod: (period: TSingleMonthPeriod) => void;
+    setPeriod: (period: TPeriod) => void;
     setPlatform: (platform: string) => void;
     setSelectedCompetitor: (selectedCompetitor: Array<TOption>) => void;
 };

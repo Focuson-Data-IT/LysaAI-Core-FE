@@ -1,12 +1,13 @@
 import React, {useState} from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import moment from "moment";
 
 const customDatePickerStyles = {
 	input: () =>
-		`rounded-md flex items-center justify-between rounded-2xl h-[42px] block w-full border border-gray-300 dark:border-gray-600 outline-none disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 px-4 text-sm transition-all`,
+		`dark:text-white focus:border-0 inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]`,
 	calendar: () =>
-		`rounded-2xl border border-gray-300 dark:border-gray-600 mt-2 shadow-lg dark:bg-gray-800 bg-white`,
+		`dark:text-white rounded-2xl border border-gray-900 dark:border-gray-600 mt-2 shadow-lg dark:bg-gray-900 bg-white`,
 	day: (state: { isSelected: boolean; isToday: boolean }) =>
 		`cursor-pointer px-2 py-1 rounded-md ${
 			state.isSelected
@@ -34,19 +35,42 @@ const DateRangePicker = ({applyCallback, onClick, type = "calendar"}) => {
 	return (
 		<div className="flex flex-col">
 			<div className="relative" style={{zIndex: 10}}>
+				{/*<DatePicker*/}
+				{/*	selected={selectedDate}*/}
+				{/*	onChange={(date: Date) => {*/}
+				{/*		setSelectedDate(date);*/}
+				{/*		applyCallback(date); // Kirim tanggal yang dipilih ke fungsi callback*/}
+				{/*	}}*/}
+				{/*	dateFormat="MM/yyyy" // Format tampilan bulan dan tahun*/}
+				{/*	showMonthYearPicker // Hanya menampilkan pemilihan bulan dan tahun*/}
+				{/*	placeholderText="Pilih bulan dan tahun"*/}
+				{/*	// className={customDatePickerStyles.input()}*/}
+				{/*	className={"focus:border-0 inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]"}*/}
+				{/*	calendarClassName={customDatePickerStyles.calendar()}*/}
+				{/*	dayClassName={customDatePickerStyles.month}*/}
+				{/*	popperPlacement="bottom-start"*/}
+				{/*/>*/}
+
 				<DatePicker
-					selected={selectedDate}
-					onChange={(date: Date) => {
-						setSelectedDate(date);
-						applyCallback(date); // Kirim tanggal yang dipilih ke fungsi callback
+					selected={startDate}
+					onChange={(dates) => {
+						const [start, end] = dates as [Date | null, Date | null];
+						setDateRange([start, end]);
+
+						if (start && end) {
+							applyCallback({
+								start: moment(start).format("YYYY-MM-DD"),
+								end: moment(end).format("YYYY-MM-DD"),
+							});
+						}
 					}}
-					dateFormat="MM/yyyy" // Format tampilan bulan dan tahun
-					showMonthYearPicker // Hanya menampilkan pemilihan bulan dan tahun
-					placeholderText="Pilih bulan dan tahun"
-					// className={customDatePickerStyles.input()}
-					className={"focus:border-0 inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs border border-[#41c2cb]"}
+					startDate={startDate}
+					endDate={endDate}
+					selectsRange
+					isClearable
+					placeholderText="Select period"
+					className={customDatePickerStyles.input()}
 					calendarClassName={customDatePickerStyles.calendar()}
-					dayClassName={customDatePickerStyles.month}
 					popperPlacement="bottom-start"
 				/>
 			</div>

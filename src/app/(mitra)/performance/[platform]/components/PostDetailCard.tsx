@@ -36,8 +36,7 @@ const PostsTable = ({platform = null}) => {
 
     const getPosts = async () => {
         setLoading(true);
-        const response = await request.get(`/getAllPost?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`);
-        // const response = await request.get(`/getAllPost?kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09&platform=${platform}`);
+        const response = await request.get(`/getAllPost?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`);
 
         return response.data?.data;
     }
