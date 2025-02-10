@@ -4,15 +4,6 @@ import {usePerformanceContext} from "@/context/PerformanceContext";
 import moment from "moment";
 import {useAuth} from "@/hooks/useAuth";
 
-const topRankingData = [
-    { name: "surabaya", link: "https://instagram.com/surabaya", score: "87.50" },
-    { name: "hukumdankerjasama.surabaya", link: "https://instagram.com/hukumdankerjasama.surabaya", score: "-" },
-    { name: "disperinakersby", link: "https://instagram.com/disperinakersby", score: "-" },
-    { name: "disperkim.surabaya", link: "https://instagram.com/disperkim.surabaya", score: "-" },
-    { name: "dispusipkotasurabaya", link: "https://instagram.com/dispusipkotasurabaya", score: "-" },
-    { name: "dkppsurabaya", link: "https://instagram.com/dkppsurabaya", score: "-" },
-];
-
 const TopRankingCard = ({platform = null}) => {
     const { authUser } = useAuth();
 

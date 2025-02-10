@@ -7,16 +7,14 @@ import request from "@/utils/request";
 import {usePerformanceContext} from "@/context/PerformanceContext";
 import {useAuth} from "@/hooks/useAuth";
 
-
-
-const FairDetailBar = ({platform = null, label = null, description = null, unit = null}) => {
+const FairDetailBar = ({ platform = null, label = null, description = null, unit = null }) => {
     const { authUser } = useAuth();
-
     const { period, selectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState<boolean>(true);
-    const [fairChartData, setFairChartData] = useState<any>(null);
+    const [fairChartData, setFairDetailData] = useState<any>([]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [filteredData, setFilteredData] = useState<any[]>([]);
 
 
     const getFairDetailData = async () => {
@@ -37,35 +35,20 @@ const FairDetailBar = ({platform = null, label = null, description = null, unit 
             const sortedData = [...v].sort((a, b) =>
                 sortOrder === 'asc' ? a.value - b.value : b.value - a.value
             );
-            setFairChartData(sortedData);
+            setFairDetailData(sortedData);
         }
     };
-//TODO:Betulin:
-//  1.⁠ ⁠Logo Focuson di awal DONE
-//  2.⁠ ⁠Periode dibuat per tanggal DONE
-//  3.⁠ ⁠grafis awal hanya 5 akun teratras -> dibuat garisnya melengkung -> kalao FAIRnya 0, garisnya hilang DONE
-//  4.⁠ ⁠Bintang FAIR score putih -> kalao 0 dibuat jadi -  / logo bintang 5 teratas dibuat kuning
-//  5.⁠ ⁠tabel satuan FAIR dibuat defult besar ke kecil DONE
-//  6.⁠ ⁠tool SEARCH masih bug
-//  7.⁠ ⁠tabel conten-> dibuat titik ... kalau tidak cukup
-//  8.⁠ ⁠tabel post -> tambahin tabel ER ; tambahin tanda merah atau hijau  -> kasih deskripsi Lysa
-//  9.⁠ ⁠Deskripsi ToolTip  -> Lysa
-// 10.⁠ ⁠logo tulisan IG dan TiTok diganti logo resmi
-// 11.⁠ ⁠Tabel grafis dibuat defult ke bulan sedang berlangsung
-    // 12. format number top rank 2 angka di belakang koma, activity 1 angka dibelakang koma, ,interaction dibulatkan keatas,
-    // 13. font color calendar putih
-    //
+    
     useEffect(() => {
         getFairDetailData().then((v) => {
             let filteredData = v;
 
-            setFairChartData(filteredData);
+            setFairDetailData(filteredData);
 
             if (selectedCompetitor && selectedCompetitor.length > 0) {
                 filteredData = v.filter((item: any) => {
                     return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
                 });
-                setFairChartData(filteredData);
             }
 
             sortData(filteredData);

@@ -1,16 +1,16 @@
 "use client";
 
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Chart from "chart.js/auto";
 import moment from "moment";
 import request from "@/utils/request";
-import {buildDatasets, buildLabels, createGradient, groupDataByUsername} from "@/utils/chart";
-import {usePerformanceContext} from "@/context/PerformanceContext";
-import {useParams} from "next/navigation";
+import { buildDatasets, buildLabels, createGradient, groupDataByUsername } from "@/utils/chart";
+import { usePerformanceContext } from "@/context/PerformanceContext";
+import { useParams } from "next/navigation";
 import OurDatePicker from "@/components/OurDatePicker";
 import OurSelect from "@/components/OurSelect";
-import {useAuth} from "@/hooks/useAuth";
-import {getDefaultAutoSelectFamilyAttemptTimeout} from "node:net";
+import { useAuth } from "@/hooks/useAuth";
+import { getDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
 
 
 const FairScoreCard = () => {
@@ -233,15 +233,20 @@ const FairScoreCard = () => {
                 </div>
 
                 {/* Buttons */}
-                <div className="flex gap-2">
-                    <OurDatePicker
-                        onClick={() => setIsShowDatepicker(!isShowDatepicker)}
-                        type={"monthOnly"}
-                    />
+                <div className="datepicker-container">
 
-                    <OurSelect options={options} disabled={isLoading} />
+                    <div className="datepicker-wrapper">
+                        <OurDatePicker
+                            onClick={() => setIsShowDatepicker(!isShowDatepicker)}
+                        />
+                    </div>
+                    <div className="select-wrapper">
+                        <OurSelect options={options} disabled={isLoading}
+                        />
+                    </div>
                 </div>
             </div>
+
 
             {/* Data Section */}
             <div className="h-[250px] pt-3 flex items-center justify-center">
@@ -253,7 +258,7 @@ const FairScoreCard = () => {
                     ></canvas>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
