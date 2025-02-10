@@ -36,7 +36,6 @@ const FairScoreCard = ({ platform }) => {
     };
 
     const drawChart = (labels: any, datasets: any) => {
-        console.info(datasets)
         if (chartRef && chartRef.current) {
             const ctx = chartRef.current?.getContext("2d");
 
@@ -85,7 +84,7 @@ const FairScoreCard = ({ platform }) => {
 
                                 ctx.fillStyle = "#FF0000";
                                 ctx.font = "bold 12px Arial";
-                                ctx.fillText(`Median: ${median.toFixed(2)}`, left + 10, yPos - 3);
+                                ctx.fillText(`Median: ${median?.toFixed(2)}`, left + 10, yPos - 3);
                             },
                         },
                         {
@@ -115,7 +114,7 @@ const FairScoreCard = ({ platform }) => {
 
                                 ctx.fillStyle = "#008000";
                                 ctx.font = "bold 12px Arial";
-                                ctx.fillText(`Average: ${average.toFixed(2)}`, right - labelWidth, yPos - 3);
+                                ctx.fillText(`Average: ${average?.toFixed(2)}`, right - labelWidth, yPos - 3);
                             },
                         },
                     ],
@@ -165,8 +164,6 @@ const FairScoreCard = ({ platform }) => {
         }
     };
 
-
-
     useEffect(() => {
         getFairScoreChartData().then((v) => {
             const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
@@ -179,11 +176,12 @@ const FairScoreCard = ({ platform }) => {
             setOptions(groupedUsername)
             setIsLoading(false);
         });
-    }, [period, platform]);
+    }, [authUser, period, platform]);
 
     useEffect(() => {
         const dateArray = buildLabels(period?.start, period?.end);
         const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
+
 
         const filterByUsername: any = selectedCompetitor?.map((v: any) => {
             return v?.value;
@@ -193,7 +191,7 @@ const FairScoreCard = ({ platform }) => {
             filterByUsername: filterByUsername,
         };
 
-        const dataGroupedByUsername = groupDataByUsername(fairScoreData);
+        const dataGroupedByUsername = groupDataByUsername(fairScoreData)
 
         let datasetsBuilded = buildDatasets(
             dataGroupedByUsername,
@@ -218,7 +216,15 @@ const FairScoreCard = ({ platform }) => {
             };
         });
 
-        drawChart(labels, datasetsWithColor);
+        // untuk pertama kali load fairscoredata tampilkan hanya 5, tetapi tidak membatasi
+        //ketika selectedCompetitor bertambah lebih dari 5 akan tetap ditampilkan sesuai jumlah
+        //selectedCompetitornya
+        const limitDatasets = datasetsWithColor.slice(0, 5);
+
+        // Render chart
+        drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+
+        // drawChart(labels, datasetsWithColor);
     }, [fairScoreData, selectedCompetitor]);
 
     return (

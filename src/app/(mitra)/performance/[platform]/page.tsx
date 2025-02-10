@@ -22,11 +22,11 @@ const Competitor = () => {
                 </div>
 
                 {/* FAIR Score & Top Ranking */}
-                <div className="grid grid-cols-12 gap-4 mt-4 h-[400px]">
-                    <div className="lg:col-span-8 rounded-lg h-full">
+                <div className="grid grid-cols-12 gap-4 mt-4">
+                    <div className="lg:col-span-8 rounded-lg">
                         <FairScoreCard platform={platform}/>
                     </div>
-                    <div className="lg:col-span-4 rounded-lg h-full">
+                    <div className="lg:col-span-4 rounded-lg">
                         <TopRankingCard platform={platform}/>
                     </div>
                 </div>

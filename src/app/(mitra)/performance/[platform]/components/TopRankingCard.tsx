@@ -46,7 +46,7 @@ const TopRankingCard = ({platform = null}) => {
 
             setLoading(false);
         })
-    }, [platform, period, selectedCompetitor])
+    }, [authUser, platform, period, selectedCompetitor])
 
     return (
         <div className="rounded-lg bg-gray-200 p-3 dark:bg-gray-900 transition-colors h-full">
@@ -57,7 +57,7 @@ const TopRankingCard = ({platform = null}) => {
             </div>
 
             {/* Ranking List */}
-            <div className="overflow-auto h-[250px]">
+            <div className="overflow-y-scroll h-[350px]">
                 {
                     loading ? (
                             <div className="flex items-center justify-center h-full">
