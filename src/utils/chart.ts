@@ -76,7 +76,7 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 			const dataPoint = userData.find((item) => {
 				return moment(item.date, "YYYY-MM-DD").isSame(moment(label, "YYYY-MM-DD"));
 			});
-			return parseFloat(String(dataPoint?.value || 0));
+			return dataPoint ? parseFloat(String(dataPoint?.value)) : null;
 		});
 
 		return {
@@ -88,7 +88,7 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 			pointBorderWidth: 4,
 			borderWidth: 3,
 			fill: true,
-			tension: 0.3,
+			tension: 0.4,
 		};
 	});
 
