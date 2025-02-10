@@ -35,11 +35,30 @@ const PostsTable = ({platform = null}) => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: "asc" | "desc" } | null>(null);
+    const [perPage, setPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalRows, setTotalRows] = useState(1);
+
+
+    const handlePageClick = (page: number) => {
+        setCurrentPage(page);
+    }
+
+    const handlePreviousPage = () => {
+        setCurrentPage(currentPage - 1);
+    }
+
+    const handleNextPage = () => {
+        setCurrentPage(currentPage + 1);
+    }
 
     const getPosts = async () => {
         setLoading(true);
-        const response = await request.get(`/getAllPost?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`);
+        const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`);
 
+        setTotalPages(response.data?.totalPages);
+        setTotalRows(response.data?.totalRows);
         return response.data?.data;
     }
 
@@ -59,7 +78,7 @@ const PostsTable = ({platform = null}) => {
 
             setLoading(false);
         });
-    }, [authUser, platform, period, selectedCompetitor]);
+    }, [authUser, platform, period, selectedCompetitor, currentPage, perPage]);
 
     const sortedPosts = React.useMemo(() => {
         const sortablePosts = [...posts];
@@ -153,7 +172,7 @@ const PostsTable = ({platform = null}) => {
                             </th>
                             <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("performaKonten")}>
-                                Content Performance {getSortIcon("performaKonten")}
+                                Content<br/>Performance {getSortIcon("performaKonten")}
                             </th>
                         </tr>
                         </thead>
@@ -191,22 +210,22 @@ const PostsTable = ({platform = null}) => {
                                             </span>
                                         </td>
                                         <td className="px-2 py-4">{moment(post.created_at).format("DD MMM YYYY")}</td>
-                                        <td className="px-2 py-4 text-end">{post.likes}</td>
-                                        <td className="px-2 py-4 text-end">{post.comments}</td>
-                                        <td className="px-2 py-4 text-end">{post.playCount}</td>
-                                        <td className="px-2 py-4 text-end">{post.shareCount}</td>
-                                        <td className="px-2 py-4 text-end">{post.collectCount}</td>
-                                        <td className="px-2 py-4 text-end">{post.downloadCount}</td>
-                                        <td className="px-2 py-4 text-end">{
+                                        <td className="px-2 py-4 text-end">{post.likes || 0}</td>
+                                        <td className="px-2 py-4 text-end">{post.comments || 0}</td>
+                                        <td className="px-2 py-4 text-end">{post.playCount || 0}</td>
+                                        <td className="px-2 py-4 text-end">{post.shareCount || 0}</td>
+                                        <td className="px-2 py-4 text-end">{post.collectCount || 0}</td>
+                                        <td className="px-2 py-4 text-end">{post.downloadCount || 0}</td>
+                                        <td className="px-2 py-4 flex items-center justify-end me-6 h-full">{
                                             post?.level === 'Best'
                                                 ?
-                                                <span className="w-4 h-4 rounded-full bg-green-500"></span>
+                                                <div className="w-4 h-4 rounded-full bg-green-500"></div>
                                                 :
-                                                    post?.level === 'Medioker'
-                                                        ?
-                                                        <span className="w-4 h-4 rounded-full bg-yellow-500"></span>
-                                                        :
-                                                        <span className="w-4 h-4 rounded-full bg-red-500"></span>
+                                                post?.level === 'Medioker'
+                                                    ?
+                                                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+                                                    :
+                                                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
                                         }</td>
                                     </tr>
                                 )
@@ -223,16 +242,15 @@ const PostsTable = ({platform = null}) => {
 
                     <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
                         <div className="flex w-full items-center justify-center lg:justify-between">
-                            {/* Dropdown Jumlah Per Halaman */}
                             <div className="hidden items-center space-x-4 lg:flex">
-      <span className="text-sm font-semibold text-bgray-600 dark:text-bgray-50">
+      <span className="text-sm font-semibold text-bgray-600 dark:text-white">
         Show result:
       </span>
-                                <div className="relative">
+                                <div className="relative dark:bg-darkblack-500">
                                     <select
-                                        // value={itemsPerPage}
-                                        // onChange={handleItemsPerPageChange}
-                                        className="rounded-lg border border-bgray-300 px-2.5 py-[14px] dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-white dark:bg-darkblack-500"
+                                        value={perPage}
+                                        onChange={(e) => setPerPage(parseInt(e?.target?.value))}
+                                        className="rounded-lg border border-bgray-300 p-2 dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-black dark:bg-gray-800 focus:outline-none focus:border-bgray-500 focus:ring-0"
                                     >
                                         { [5, 10, 20, 50].map((size) => (
                                             <option key={size} value={size}>
@@ -243,13 +261,11 @@ const PostsTable = ({platform = null}) => {
                                 </div>
                             </div>
 
-                            {/* Tombol Pagination */}
                             <div className="flex items-center space-x-5 sm:space-x-[35px]">
-                                {/* Tombol Previous */}
                                 <button
                                     type="button"
-                                    // disabled={currentPage === 1}
-                                    // onClick={handlePreviousPage}
+                                    disabled={currentPage === 1}
+                                    onClick={handlePreviousPage}
                                     className={`px-2 disabled:opacity-50`}
                                 >
         <span>
@@ -273,17 +289,16 @@ const PostsTable = ({platform = null}) => {
 
                                 {/* Nomor Halaman */}
                                 <div className="flex items-center space-x-2">
-                                    {Array(20)
+                                    {Array(Math.min(5, totalPages)) // Set maximum number of pages displayed to 5 or totalPages, whichever is smaller
                                         .fill(null)
                                         .map((_, index) => (
                                             <button
                                                 key={index + 1}
-                                                // onClick={() => handlePageClick(index + 1)}
-                                                className={`rounded-lg px-4 py-1.5 text-xs font-bold ${
-                                                    'bg-success-50 text-success-300'
-                                                    // currentPage === index + 1
-                                                    //     ? "bg-success-50 text-success-300"
-                                                    //     : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
+                                                onClick={() => handlePageClick(index + 1)}
+                                                className={`rounded-lg px-1 py-1.5 text-xs font-bold ${
+                                                    currentPage === index + 1
+                                                        ? "bg-success-50 text-success-300"
+                                                        : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
                                                 } lg:px-6 lg:py-2.5 lg:text-sm`}
                                             >
                                                 {index + 1}
@@ -294,8 +309,8 @@ const PostsTable = ({platform = null}) => {
                                 {/* Tombol Next */}
                                 <button
                                     type="button"
-                                    // disabled={currentPage === totalPages}
-                                    // onClick={handleNextPage}
+                                    disabled={currentPage === totalPages}
+                                    onClick={handleNextPage}
                                     className={`px-2 disabled:opacity-50`}
                                 >
         <span>
