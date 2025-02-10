@@ -9,7 +9,7 @@ const PerformanceContext = createContext<TPerformanceContext>(performanceContext
 
 const PerformanceContextProvider= ({children}) => {
     const [period, setPeriod] = useState<TPeriod>(periodInitialValue);
-    const [platform, setPlatform] = useState<string>("instagram");
+    const [platform, setPlatform] = useState<string>("Instagram");
     const [selectedCompetitor, setSelectedCompetitor] = useState([]);
 
     return (

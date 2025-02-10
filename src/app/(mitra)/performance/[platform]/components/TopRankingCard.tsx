@@ -3,8 +3,22 @@ import request from "@/utils/request";
 import {usePerformanceContext} from "@/context/PerformanceContext";
 import moment from "moment";
 import {useAuth} from "@/hooks/useAuth";
+import {scoreFormatter} from "@/utils/numberFormatter";
+import OurLoading from "@/components/OurLoading";
+import OurEmptyData from "@/components/OurEmptyData";
 
 const TopRankingCard = ({platform = null}) => {
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setTheme(localStorage.getItem('theme') || 'dark');
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
     const { authUser } = useAuth();
 
     const { period, selectedCompetitor } = usePerformanceContext();
@@ -35,7 +49,7 @@ const TopRankingCard = ({platform = null}) => {
     }, [platform, period, selectedCompetitor])
 
     return (
-        <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-900 transition-colors">
+        <div className="rounded-lg bg-gray-200 p-3 dark:bg-gray-900 transition-colors h-full">
             {/* Header */}
             <div className="mb-2 flex justify-between">
                 <div className="font-bold">Top Ranking</div>
@@ -44,24 +58,37 @@ const TopRankingCard = ({platform = null}) => {
 
             {/* Ranking List */}
             <div className="overflow-auto h-[250px]">
-                {fairRankingData?.map((item, index) => (
+                {
+                    loading ? (
+                            <div className="flex items-center justify-center h-full">
+                                <OurLoading />
+                            </div>
+                        ) :
+                        fairRankingData?.length === 0
+                            ?
+                            <div className="flex items-center justify-center h-[300px]">
+                                <OurEmptyData width={100} />
+                            </div>
+                            :
+                        fairRankingData?.map((item, index) => (
                     <a
                         key={index}
-                        href={platform === 'instagram' ? `https://www.instagram.com/${item?.username}` : `https://www.tiktok.com/@${item?.username}`}
+                        href={platform === 'Instagram' ? `https://www.instagram.com/${item?.username}` : `https://www.tiktok.com/@${item?.username}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between rounded-sm p-1 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                     >
                         <div className="flex items-center">
-                            <img src="/bintang-d.svg" alt="icon" className="h-8" />
+                            <img src={`/bintang-${index < 3 ? 'kuning' : theme === 'dark' ? 'putih' : 'd'}.svg`} alt="icon" className="h-8" />
                             <div className="ml-3">
                                 <div className="text-[12px]">{item?.username}</div>
-                                <div className="text-[10px] text-[#0ED1D6]">{platform === 'instagram' ? `https://www.instagram.com/${item?.username}` : `https://www.tiktok.com/@${item?.username}`}</div>
+                                <div className="text-[10px] text-[#0ED1D6]">{platform === 'Instagram' ? `https://www.instagram.com/${item?.username}` : `https://www.tiktok.com/@${item?.username}`}</div>
                             </div>
                         </div>
-                        <div className={`${index === 0 ? 'font-bold text-lg' : 'text-sm'}`}>{item?.max_value}</div>
+                        <div className={`${index === 0 ? 'font-bold text-lg' : 'text-sm'}`}>{scoreFormatter(item?.max_value)}</div>
                     </a>
-                ))}
+                ))
+                }
             </div>
         </div>
     );
