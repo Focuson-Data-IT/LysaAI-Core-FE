@@ -103,6 +103,7 @@ const DateRangePicker = ({ applyCallback = null, onClick, type = "calendar" }) =
 		<div className="flex flex-col">
 			<div className="relative" style={{ zIndex: 10 }}>
 				<DatePicker
+
 					selected={moment(period.start).toDate()}
 					onChange={(dates) => {
 						const [start, end] = dates as [Date | null, Date | null];
@@ -120,7 +121,7 @@ const DateRangePicker = ({ applyCallback = null, onClick, type = "calendar" }) =
 					selectsRange
 					isClearable
 					placeholderText="Select period"
-					className="custom-datepicker-input"
+					className="custom-datepicker-input w-[350px]"
 					calendarClassName="custom-datepicker-calendar"
 					popperClassName="custom-datepicker-popper"
 				/>

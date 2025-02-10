@@ -1,4 +1,5 @@
-import * as Icons from "lucide-react"; // Import icon dari lucide-react
+import * as Icons from "lucide-react";
+import {FaInstagram, FaTiktok} from "react-icons/fa"; // Import icon dari lucide-react
 
 interface clientRoute {
     title: string;
@@ -16,7 +17,7 @@ interface adminRoute {
 	link: string;
 }
 
-export const clientRoutes: clientRoute[] = [
+export const clientRoutes = [
     {
 		title: 'Home',
 		link: '/home',
@@ -24,19 +25,19 @@ export const clientRoutes: clientRoute[] = [
 	},
     {
 		title: 'Performance',
-		link: '/performance/instagram',
+		link: '/performance/Instagram',
 		icon: Icons.UserRoundSearch,
         children: [
 			{
 				title: 'Instagram',
-				link: '/performance/instagram',
-				icon: Icons.CircleDot,
+				link: '/performance/Instagram',
+				icon: FaInstagram,
                 dynamic: true
 			},
 			{
 				title: 'TikTok',
 				link: '/performance/TikTok',
-				icon: Icons.CircleDot,
+				icon: FaTiktok,
                 dynamic: true
 			}
 		]
@@ -49,12 +50,13 @@ export const clientRoutes: clientRoute[] = [
 			{
 				title: 'Media Monitoring',
 				link: '/lysa-ai/monitoring',
-				icon: Icons.CircleDot
+				icon: Icons.InstagramIcon,
 			},
 			{
 				title: 'Netizen Monitoring',
 				link: '/lysa-ai/profiling',
-				icon: Icons.CircleDot
+				icon: Icons.UsbIcon,
+
 			}
 		]
 	},

@@ -9,6 +9,7 @@ import { faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import request from "@/utils/request";
 import {usePerformanceContext} from "@/context/PerformanceContext";
 import {useAuth} from "@/hooks/useAuth";
+import {performanceBuilder} from "@/resolver";
 
 interface Post {
     username: string;
@@ -23,6 +24,7 @@ interface Post {
     shareCount: number;
     collectCount: number;
     downloadCount: number;
+    performaKonten: number;
 }
 
 const PostsTable = ({platform = null}) => {
@@ -30,7 +32,7 @@ const PostsTable = ({platform = null}) => {
 
     const { period, selectedCompetitor } = usePerformanceContext();
 
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: "asc" | "desc" } | null>(null);
 
@@ -44,12 +46,15 @@ const PostsTable = ({platform = null}) => {
     // Simulasi fetching data dari JSON
     useEffect(() => {
         getPosts().then((v) => {
-            setPosts(v);
+            let contentPerformance = performanceBuilder(v);
+            console.info(contentPerformance);
+            setPosts(contentPerformance);
 
             if (selectedCompetitor && selectedCompetitor.length > 0) {
-                const filteredData = v.filter((item: any) => {
+                const filteredData = contentPerformance.filter((item: any) => {
                     return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
                 });
+
                 setPosts(filteredData);
             }
 
@@ -93,55 +98,85 @@ const PostsTable = ({platform = null}) => {
     };
 
     return (
-        <section className="mb-6 2xl:mb-0 2xl:flex-1 shadow-md rounded-lg bg-gray-200 dark:bg-gray-800 p-5">
-            <div className="max-h-[500px] flex flex-col space-y-5">
-                <div className="table-content w-full overflow-x-auto">
-                    <table className="w-full border-collapse border border-gray-300 dark:border-gray-700">
-                        <thead className="bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
-                            <tr>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("username")}>
-                                    Username {getSortIcon("username")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("caption")}>
-                                    Content {getSortIcon("caption")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("created_at")}>
-                                    Date {getSortIcon("created_at")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("likes")}>
-                                    Likes {getSortIcon("likes")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("comments")}>
-                                    Comments {getSortIcon("comments")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("playCount")}>
-                                    Views {getSortIcon("playCount")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("shareCount")}>
-                                    Shares {getSortIcon("shareCount")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("collectCount")}>
-                                    Collections {getSortIcon("collectCount")}
-                                </th>
-                                <th className="px-6 py-4 border border-gray-400 dark:border-gray-600 cursor-pointer" onClick={() => requestSort("downloadCount")}>
-                                    Downloads {getSortIcon("downloadCount")}
-                                </th>
-                            </tr>
+            <div className="box box-sizing overflow-x-hidden py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
+                <div className="info flex justify-end space-x-2 mr-5">
+                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                    <p className="text-sm">Best</p>
+
+                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+                    <p className="text-sm">Mediocre</p>
+
+                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                    <p className="text-sm">Worst</p>
+                </div>
+                
+                <div className="table-content flex-grow overflow-y-auto
+">
+                    <table className="w-full flex-grow justify-center items-center table-fixed border-collapse border-gray-300 dark:border-gray-700
+">
+                        <thead className="bg-gray-100 dark:bg-gray-700 text-black dark:text-white">
+                        <tr>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("username")}>
+                                Username {getSortIcon("username")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("caption")}>
+                                Content {getSortIcon("caption")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("created_at")}>
+                                Date {getSortIcon("created_at")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("likes")}>
+                                Likes {getSortIcon("likes")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("comments")}>
+                                Comments {getSortIcon("comments")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("playCount")}>
+                                Views {getSortIcon("playCount")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("shareCount")}>
+                                Shares {getSortIcon("shareCount")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("collectCount")}>
+                                Collections {getSortIcon("collectCount")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("downloadCount")}>
+                                Downloads {getSortIcon("downloadCount")}
+                            </th>
+                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("performaKonten")}>
+                                Content Performance {getSortIcon("performaKonten")}
+                            </th>
+                        </tr>
                         </thead>
 
-                        <tbody className="bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={9} className="text-center p-5">
-                                        <OurLoading />
-                                    </td>
-                                </tr>
-                            ) : sortedPosts.length > 0 ? (
-                                sortedPosts.map((post, key) => (
-                                    <tr key={key} className="border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-                                        <td className="px-6 py-4">{post.username}</td>
-                                        <td className="px-6 py-4">
-                                            {post.caption} <br />
+                        <tbody className="h-[500px] bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700"
+                        >
+                        {loading ? (
+                            <tr>
+                                <td colSpan={10} className="text-center p-5">
+                                    <OurLoading/>
+                                </td>
+                            </tr>
+                        ) : sortedPosts.length > 0 ? (
+                            sortedPosts.map((post, key) => {
+                                return (
+                                    <tr key={key}
+                                        className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                        <td className="px-6 py-4 break-words">{post.username}</td>
+                                        <td className="px-6 py-4 text-sm">
+                                            {post.caption.split(" ").length > 20
+                                                ? `${post.caption.split(" ").slice(0, 10).join(" ")}...`
+                                                : post.caption} <br/>
                                             <span
                                                 onClick={() =>
                                                     window.open(
@@ -163,20 +198,132 @@ const PostsTable = ({platform = null}) => {
                                         <td className="px-6 py-4 text-end">{post.shareCount}</td>
                                         <td className="px-6 py-4 text-end">{post.collectCount}</td>
                                         <td className="px-6 py-4 text-end">{post.downloadCount}</td>
+                                        <td className="px-6 py-4 text-end">{
+                                            post?.level === 'Best'
+                                                ?
+                                                <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                                                :
+                                                    post?.level === 'Medioker'
+                                                        ?
+                                                        <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+                                                        :
+                                                        <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                                        }</td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={9} className="text-center p-5">
-                                        <OurEmptyData width={100} />
-                                    </td>
-                                </tr>
-                            )}
+                                )
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan={10} className="text-center p-5">
+                                    <OurEmptyData width={100}/>
+                                </td>
+                            </tr>
+                        )}
                         </tbody>
                     </table>
+
+                    <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
+                        <div className="flex w-full items-center justify-center lg:justify-between">
+                            {/* Dropdown Jumlah Per Halaman */}
+                            <div className="hidden items-center space-x-4 lg:flex">
+      <span className="text-sm font-semibold text-bgray-600 dark:text-bgray-50">
+        Show result:
+      </span>
+                                <div className="relative">
+                                    <select
+                                        // value={itemsPerPage}
+                                        // onChange={handleItemsPerPageChange}
+                                        className="rounded-lg border border-bgray-300 px-2.5 py-[14px] dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-white dark:bg-darkblack-500"
+                                    >
+                                        { [5, 10, 20, 50].map((size) => (
+                                            <option key={size} value={size}>
+                                                {size}
+                                            </option>
+                                        )) }
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Tombol Pagination */}
+                            <div className="flex items-center space-x-5 sm:space-x-[35px]">
+                                {/* Tombol Previous */}
+                                <button
+                                    type="button"
+                                    // disabled={currentPage === 1}
+                                    // onClick={handlePreviousPage}
+                                    className={`px-2 disabled:opacity-50`}
+                                >
+        <span>
+          <svg
+              width="21"
+              height="21"
+              viewBox="0 0 21 21"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+                d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327"
+                stroke="#A0AEC0"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+                                </button>
+
+                                {/* Nomor Halaman */}
+                                <div className="flex items-center space-x-2">
+                                    {Array(20)
+                                        .fill(null)
+                                        .map((_, index) => (
+                                            <button
+                                                key={index + 1}
+                                                // onClick={() => handlePageClick(index + 1)}
+                                                className={`rounded-lg px-4 py-1.5 text-xs font-bold ${
+                                                    'bg-success-50 text-success-300'
+                                                    // currentPage === index + 1
+                                                    //     ? "bg-success-50 text-success-300"
+                                                    //     : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
+                                                } lg:px-6 lg:py-2.5 lg:text-sm`}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        ))}
+                                </div>
+
+                                {/* Tombol Next */}
+                                <button
+                                    type="button"
+                                    // disabled={currentPage === totalPages}
+                                    // onClick={handleNextPage}
+                                    className={`px-2 disabled:opacity-50`}
+                                >
+        <span>
+          <svg
+              width="21"
+              height="21"
+              viewBox="0 0 21 21"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+                d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327"
+                stroke="#A0AEC0"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        // <section className="h-[700px] mb-6 2xl:mb-0 2xl:flex-1 shadow-md rounded-lg bg-gray-200 dark:bg-gray-800 p-5">
+        // </section>
     );
 };
 
