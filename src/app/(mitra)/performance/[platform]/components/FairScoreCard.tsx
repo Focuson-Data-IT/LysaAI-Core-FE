@@ -11,7 +11,7 @@ import OurSelect from "@/components/OurSelect";
 
 
 const FairScoreCard = () => {
-    const user = JSON.parse(localStorage.getItem('user')) || null;
+    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) :  null;
     const { platform } = useParams();
     const { period, setPeriod, selectedCompetitor } = usePerformanceContext();
 
