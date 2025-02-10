@@ -6,7 +6,7 @@ export const periodInitialValue: TPeriod =  {
     end: moment().format("YYYY-MM-DD")
 }
 
-export const singleMonthPeriodInitialValue: TSingleMonthPeriod = moment().format("YYYY-MM");
+export const singleMonthPeriodInitialValue: TSingleMonthPeriod = moment().format("YYYY-MM-DD");
 
 export const performanceContextInitialValue: TPerformanceContext = {
     period: singleMonthPeriodInitialValue,

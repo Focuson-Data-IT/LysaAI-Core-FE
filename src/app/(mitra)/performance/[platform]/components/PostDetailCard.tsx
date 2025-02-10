@@ -7,6 +7,7 @@ import OurLoading from "@/components/OurLoading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import request from "@/utils/request";
+import {usePerformanceContext} from "@/context/PerformanceContext";
 
 interface Post {
     username: string;
@@ -26,26 +27,35 @@ interface Post {
 const PostsTable = ({platform = null}) => {
     const user = JSON.parse(localStorage.getItem('user')) || null;
 
+    const { period, selectedCompetitor } = usePerformanceContext();
+
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: "asc" | "desc" } | null>(null);
 
     const getPosts = async () => {
         setLoading(true);
-        // const response = await request.get(`/getAllPost?kategori=${user?.username}&start_date=${moment(period?.startDate)?.format("YYYY-MM-DD")}&end_date=${moment(period?.endDate || period?.startDate)?.format("YYYY-MM-DD")}`);
-        const response = await request.get(`/getAllPost?kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09&platform=${platform}`);
+        const response = await request.get(`/getAllPost?platform=${platform}&kategori=${user?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`);
+        // const response = await request.get(`/getAllPost?kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09&platform=${platform}`);
 
-        if (response.status === 200) {
-            setPosts(response.data.data);
-        }
+        return response.data?.data;
     }
 
     // Simulasi fetching data dari JSON
     useEffect(() => {
-        getPosts().then(() => {
+        getPosts().then((v) => {
+            setPosts(v);
+
+            if (selectedCompetitor && selectedCompetitor.length > 0) {
+                const filteredData = v.filter((item: any) => {
+                    return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
+                });
+                setPosts(filteredData);
+            }
+
             setLoading(false);
         });
-    }, [platform]);
+    }, [platform, period, selectedCompetitor]);
 
     const sortedPosts = React.useMemo(() => {
         const sortablePosts = [...posts];

@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import request from "@/utils/request";
+import {usePerformanceContext} from "@/context/PerformanceContext";
+import moment from "moment";
 
 const topRankingData = [
     { name: "surabaya", link: "https://instagram.com/surabaya", score: "87.50" },
@@ -13,23 +15,34 @@ const topRankingData = [
 const TopRankingCard = ({platform = null}) => {
     const user = JSON.parse(localStorage.getItem('user')) || null;
 
+    const { period, selectedCompetitor } = usePerformanceContext();
+
     const [loading, setLoading] = useState<boolean>(true);
     const [fairRankingData, setFairRankingData] = useState(null);
 
     const getFairRanking = async () => {
         setLoading(true);
 
-        // const response = await request.get(`/getFairRanking?kategori=${user?.username}&start_date=${moment(payload?.startDate)?.format("YYYY-MM-DD")}&end_date=${moment(payload?.endDate || payload?.startDate)?.format("YYYY-MM-DD")}`)
-        const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09`)
+        const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${user?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`)
+        // const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09`)
 
-        setFairRankingData(response.data?.data);
+        return response.data?.data;
     }
 
     useEffect(() => {
-        getFairRanking().then(() => {
+        getFairRanking().then((v) => {
+            setFairRankingData(v);
+
+            if (selectedCompetitor && selectedCompetitor.length > 0) {
+                const filteredData = v.filter((item: any) => {
+                    return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
+                });
+                setFairRankingData(filteredData);
+            }
+
             setLoading(false);
         })
-    }, [])
+    }, [platform, period, selectedCompetitor])
 
     return (
         <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-900 transition-colors">
@@ -56,7 +69,7 @@ const TopRankingCard = ({platform = null}) => {
                                 <div className="text-[10px] text-[#0ED1D6]">{platform === 'instagram' ? `https://www.instagram.com/${item?.username}` : `https://www.tiktok.com/@${item?.username}`}</div>
                             </div>
                         </div>
-                        <div className="font-bold">{item.score}</div>
+                        <div className={`${index === 0 ? 'font-bold text-lg' : 'text-sm'}`}>{item?.max_value}</div>
                     </a>
                 ))}
             </div>

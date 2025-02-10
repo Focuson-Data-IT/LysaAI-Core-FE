@@ -7,24 +7,6 @@ import OurLoading from "@/components/OurLoading";
 import "@/app/globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    const { isLoading, isAuthenticated } = useAuth();
-    const router = useRouter();
-    const [isReady, setIsReady] = useState(false);
-
-    useEffect(() => {
-        if (!isLoading) {
-            if (!isAuthenticated && window.location.pathname !== "/login") {
-                router.replace("/login");
-            } else {
-                setIsReady(true);
-            }
-        }
-    }, [isLoading, isAuthenticated, router]);
-
-    if (isLoading || !isReady) {
-        return <OurLoading />;
-    }
-
     return (
         <html lang="en">
         <head>
