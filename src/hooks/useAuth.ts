@@ -20,6 +20,14 @@ export function useAuth() {
     const router = useRouter();
 
     useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedUser = localStorage.getItem("authUser");
+            if (storedUser) {
+                setAuthUser(JSON.parse(storedUser));
+                setIsAuthenticated(true);
+            }
+        }
+
         const storedUser = Cookies.get("user");
         if (storedUser) {
             const user = JSON.parse(storedUser);
@@ -41,6 +49,9 @@ export function useAuth() {
                 const token = uuidv4();
                 Cookies.set("authToken", token);
                 Cookies.set("user", JSON.stringify(user));
+                if (typeof window !== "undefined") {
+                    localStorage.setItem("authUser", JSON.stringify(user));
+                }
 
                 router.replace("/home");
             }
@@ -56,6 +67,9 @@ export function useAuth() {
         setIsAuthenticated(false);
         Cookies.remove("authToken");
         Cookies.remove("user");
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("authUser");
+        }
 
         router.replace("/login");
     };
