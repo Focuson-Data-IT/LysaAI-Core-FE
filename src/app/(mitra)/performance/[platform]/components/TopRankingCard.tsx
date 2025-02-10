@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import request from "@/utils/request";
 import {usePerformanceContext} from "@/context/PerformanceContext";
 import moment from "moment";
+import {useAuth} from "@/hooks/useAuth";
 
 const topRankingData = [
     { name: "surabaya", link: "https://instagram.com/surabaya", score: "87.50" },
@@ -13,7 +14,7 @@ const topRankingData = [
 ];
 
 const TopRankingCard = ({platform = null}) => {
-    const user = JSON.parse(localStorage.getItem('user')) || null;
+    const { authUser } = useAuth();
 
     const { period, selectedCompetitor } = usePerformanceContext();
 
@@ -23,7 +24,9 @@ const TopRankingCard = ({platform = null}) => {
     const getFairRanking = async () => {
         setLoading(true);
 
-        const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${user?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`)
+        console.info(authUser)
+
+        const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`)
         // const response = await request.get(`/getFairRanking?platform=${platform}&kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09`)
 
         return response.data?.data;

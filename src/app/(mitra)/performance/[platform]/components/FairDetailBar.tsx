@@ -6,11 +6,12 @@ import OurEmptyData from "@/components/OurEmptyData";
 import request from "@/utils/request";
 import moment from "moment";
 import {usePerformanceContext} from "@/context/PerformanceContext";
+import {useAuth} from "@/hooks/useAuth";
 
 
 
 const FairDetailBar = ({platform = null, label = null, description = null, unit = null}) => {
-    const user = JSON.parse(localStorage.getItem('user')) || null;
+    const { authUser } = useAuth();
 
     const { period, selectedCompetitor } = usePerformanceContext();
 
@@ -20,7 +21,7 @@ const FairDetailBar = ({platform = null, label = null, description = null, unit 
 
 
     const getFairChartData = async () => {
-        const url = `/get${label}?platform=${platform}&kategori=${user?.username}&start_date=${period}&end_date=${moment(period).endOf('month').format("YYYY-MM-DD")}`;
+        const url = `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period).endOf('month').format("YYYY-MM-DD")}`;
         // const url = `http://103.30.195.110:7770/api/getFollowers?platform=${platform}&kategori=${user?.username}&start_date=2025-01-09&end_date=2025-02-19`;
         const response = await request.get(url);
         const newResponse = response.data?.data?.map((v: any) => {

@@ -1,5 +1,6 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+"use client";
 
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Chart from "chart.js/auto";
 import moment from "moment";
 import request from "@/utils/request";
@@ -8,10 +9,11 @@ import {usePerformanceContext} from "@/context/PerformanceContext";
 import {useParams} from "next/navigation";
 import OurDatePicker from "@/components/OurDatePicker";
 import OurSelect from "@/components/OurSelect";
+import {useAuth} from "@/hooks/useAuth";
 
 
 const FairScoreCard = () => {
-    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) :  null;
+    const { authUser } = useAuth();
     const { platform } = useParams();
     const { period, setPeriod, selectedCompetitor } = usePerformanceContext();
 
@@ -25,7 +27,6 @@ const FairScoreCard = () => {
 
     const getFairScoreChartData = async () => {
         setIsLoading(true);
-        const url = `http://103.30.195.110:7770/api/getFairScores?platform=${platform}&kategori=${user?.username}&start_date=2025-01-01&end_date=2025-02-19`;
 
         const payload = {
             startDate: period,
@@ -33,7 +34,7 @@ const FairScoreCard = () => {
         };
 
         const response = await request.get(
-            `/getFairScores?kategori=${user?.username}&start_date=${payload.startDate}&end_date=${payload.endDate}&platform=${platform}`,
+            `/getFairScores?kategori=${authUser?.username}&start_date=${payload.startDate}&end_date=${payload.endDate}&platform=${platform}`,
             // url
         );
 

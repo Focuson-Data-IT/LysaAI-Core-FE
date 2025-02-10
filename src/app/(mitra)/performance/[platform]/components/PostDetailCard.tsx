@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import request from "@/utils/request";
 import {usePerformanceContext} from "@/context/PerformanceContext";
+import {useAuth} from "@/hooks/useAuth";
 
 interface Post {
     username: string;
@@ -25,7 +26,7 @@ interface Post {
 }
 
 const PostsTable = ({platform = null}) => {
-    const user = JSON.parse(localStorage.getItem('user')) || null;
+    const { authUser } = useAuth();
 
     const { period, selectedCompetitor } = usePerformanceContext();
 
@@ -35,7 +36,7 @@ const PostsTable = ({platform = null}) => {
 
     const getPosts = async () => {
         setLoading(true);
-        const response = await request.get(`/getAllPost?platform=${platform}&kategori=${user?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`);
+        const response = await request.get(`/getAllPost?platform=${platform}&kategori=${authUser?.username}&start_date=${period}&end_date=${moment(period)?.endOf('month').format("YYYY-MM-DD")}`);
         // const response = await request.get(`/getAllPost?kategori=${user?.username}&start_date=2025-01-01&end_date=2025-01-09&platform=${platform}`);
 
         return response.data?.data;
