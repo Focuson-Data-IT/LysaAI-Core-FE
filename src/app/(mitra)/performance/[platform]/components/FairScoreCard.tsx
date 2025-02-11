@@ -201,7 +201,7 @@ const FairScoreCard = ({ platform }) => {
 
         const generateColors = (index) => {
             const primaryColors = [
-                "#FFA500", "#FFD700", "#FF4500", "#DA70D6", "#BA55D3"
+                "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
             ];
 
             return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
