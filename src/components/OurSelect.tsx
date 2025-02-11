@@ -13,7 +13,7 @@ const customSelectStyles = {
 		height: "40px",
 		width: "100%",
 		borderRadius: "8px",
-		border: "1px solid #d1d5db",
+		// border: "1px solid #d1d5db",
 		backgroundColor: "#1f2937",
 		boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "none",
 		fontSize: "14px",
@@ -29,7 +29,7 @@ const customSelectStyles = {
 	menu: (provided) => ({
 		...provided,
 		borderRadius: "8px",
-		border: "1px solid #d1d5db",
+		// border: "1px solid #d1d5db",
 		boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
 		backgroundColor: "#1f2937",
 		zIndex: 10,

@@ -45,75 +45,71 @@ export default function LoginPage() {
     };
 
     const redirectBasedOnRole = (role: string) => {
-        if (role === "admin") {
-            router.push("/home");
-        } else {
-            router.push("/home");
-        }
+        router.push("/home");
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 dark:bg-gray-900 px-4">
+        <div className={`flex flex-col items-center justify-center min-h-screen ${theme === "dark" ? "bg-gray-900" : "bg-gray-100"} px-4`}>
             {/* Logo */}
             <div className="flex justify-center mb-6">
                 <Image
                     className="h-14"
-                    src={theme !== "dark" ? "/logo_horizontal_d.svg" : "/logo_horizontal.svg"}
+                    src={theme === "dark" ? "/logo_horizontal.svg" : "/logo_horizontal_d.svg"}
                     alt="logo"
-                    width={200} // Adjust width and height as needed
+                    width={200}
                     height={200}
                 />
             </div>
 
             {/* Heading */}
-            <h1 className="text-3xl font-bold text-center text-white mb-6">
+            <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">
                 Hatch Your Idea
             </h1>
 
             {/* Login Form Card */}
-            <div className="w-full max-w-sm p-6 bg-gray-800 dark:bg-gray-700 rounded-lg shadow-lg">
-                <h3 className="font-bold text-gray-100 dark:text-white text-lg">
+            <div className={`w-full max-w-sm p-6 rounded-lg shadow-lg ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
+                <h3 className="font-bold text-gray-900 dark:text-white text-lg">
                     Login Form
                 </h3>
-                <p className="text-sm text-gray-400 dark:text-gray-300 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                     Please fill the form
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Username */}
+                    {/* Email */}
                     <div>
-                        <label className="block text-gray-100 dark:text-white font-semibold mb-1">
-                            Username <span className="text-red-500">*</span>
+                        <label className="block text-gray-900 dark:text-white font-semibold mb-1">
+                            Email <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="email"
-                            placeholder="Email"
+                            placeholder="Enter your email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full rounded-lg bg-gray-900 text-white focus:outline-none p-2 text-sm pl-4"
+                            className="w-full rounded-lg bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none p-2 text-sm pl-4"
                             required
                         />
                     </div>
 
                     {/* Password */}
                     <div className="relative">
-                        <label className="block text-gray-100 dark:text-white font-semibold mb-1">
+                        <label className="block text-gray-900 dark:text-white font-semibold mb-1">
                             Password <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                             <input
-                                type={showPassword ? "text" : "password"} // Toggle tipe input
-                                placeholder="Password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full rounded-lg bg-gray-900 text-white focus:outline-none p-2 text-sm pl-4"
+                                className="w-full rounded-lg bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none p-2 text-sm pl-4"
                                 required
                             />
-                            {/* Tombol Lihat Password */}
+                            {/* Eye Icon for Show/Hide Password */}
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                                className="absolute inset-y-0 right-3 flex items-center text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-400"
                             >
                                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
@@ -123,7 +119,7 @@ export default function LoginPage() {
                     {/* Login Button */}
                     <button
                         type="submit"
-                        className="w-full bg-gray-200 dark:bg-white text-gray-900 dark:text-black p-3 rounded-lg font-semibold"
+                        className="w-full bg-blue-500 dark:bg-blue-400 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 dark:hover:bg-blue-500 transition"
                         disabled={isLoading}
                     >
                         {isLoading ? "Logging in..." : "Login"}
@@ -132,8 +128,8 @@ export default function LoginPage() {
             </div>
 
             {/* Footer */}
-            <p className="mt-6 text-center text-gray-400 dark:text-gray-300 text-sm">
-                With Idea Generator V2.0 get daily fresh idea and monitor your competitors
+            <p className="mt-6 text-center text-gray-600 dark:text-gray-300 text-sm">
+                With Idea Generator V2.0, get daily fresh ideas and monitor your competitors
             </p>
         </div>
     );
