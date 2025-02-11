@@ -128,56 +128,75 @@ const PostsTable = ({ platform = null }) => {
                 <p className="text-sm">Worst</p>
             </div>
 
-            <div className="table-content flex-grow overflow-y-auto
-">
+            <div className="table-content flex-grow overflow-y-auto">
                 <table className="w-full h-[200px] overflow-y-scroll flex-grow justify-center items-center border-collapse border-gray-300 dark:border-gray-700">
-                    <thead
-                        className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
-                        <tr className={""}>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("username")}>
+                    <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
+                        <tr className="text-center">
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("username")}
+                            >
                                 Username {getSortIcon("username")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("caption")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("caption")}
+                            >
                                 Content {getSortIcon("caption")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("created_at")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("created_at")}
+                            >
                                 Date {getSortIcon("created_at")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("likes")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("likes")}
+                            >
                                 Likes {getSortIcon("likes")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("comments")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("comments")}
+                            >
                                 Comments {getSortIcon("comments")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("playCount")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("playCount")}
+                            >
                                 Views {getSortIcon("playCount")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("shareCount")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("shareCount")}
+                            >
                                 Shares {getSortIcon("shareCount")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("collectCount")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("collectCount")}
+                            >
                                 Save {getSortIcon("collectCount")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("downloadCount")}>
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("downloadCount")}
+                            >
                                 Downloads {getSortIcon("downloadCount")}
                             </th>
-                            <th className="text-sm font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("performaKonten")}>
-
-                                Content<br/>Performance {getSortIcon("performaKonten")}
-
+                            <th
+                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
+                                onClick={() => requestSort("performaKonten")}
+                            >
+                                Content
+                                <br />
+                                Performance {getSortIcon("performaKonten")}
                             </th>
                         </tr>
                     </thead>
+
 
                     <tbody className="h-[500px] bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700"
                     >
@@ -192,8 +211,8 @@ const PostsTable = ({ platform = null }) => {
                                 return (
                                     <tr key={key}
                                         className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                                        <td className="px-2 py-4 break-words w-[100px]">{post.username}</td>
-                                        <td className="px-2 py-4 text-sm break-words w-[100px]">
+                                        <td className="px-2 py-4 text-center break-words w-[100px]">{post.username}</td>
+                                        <td className="px-2 py-4 text-left text-sm break-words w-[100px]">
                                             {post.caption.split(" ").length > 20
                                                 ? `${post.caption.split(" ").slice(0, 10).join(" ")}...`
                                                 : post.caption} <br />
@@ -211,24 +230,27 @@ const PostsTable = ({ platform = null }) => {
                                                 Original Post
                                             </span>
                                         </td>
-                                        <td className="px-2 py-4">{moment(post.created_at).format("DD MMM YYYY")}</td>
-                                        <td className="px-2 py-4 text-end">{post.likes || 0}</td>
-                                        <td className="px-2 py-4 text-end">{post.comments || 0}</td>
-                                        <td className="px-2 py-4 text-end">{post.playCount || 0}</td>
-                                        <td className="px-2 py-4 text-end">{post.shareCount || 0}</td>
-                                        <td className="px-2 py-4 text-end">{post.collectCount || 0}</td>
-                                        <td className="px-2 py-4 text-end">{post.downloadCount || 0}</td>
-                                        <td className="px-2 py-4 flex items-center justify-end me-6 h-full">{
-                                            post?.level === 'Best'
-                                                ?
-                                                <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                                                :
-                                                post?.level === 'Medioker'
-                                                    ?
+                                        <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
+                                        <td className="px-2 py-4 text-center">{post.likes || 0}</td>
+                                        <td className="px-2 py-4 text-center">{post.comments || 0}</td>
+                                        <td className="px-2 py-4 text-center">{post.playCount || 0}</td>
+                                        <td className="px-2 py-4 text-center">{post.shareCount || 0}</td>
+                                        <td className="px-2 py-4 text-center">{post.collectCount || 0}</td>
+                                        <td className="px-2 py-4 text-center">{post.downloadCount || 0}</td>
+                                        <td className="px-2 py-4 flex items-center justify-center h-full">
+                                            {post?.performa_konten !== undefined && post?.performa_konten !== null ? (
+                                                parseInt(post.performa_konten) > 500 ? (
+                                                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                                                ) : parseInt(post.performa_konten) >= 10 ? (
                                                     <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                                                    :
+                                                ) : (
                                                     <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                        }</td>
+                                                )
+                                            ) : (
+                                                <div className="w-4 h-4 rounded-full bg-gray-500"></div> // Warna default jika tidak ada nilai
+                                            )}
+                                        </td>
+
                                     </tr>
                                 )
                             })
@@ -241,97 +263,70 @@ const PostsTable = ({ platform = null }) => {
                         )}
                     </tbody>
                 </table>
-                    <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
-                        <div className="flex w-full items-center justify-center lg:justify-between">
-                            <div className="hidden items-center space-x-4 lg:flex">
-      <span className="text-sm font-semibold text-bgray-600 dark:text-white">
-        Show result:
-      </span>
-                                <div className="relative dark:bg-darkblack-500">
-                                    <select
-                                        value={perPage}
-                                        onChange={(e) => setPerPage(parseInt(e?.target?.value))}
-                                        className="rounded-lg border border-bgray-300 p-2 dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-black dark:bg-gray-800 focus:outline-none focus:border-bgray-500 focus:ring-0"
-                                    >
-                                        { [5, 10, 20, 50].map((size) => (
-                                            <option key={size} value={size}>
-                                                {size}
-                                            </option>
-                                        )) }
-                                    </select>
-                                </div>
+
+                <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
+                    <div className="flex w-full items-center justify-center lg:justify-between">
+                        <div className="hidden items-center space-x-4 lg:flex">
+                            <span className="text-sm font-semibold text-bgray-600 dark:text-white">
+                                Show result:
+                            </span>
+                            <div className="relative dark:bg-darkblack-500">
+                                <select
+                                    value={perPage}
+                                    onChange={(e) => setPerPage(parseInt(e?.target?.value))}
+                                    className="rounded-lg border border-bgray-300 p-2 dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-black dark:bg-gray-800 focus:outline-none focus:border-bgray-500 focus:ring-0"
+                                >
+                                    {[5, 10, 20, 50].map((size) => (
+                                        <option key={size} value={size}>
+                                            {size}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
-                            <div className="flex items-center space-x-5 sm:space-x-[35px]">
-                                <button
-                                    type="button"
-                                    disabled={currentPage === 1}
-                                    onClick={handlePreviousPage}
-                                    className={`px-2 disabled:opacity-50`}
-                                >
-        <span>
-          <svg
-              width="21"
-              height="21"
-              viewBox="0 0 21 21"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-                d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327"
-                stroke="#A0AEC0"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-                                </button>
 
-                                {/* Nomor Halaman */}
-                                <div className="flex items-center space-x-2">
-                                    {Array(Math.min(5, totalPages)) // Set maximum number of pages displayed to 5 or totalPages, whichever is smaller
-                                        .fill(null)
-                                        .map((_, index) => (
-                                            <button
-                                                key={index + 1}
-                                                onClick={() => handlePageClick(index + 1)}
-                                                className={`rounded-lg px-1 py-1.5 text-xs font-bold ${
-                                                    currentPage === index + 1
-                                                        ? "bg-success-50 text-success-300"
-                                                        : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
+                        <div className="flex items-center space-x-5 sm:space-x-[35px]">
+                            <button
+                                type="button"
+                                disabled={currentPage === 1}
+                                onClick={handlePreviousPage}
+                                className={`px-2 disabled:opacity-50`}
+                            >
+                                <span>
+                                    <svg
+                                        width="21"
+                                        height="21"
+                                        viewBox="0 0 21 21"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327"
+                                            stroke="#A0AEC0"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </span>
+                            </button>
+
+                            {/* Nomor Halaman */}
+                            <div className="flex items-center space-x-2">
+                                {Array(Math.min(5, totalPages)) // Set maximum number of pages displayed to 5 or totalPages, whichever is smaller
+                                    .fill(null)
+                                    .map((_, index) => (
+                                        <button
+                                            key={index + 1}
+                                            onClick={() => handlePageClick(index + 1)}
+                                            className={`rounded-lg px-1 py-1.5 text-xs font-bold ${currentPage === index + 1
+                                                ? "bg-success-50 text-success-300"
+                                                : "text-bgray-500 hover:bg-success-50 hover:text-success-300"
                                                 } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                            >
-                                                {index + 1}
-                                            </button>
-                                        ))}
-                                </div>
-
-                                {/* Tombol Next */}
-                                <button
-                                    type="button"
-                                    disabled={currentPage === totalPages}
-                                    onClick={handleNextPage}
-                                    className={`px-2 disabled:opacity-50`}
-                                >
-        <span>
-          <svg
-              width="21"
-              height="21"
-              viewBox="0 0 21 21"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-                d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327"
-                stroke="#A0AEC0"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-                                </button>
+                                        >
+                                            {index + 1}
+                                        </button>
+                                    ))}
                             </div>
 
                             {/* Tombol Next */}
