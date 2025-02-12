@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import FairDetailBar from "./components/FairDetailBar";
+import FairDetailCard from "./components/FairDetailCard";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
@@ -52,6 +53,25 @@ const Competitor = () => {
                     <div className="lg:col-span-3 rounded-lg">
                         <FairDetailBar platform={platform} label="Responsiveness" description="presentase respon dari team pengelola kepada warganet yang berkomentar" unit="%" />
                     </div>
+
+                    <div className="lg:col-span-12 rounded-lg flex w-full items-center my-4">
+                    <Image src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" width={28} height={28} />
+                    <div className="mr-3 w-auto text-lg font-bold">Fair Detail Chart</div>
+                    <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
+                    </div>
+
+                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                        <FairDetailCard platform={platform} label="Followers"/>
+                    </div>
+                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                        <FairDetailCard platform={platform} label="Activities"/>
+                    </div>
+                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                        <FairDetailCard platform={platform} label="Interactions"/>
+                    </div>
+                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                        <FairDetailCard platform={platform} label="Responsiveness"/>
+                    </div>
                 </div>
 
                 {/* POST DETAIL Section */}
@@ -62,7 +82,7 @@ const Competitor = () => {
                 </div>
 
                 {/* Detail Post */}
-                <div className="grid grid-cols-12 gap-4 mt-4">
+                <div className="grid grid-cols-12 gap-4 mt-4 h-[800px]">
                     <div className="lg:col-span-12 rounded-lg">
                         <PostsTable platform={platform}/>
                     </div>
