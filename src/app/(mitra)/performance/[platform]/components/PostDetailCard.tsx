@@ -264,7 +264,7 @@ const PostsTable = ({ platform = null }) => {
                     </tbody>
                 </table>
 
-                <div className="pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
+                <div className="sticky bottom-0 z-10 pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
                     <div className="flex w-full items-center justify-center lg:justify-between">
                         {/* Dropdown untuk memilih jumlah item per halaman */}
                         <div className="hidden items-center space-x-4 lg:flex">
