@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
 import request from "@/utils/request";
-import { usePerformanceContext } from "@/context/PerformanceContext";
-import { useAuth } from "@/hooks/useAuth";
-import { followersValueFormatter } from "@/utils/numberFormatter";
+import {usePerformanceContext} from "@/context/PerformanceContext";
+import {useAuth} from "@/hooks/useAuth";
+import {followersValueFormatter} from "@/utils/numberFormatter";
 
 const FairDetailBar = ({ platform = null, label = null, description = null, unit = null }) => {
     const { authUser } = useAuth();
@@ -39,7 +39,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
             setFairDetailData(sortedData);
         }
     };
-
+    
     useEffect(() => {
         getFairDetailData().then((v) => {
             let filteredData = v;
@@ -109,9 +109,9 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
                                     </svg>
                                     <span
                                         style={{ zIndex: 50 }}
-                                        className="absolute bottom-7 left-1/2 -translate-x-1/2 
-                                                whitespace-normal w-[150px] text-left 
-                                                dark:bg-black bg-black text-white text-xs 
+                                        className="absolute bottom-7 left-1/2 -translate-x-1/2
+                                                whitespace-normal w-[150px] text-left
+                                                dark:bg-black bg-black text-white text-xs
                                                 rounded py-2 px-3 opacity-0 group-hover:opacity-100"
                                     >
                                         {description}
