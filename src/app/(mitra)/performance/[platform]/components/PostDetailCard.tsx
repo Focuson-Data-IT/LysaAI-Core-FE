@@ -34,69 +34,24 @@ const PostsTable = ({ platform = null }) => {
 
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: "asc" | "desc" } | null>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "created_at", direction: "desc"});
     const [perPage, setPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalRows, setTotalRows] = useState(1);
 
 
-    const handlePageClick = (page: number) => {
-        setCurrentPage(page);
-    }
-
-    const handlePreviousPage = () => {
-        setCurrentPage(currentPage - 1);
-    }
-
-    const handleNextPage = () => {
-        setCurrentPage(currentPage + 1);
-    }
-
     const getPosts = async () => {
         setLoading(true);
-        const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`);
+        const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=${sortConfig.key}&direction=${sortConfig.direction}`);
+        // const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=created_at&direction=desc`);
 
         setTotalPages(response.data?.totalPages);
         setTotalRows(response.data?.totalRows);
         return response.data?.data;
     }
 
-    // Simulasi fetching data dari JSON
-    useEffect(() => {
-        getPosts().then((v) => {
-            let contentPerformance = performanceBuilder(v);
-            setPosts(contentPerformance);
-
-            if (selectedCompetitor && selectedCompetitor.length > 0) {
-                const filteredData = contentPerformance.filter((item: any) => {
-                    return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
-                });
-
-                setPosts(filteredData);
-            }
-
-            setLoading(false);
-        });
-    }, [authUser, platform, period, selectedCompetitor, currentPage, perPage]);
-
-    const sortedPosts = React.useMemo(() => {
-        const sortablePosts = [...posts];
-        if (sortConfig !== null) {
-            sortablePosts.sort((a, b) => {
-                if (a[sortConfig.key] < b[sortConfig.key]) {
-                    return sortConfig.direction === "asc" ? -1 : 1;
-                }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
-                    return sortConfig.direction === "asc" ? 1 : -1;
-                }
-                return 0;
-            });
-        }
-        return sortablePosts;
-    }, [posts, sortConfig]);
-
-    const requestSort = (key: keyof Post) => {
+    const requestSort = (key) => {
         let direction: "asc" | "desc" = "asc";
         if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
             direction = "desc";
@@ -114,6 +69,35 @@ const PostsTable = ({ platform = null }) => {
             <FontAwesomeIcon icon={faSortDown} className="ml-2" />
         );
     };
+
+    const handlePageClick = (page: number) => {
+        setCurrentPage(page);
+    }
+
+    const handlePreviousPage = () => {
+        setCurrentPage(currentPage - 1);
+    }
+
+    const handleNextPage = () => {
+        setCurrentPage(currentPage + 1);
+    }
+
+    useEffect(() => {
+        getPosts().then((v) => {
+            let contentPerformance = performanceBuilder(v);
+            setPosts(contentPerformance);
+
+            if (selectedCompetitor && selectedCompetitor.length > 0) {
+                const filteredData = contentPerformance.filter((item: any) => {
+                    return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
+                });
+
+                setPosts(filteredData);
+            }
+
+            setLoading(false);
+        });
+    }, [authUser, platform, period, selectedCompetitor, currentPage, perPage, sortConfig]);
 
     return (
         <div className="box box-sizing overflow-x-hidden py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
@@ -206,8 +190,8 @@ const PostsTable = ({ platform = null }) => {
                                     <OurLoading />
                                 </td>
                             </tr>
-                        ) : sortedPosts.length > 0 ? (
-                            sortedPosts.map((post, key) => {
+                        ) : posts.length > 0 ? (
+                            posts.map((post, key) => {
                                 return (
                                     <tr key={key}
                                         className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
@@ -277,8 +261,8 @@ const PostsTable = ({ platform = null }) => {
                                     onChange={(e) => setPerPage(parseInt(e?.target?.value))}
                                     className="rounded-lg border border-bgray-300 p-2 dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-white dark:bg-gray-800 focus:outline-none focus:border-bgray-500 focus:ring-0"
                                 >
-                                    {[5, 10, 20, 50].map((size) => (
-                                        <option key={size} value={size}>
+                                    {[5, 10, 20, 50].map((size, key) => (
+                                        <option key={key} value={size}>
                                             {size}
                                         </option>
                                     ))}
@@ -286,19 +270,35 @@ const PostsTable = ({ platform = null }) => {
                             </div>
                         </div>
 
+
                         {/* Tombol Pagination */}
                         <div className="flex items-center space-x-5 sm:space-x-[35px]">
-                            {/* Tombol Previous */}
-                            <button
-                                type="button"
-                                disabled={currentPage === 1}
-                                onClick={handlePreviousPage}
-                                className={`px-2 rounded-lg transition ${currentPage === 1
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-gray-400 dark:hover:bg-gray-600"
-                                    }`}
-                            >
-                                <span>
+                            {/* Navigasi Halaman */}
+                            <div className="flex items-center space-x-2">
+                                {/* Tombol '<<' untuk ke halaman pertama */}
+                                <button
+                                    onClick={() => setCurrentPage(1)}
+                                    disabled={currentPage === 1}
+                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                                        currentPage === 1
+                                            ? "text-gray-400 cursor-not-allowed"
+                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
+                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
+                                >
+                                    {"<<"}
+                                </button>
+
+                                {/* Tombol '<' untuk halaman sebelumnya */}
+                                <button
+                                    onClick={handlePreviousPage}
+                                    disabled={currentPage === 1}
+                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                                        currentPage === 1
+                                            ? "text-gray-400 cursor-not-allowed"
+                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
+                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
+                                >
+                                    <span>
                                     <svg
                                         width="21"
                                         height="21"
@@ -315,35 +315,42 @@ const PostsTable = ({ platform = null }) => {
                                         />
                                     </svg>
                                 </span>
-                            </button>
+                                </button>
 
-                            {/* Nomor Halaman */}
-                            <div className="flex items-center space-x-2">
-                                {Array.from({ length: Math.min(5, totalPages) }, (_, index) => (
-                                    <button
-                                        key={index + 1}
-                                        onClick={() => handlePageClick(index + 1)}
-                                        className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${currentPage === index + 1
-                                                ? "bg-blue-500 text-white dark:bg-blue-400"
-                                                : "text-bgray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
-                                            } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                    >
-                                        {index + 1}
-                                    </button>
-                                ))}
-                            </div>
+                                {/* Nomor halaman */}
+                                {Array.from({ length: 5 }) // Hanya 5 halaman ditampilkan.
+                                    .map((_, index) => {
+                                        // Hitung halaman yang valid
+                                        const page = currentPage - 2 + index; // Offset halaman sekitar currentPage
 
-                            {/* Tombol Next */}
-                            <button
-                                type="button"
-                                disabled={currentPage === totalPages}
-                                onClick={handleNextPage}
-                                className={`px-2 rounded-lg transition ${currentPage === totalPages
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-gray-400 dark:hover:bg-gray-600"
-                                    }`}
-                            >
-                                <span>
+                                        if (page < 1 || page > totalPages) return null; // Pastikan halaman valid
+
+                                        return (
+                                            <button
+                                                key={page}
+                                                onClick={() => handlePageClick(page)}
+                                                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                                                    currentPage === page
+                                                        ? "bg-blue-500 text-white dark:bg-blue-400"
+                                                        : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
+                                                } lg:px-6 lg:py-2.5 lg:text-sm`}
+                                            >
+                                                {page}
+                                            </button>
+                                        );
+                                    })}
+
+                                {/* Tombol '>' untuk halaman berikutnya */}
+                                <button
+                                    onClick={handleNextPage}
+                                    disabled={posts?.length < 1 || currentPage === totalPages}
+                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                                        posts?.length < 1 || currentPage === totalPages
+                                            ? "text-gray-400 cursor-not-allowed"
+                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
+                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
+                                >
+                                    <span>
                                     <svg
                                         width="21"
                                         height="21"
@@ -360,7 +367,21 @@ const PostsTable = ({ platform = null }) => {
                                         />
                                     </svg>
                                 </span>
-                            </button>
+                                </button>
+
+                                {/* Tombol '>>' untuk ke halaman terakhir */}
+                                <button
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    disabled={posts?.length < 1 || currentPage === totalPages}
+                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                                        posts?.length < 1 || currentPage === totalPages
+                                            ? "text-gray-400 cursor-not-allowed"
+                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
+                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
+                                >
+                                    {">>"}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

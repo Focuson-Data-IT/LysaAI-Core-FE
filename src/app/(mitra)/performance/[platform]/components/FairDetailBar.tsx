@@ -108,8 +108,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
             </g>
         </svg>
         <span
-            style={{zIndex: 50}}
-            className="absolute bottom-7 left-1/2 transform -translate-x-1/2 whitespace-nowrap dark:bg-white/50 bg-black/50 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100"
+            className="absolute bottom-7 left-1/2 transform -translate-x-1/2 w-[200px] block box-border dark:bg-white/50 bg-black/50 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100"
         >
             {description}
         </span>
