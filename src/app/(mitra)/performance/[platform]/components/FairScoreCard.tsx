@@ -164,6 +164,8 @@ const FairScoreCard = ({ platform }) => {
         }
     };
 
+
+
     useEffect(() => {
         getFairScoreChartData().then((v) => {
             const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {

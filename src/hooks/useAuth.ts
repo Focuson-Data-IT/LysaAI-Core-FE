@@ -5,6 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
+import request from "@/utils/request";
 
 interface AuthUser {
     id: number;
@@ -40,7 +41,7 @@ export function useAuth() {
     const login = async (email: string, password: string) => {
         setIsLoading(true);
         try {
-            const response = await axios.post("http://103.30.195.110:7770/api/auth/login", { email, password });
+            const response = await request.post("/auth/login", { email, password });
             if (response.data.code === 200) {
                 const user = response.data.data;
                 user.role = "mitra";
