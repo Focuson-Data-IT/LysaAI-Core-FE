@@ -85,7 +85,7 @@ const TopRankingCard = ({platform = null}) => {
                                 <div className="text-[10px] text-[#0ED1D6]">{platform === 'Instagram' ? `https://www.instagram.com/${item?.username}` : `https://www.tiktok.com/@${item?.username}`}</div>
                             </div>
                         </div>
-                        <div className={`${index === 0 ? 'font-bold text-lg' : 'text-sm'}`}>{scoreFormatter(item?.max_value)}</div>
+                        <div className={`${index === 0 ? 'font-bold text-lg' : 'text-sm'}`}>{scoreFormatter(item?.fair_score)}</div>
                     </a>
                 ))
                 }

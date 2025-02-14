@@ -154,11 +154,18 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
                                                             ?
                                                             followersValueFormatter(v?.value)
                                                             :
-                                                            label === 'Activities' || label === 'Interactions' || label === 'Responsiveness'
+                                                            label === 'Activities' || label === 'Responsiveness'
                                                                 ?
                                                                 v.value?.toLocaleString(undefined, {
                                                                     minimumFractionDigits: 1,
                                                                     maximumFractionDigits: 1,
+                                                                })
+                                                                :
+                                                                label === 'Interactions'
+                                                                ?
+                                                                v.value?.toLocaleString(undefined, {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0,
                                                                 })
                                                                 :
                                                                 v.value
