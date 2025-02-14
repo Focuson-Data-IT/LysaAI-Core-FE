@@ -19,7 +19,7 @@ const Competitor = () => {
                 {/* Header */}
                 <div className="">
                     <h1 className="text-xl text-black dark:text-white font-bold">Competitor Analysis</h1>
-                    <p className="text-black dark:text-white">Monitor your competitor every single day</p>
+                    <p className="text-black dark:text-white">Monitor your competitors every single day</p>
                 </div>
 
                 {/* FAIR Score & Top Ranking */}
@@ -45,7 +45,7 @@ const Competitor = () => {
                         <FairDetailBar platform={platform} label="Followers" description="Jumlah orang yang mengikuti akun." />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Activities" description="Tingkat produktivitas dalam membuat dan mengunggah konten setiap hari." unit="Posts/Hari" />
+                        <FairDetailBar platform={platform} label="Activities" description="Tingkat produktivitas dalam membuat dan mengunggah konten setiap hari." unit="Posts/Day" />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
                         <FairDetailBar platform={platform} label="Interactions" description="Jumlah warganet yang berinteraksi dengan akun pada setiap konten yang diunggah." unit="Likes/Post" />
@@ -57,7 +57,7 @@ const Competitor = () => {
 
                     <div className="lg:col-span-12 rounded-lg flex w-full items-center my-4">
                         <Image src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" width={28} height={28} />
-                        <div className="mr-3 w-auto text-lg font-bold">Fair Detail Chart</div>
+                        <div className="mr-3 w-auto text-lg font-bold">Growth</div>
                         <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
                     </div>
 

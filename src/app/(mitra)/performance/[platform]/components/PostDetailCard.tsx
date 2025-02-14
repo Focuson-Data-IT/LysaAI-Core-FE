@@ -60,13 +60,20 @@ const PostsTable = ({ platform = null }) => {
     };
 
     const getSortIcon = (key: keyof Post) => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return null;
-        }
-        return sortConfig.direction === "asc" ? (
-            <FontAwesomeIcon icon={faSortUp} className="ml-2" />
-        ) : (
-            <FontAwesomeIcon icon={faSortDown} className="ml-2" />
+        const isActive = sortConfig && sortConfig.key === key;
+        const activeColor = "text-red-500"; // Warna aqua stabilo
+    
+        return (
+            <span className="ml-2">
+                <FontAwesomeIcon
+                    icon={faSortUp}
+                    className={`${isActive && sortConfig.direction === "asc" ? activeColor : "text-gray-500"}`}
+                />
+                <FontAwesomeIcon
+                    icon={faSortDown}
+                    className={`${isActive && sortConfig.direction === "desc" ? activeColor : "text-gray-500"}`}
+                />
+            </span>
         );
     };
 
@@ -138,44 +145,42 @@ const PostsTable = ({ platform = null }) => {
                                 className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("likes")}
                             >
-                                Likes {getSortIcon("likes")}
+                                Liked {getSortIcon("likes")}
                             </th>
                             <th
                                 className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("comments")}
                             >
-                                Comments {getSortIcon("comments")}
+                                Commented {getSortIcon("comments")}
                             </th>
                             <th
                                 className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("playCount")}
                             >
-                                Views {getSortIcon("playCount")}
+                                Viewed {getSortIcon("playCount")}
                             </th>
                             <th
                                 className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("shareCount")}
                             >
-                                Shares {getSortIcon("shareCount")}
+                                Shared {getSortIcon("shareCount")}
                             </th>
                             <th
                                 className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("collectCount")}
                             >
-                                Save {getSortIcon("collectCount")}
+                                Saved {getSortIcon("collectCount")}
                             </th>
                             <th
                                 className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("downloadCount")}
                             >
-                                Downloads {getSortIcon("downloadCount")}
+                                Downloaded {getSortIcon("downloadCount")}
                             </th>
                             <th
                                 className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
                                 onClick={() => requestSort("performaKonten")}
                             >
-                                Content
-                                <br />
                                 Performance {getSortIcon("performaKonten")}
                             </th>
                         </tr>

@@ -58,65 +58,65 @@ const FairScoreCard = ({ platform }) => {
                 const newChart: any = new Chart(ctx, {
                     type: "line",
                     plugins: [
-                        {
-                            id: "medianLine",
-                            afterDraw(chart) {
-                                const {
-                                    ctx,
-                                    chartArea: { left, right },
-                                    scales: { y },
-                                } = chart;
+                        // {
+                        //     id: "medianLine",
+                        //     afterDraw(chart) {
+                        //         const {
+                        //             ctx,
+                        //             chartArea: { left, right },
+                        //             scales: { y },
+                        //         } = chart;
 
-                                const yPos = y.getPixelForValue(median);
+                        //         const yPos = y.getPixelForValue(median);
 
-                                ctx.save();
-                                ctx.beginPath();
-                                ctx.moveTo(left, yPos);
-                                ctx.lineTo(right, yPos);
-                                ctx.lineWidth = 2;
-                                ctx.setLineDash([5, 5]);
-                                ctx.strokeStyle = "#FF0000";
-                                ctx.stroke();
-                                ctx.restore();
+                        //         ctx.save();
+                        //         ctx.beginPath();
+                        //         ctx.moveTo(left, yPos);
+                        //         ctx.lineTo(right, yPos);
+                        //         ctx.lineWidth = 2;
+                        //         ctx.setLineDash([5, 5]);
+                        //         ctx.strokeStyle = "#FF0000";
+                        //         ctx.stroke();
+                        //         ctx.restore();
 
-                                ctx.fillStyle = "#FFFFFF";
-                                ctx.fillRect(left + 5, yPos - 15, 80, 15);
+                        //         ctx.fillStyle = "#FFFFFF";
+                        //         ctx.fillRect(left + 5, yPos - 15, 80, 15);
 
-                                ctx.fillStyle = "#FF0000";
-                                ctx.font = "bold 12px Arial";
-                                ctx.fillText(`Median: ${median?.toFixed(2)}`, left + 10, yPos - 3);
-                            },
-                        },
-                        {
-                            id: "averageLine",
-                            afterDraw(chart) {
-                                const {
-                                    ctx,
-                                    chartArea: { left, right },
-                                    scales: { y },
-                                } = chart;
+                        //         ctx.fillStyle = "#FF0000";
+                        //         ctx.font = "bold 12px Arial";
+                        //         ctx.fillText(`Median: ${median?.toFixed(2)}`, left + 10, yPos - 3);
+                        //     },
+                        // },
+                        // {
+                        //     id: "averageLine",
+                        //     afterDraw(chart) {
+                        //         const {
+                        //             ctx,
+                        //             chartArea: { left, right },
+                        //             scales: { y },
+                        //         } = chart;
 
-                                const yPos = y.getPixelForValue(average);
+                        //         const yPos = y.getPixelForValue(average);
 
-                                ctx.save();
-                                ctx.beginPath();
-                                ctx.moveTo(left, yPos);
-                                ctx.lineTo(right, yPos);
-                                ctx.lineWidth = 2;
-                                ctx.setLineDash([5, 5]);
-                                ctx.strokeStyle = "#008000";
-                                ctx.stroke();
-                                ctx.restore();
+                        //         ctx.save();
+                        //         ctx.beginPath();
+                        //         ctx.moveTo(left, yPos);
+                        //         ctx.lineTo(right, yPos);
+                        //         ctx.lineWidth = 2;
+                        //         ctx.setLineDash([5, 5]);
+                        //         ctx.strokeStyle = "#008000";
+                        //         ctx.stroke();
+                        //         ctx.restore();
 
-                                const labelWidth = 100;
-                                ctx.fillStyle = "#FFFFFF";
-                                ctx.fillRect(right - labelWidth - 5, yPos - 15, labelWidth, 15);
+                        //         const labelWidth = 100;
+                        //         ctx.fillStyle = "#FFFFFF";
+                        //         ctx.fillRect(right - labelWidth - 5, yPos - 15, labelWidth, 15);
 
-                                ctx.fillStyle = "#008000";
-                                ctx.font = "bold 12px Arial";
-                                ctx.fillText(`Average: ${average?.toFixed(2)}`, right - labelWidth, yPos - 3);
-                            },
-                        },
+                        //         ctx.fillStyle = "#008000";
+                        //         ctx.font = "bold 12px Arial";
+                        //         ctx.fillText(`Average: ${average?.toFixed(2)}`, right - labelWidth, yPos - 3);
+                        //     },
+                        // },
                     ],
                     data: {
                         labels: labels,
