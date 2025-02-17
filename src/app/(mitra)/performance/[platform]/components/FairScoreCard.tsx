@@ -165,8 +165,6 @@ const FairScoreCard = ({ platform, description }) => {
         }
     };
 
-
-
     useEffect(() => {
         getFairScoreChartData().then((v) => {
             const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
@@ -277,7 +275,7 @@ const FairScoreCard = ({ platform, description }) => {
                 </div>
 
                 {/* Buttons */}
-                <div className="datepicker-container">
+                {/* <div className="datepicker-container">
 
                     <div className="datepicker-wrapper">
                         <OurDatePicker
@@ -288,7 +286,7 @@ const FairScoreCard = ({ platform, description }) => {
                         <OurSelect options={options} disabled={isLoading}
                         />
                     </div>
-                </div>
+                </div> */}
             </div>
 
 

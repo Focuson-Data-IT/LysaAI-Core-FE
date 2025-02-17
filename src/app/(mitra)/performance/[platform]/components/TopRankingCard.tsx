@@ -56,7 +56,7 @@ const TopRankingCard = ({ platform = null, description }) => {
             <div className="mb-2 flex justify-between">
                 <div className="flex items-center space-x-2">
                 <div className="font-bold">Fair Ranking</div>
-                {description && (
+                {/* {description && (
                                     <div className="relative group">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +75,7 @@ const TopRankingCard = ({ platform = null, description }) => {
                                             {description}
                                         </span>
                                     </div>
-                                )}
+                                )} */}
                 </div>
                 
                 <div className="mr-1 font-bold">Score</div>

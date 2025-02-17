@@ -7,17 +7,16 @@ import Image from "next/image";
 
 interface BrandProps {
     isCollapsed: boolean;
+    setIsCollapsed: (collapsed: boolean) => void;
 }
 
-export default function Brand({ isCollapsed }: BrandProps) {
+export default function Brand({ isCollapsed, setIsCollapsed }: BrandProps) {
     const [theme, setTheme] = useState<"light" | "dark">("light");
 
-    // Sinkronkan tema dengan class <html> saat halaman dimuat
     useEffect(() => {
         const currentTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";
         setTheme(currentTheme);
 
-        // Tambahkan event listener untuk mendeteksi perubahan class <html>
         const observer = new MutationObserver(() => {
             const updatedTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";
             setTheme(updatedTheme);
@@ -31,18 +30,22 @@ export default function Brand({ isCollapsed }: BrandProps) {
     return (
         <div
             className={cn(
-                "flex h-[40px] items-center px-3",
-                isCollapsed ? "h-10 w-10 justify-center" : "w-full"
+                "flex items-center justify-center w-full h-[30px] cursor-pointer transition-all duration-500 ease-in-out",
+                isCollapsed ? "w-[57px]" : "w-full"
             )}
-            aria-label="OBE"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label="Toggle Sidebar"
         >
-            <Image
-                src={theme === "light" ? "/logo_icon_d.svg" : "/logo_icon.svg"}
-                alt="brand"
-                width={30}
-                height={30}
-            />
-            {!isCollapsed && <div className="ml-2 font-bold">{siteConfig.name}</div>}
+            <div className="flex items-center justify-center gap-2">
+                <Image
+                    src={theme === "light" ? "/logo_icon_d.svg" : "/logo_icon.svg"}
+                    alt="brand"
+                    width={30}  // Konsisten di semua mode
+                    height={30} // Konsisten di semua mode
+                    className="transition-all duration-500 ease-in-out"
+                />
+                {!isCollapsed && <div className="font-bold">{siteConfig.name}</div>}
+            </div>
         </div>
     );
 }
