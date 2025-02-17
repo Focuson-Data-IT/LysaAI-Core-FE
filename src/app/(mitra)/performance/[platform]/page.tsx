@@ -9,82 +9,124 @@ import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
 import PerformanceContextProvider from "@/context/PerformanceContext";
 
-
 const Competitor = () => {
     const { platform } = useParams();
 
     return (
         <PerformanceContextProvider>
-            <div className="min-h-screen justify-self-auto overflow-auto mb-5 overflow-x-hidden">
+            <div className="min-h-screen justify-self-auto overflow-auto mb-5 overflow-x-hidden px-4 lg:px-8">
                 {/* Header */}
                 <div className="">
-                    <h1 className="text-xl text-black dark:text-white font-bold">Competitor Analysis</h1>
-                    <p className="text-black dark:text-white">Monitor your competitors every single day</p>
+                    <h1 className="text-xl md:text-2xl text-black dark:text-white font-bold">
+                        Competitor Analysis
+                    </h1>
+                    <p className="text-sm md:text-base text-black dark:text-white">
+                        Monitor your competitors every single day
+                    </p>
                 </div>
 
                 {/* FAIR Score & Top Ranking */}
-                <div className="grid grid-cols-12 gap-4 mt-4">
-                    <div className="lg:col-span-8 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
+                    <div className="md:col-span-8 rounded-lg">
                         <FairScoreCard platform={platform} />
                     </div>
-                    <div className="lg:col-span-4 rounded-lg">
+                    <div className="md:col-span-4 rounded-lg">
                         <TopRankingCard platform={platform} />
                     </div>
                 </div>
 
                 {/* FAIR Section */}
                 <div className="flex w-full items-center my-4">
-                    <Image src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" width={28} height={28} />
+                    <Image
+                        src="/icon-circle.png"
+                        alt="widgets_separator"
+                        className="mx-3 h-7 w-7"
+                        width={28}
+                        height={28}
+                    />
                     <div className="mr-3 w-auto text-lg font-bold">Fair</div>
                     <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
                 </div>
 
                 {/* Metrics Grid */}
-                <div className="grid grid-cols-12 gap-4 mt-4">
-                    <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Followers" description="Jumlah orang yang mengikuti akun." />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                    <div className="rounded-lg">
+                        <FairDetailBar
+                            platform={platform}
+                            label="Followers"
+                            description="Jumlah orang yang mengikuti akun."
+                        />
                     </div>
-                    <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Activities" description="Tingkat produktivitas dalam membuat dan mengunggah konten setiap hari." unit="Posts/Day" />
+                    <div className="rounded-lg">
+                        <FairDetailBar
+                            platform={platform}
+                            label="Activities"
+                            description="Tingkat produktivitas dalam membuat dan mengunggah konten setiap hari."
+                            unit="Posts/Day"
+                        />
                     </div>
-                    <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Interactions" description="Jumlah warganet yang berinteraksi dengan akun pada setiap konten yang diunggah." unit="Likes/Post" />
+                    <div className="rounded-lg">
+                        <FairDetailBar
+                            platform={platform}
+                            label="Interactions"
+                            description="Jumlah warganet yang berinteraksi dengan akun pada setiap konten yang diunggah."
+                            unit="Likes/Post"
+                        />
                     </div>
-                    <div className="lg:col-span-3 rounded-lg">
-                        <FairDetailBar platform={platform} label="Responsiveness" description="Persentase respons dari tim pengelola terhadap warganet yang berkomentar." unit="%" />
+                    <div className="rounded-lg">
+                        <FairDetailBar
+                            platform={platform}
+                            label="Responsiveness"
+                            description="Persentase respons dari tim pengelola terhadap warganet yang berkomentar."
+                            unit="%"
+                        />
                     </div>
+                </div>
 
+                {/* Growth Section */}
+                <div className="flex w-full items-center my-4">
+                    <Image
+                        src="/icon-circle.png"
+                        alt="widgets_separator"
+                        className="mx-3 h-7 w-7"
+                        width={28}
+                        height={28}
+                    />
+                    <div className="mr-3 w-auto text-lg font-bold">Growth</div>
+                    <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
+                </div>
 
-                    <div className="lg:col-span-12 rounded-lg flex w-full items-center my-4">
-                        <Image src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" width={28} height={28} />
-                        <div className="mr-3 w-auto text-lg font-bold">Growth</div>
-                        <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
-                    </div>
-
-                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                    <div className="rounded-lg h-[300px] md:h-[400px]">
                         <FairDetailCard platform={platform} label="Followers" />
                     </div>
-                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                    <div className="rounded-lg h-[300px] md:h-[400px]">
                         <FairDetailCard platform={platform} label="Activities" />
                     </div>
-                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                    <div className="rounded-lg h-[300px] md:h-[400px]">
                         <FairDetailCard platform={platform} label="Interactions" />
                     </div>
-                    <div className="lg:col-span-6 rounded-lg h-[400px]">
+                    <div className="rounded-lg h-[300px] md:h-[400px]">
                         <FairDetailCard platform={platform} label="Responsiveness" />
                     </div>
                 </div>
 
                 {/* POST DETAIL Section */}
                 <div className="flex w-full items-center my-4">
-                    <img src="/icon-circle.png" alt="widgets_separator_ticon" className="mx-3 h-7" />
+                    <Image
+                        src="/icon-circle.png"
+                        alt="widgets_separator"
+                        className="mx-3 h-7 w-7"
+                        width={28}
+                        height={28}
+                    />
                     <div className="mr-3 w-auto text-lg font-bold">Post Detail</div>
                     <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
                 </div>
 
                 {/* Detail Post */}
-                <div className="grid grid-cols-12 gap-4 mt-4 h-[800px]">
-                    <div className="lg:col-span-12 rounded-lg">
+                <div className="grid grid-cols-1 mt-4 h-auto">
+                    <div className="rounded-lg">
                         <PostsTable platform={platform} />
                     </div>
                 </div>
