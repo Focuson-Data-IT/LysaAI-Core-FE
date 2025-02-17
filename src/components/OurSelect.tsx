@@ -78,7 +78,7 @@ const OurSelect = ({ options, disabled = false }) => {
 		<div className="datepicker-container">
 			<div className="datepicker-wrapper">
 				<Select
-					placeholder="Hide/Show Competitor"
+					placeholder="Select Your Account"
 					styles={customSelectStyles}
 					options={options}
 					isMulti

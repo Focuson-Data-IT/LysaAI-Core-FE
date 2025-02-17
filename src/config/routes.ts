@@ -24,7 +24,7 @@ export const clientRoutes = [
 		icon: Icons.Home
 	},
     {
-		title: 'Performance',
+		title: 'Competitor Analysis',
 		link: '/performance/Instagram',
 		icon: Icons.UserRoundSearch,
         children: [
@@ -42,24 +42,24 @@ export const clientRoutes = [
 			}
 		]
 	},
-	{
-		title: 'Lysa AI',
-		link: '/lysa-ai/monitoring',
-		icon: Icons.LayoutDashboard,
-		children: [
-			{
-				title: 'Media Monitoring',
-				link: '/lysa-ai/monitoring',
-				icon: Icons.InstagramIcon,
-			},
-			{
-				title: 'Netizen Monitoring',
-				link: '/lysa-ai/profiling',
-				icon: Icons.UsbIcon,
+	// {
+	// 	title: 'Lysa AI',
+	// 	link: '/lysa-ai/monitoring',
+	// 	icon: Icons.LayoutDashboard,
+	// 	children: [
+	// 		{
+	// 			title: 'Media Monitoring',
+	// 			link: '/lysa-ai/monitoring',
+	// 			icon: Icons.InstagramIcon,
+	// 		},
+	// 		{
+	// 			title: 'Netizen Monitoring',
+	// 			link: '/lysa-ai/profiling',
+	// 			icon: Icons.UsbIcon,
 
-			}
-		]
-	},
+	// 		}
+	// 	]
+	// },
 ];
 
 export const adminRoutes: adminRoute[] = [

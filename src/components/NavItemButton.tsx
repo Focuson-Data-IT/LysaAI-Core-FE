@@ -63,7 +63,7 @@ export default function NavItemButton({ isActive, isLoading, route, isChild }: N
                 {isLoading ? (
                     <Loader className="animate-spin h-5 w-5 mr-3" />
                 ) : (
-                    route.icon && <route.icon className={`mr-3 size-5 ${isActive ? "text-[#0ED1D6]" : ""}`} />
+                    route.icon && <route.icon className={`mr-3 size-5 ${isActive ? "text-[#0ED1D6] " : ""}`} />
                 )}
                 {route.title}
             </Button>
