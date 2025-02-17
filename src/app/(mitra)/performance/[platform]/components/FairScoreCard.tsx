@@ -57,79 +57,45 @@ const FairScoreCard = ({ platform }) => {
 
                 const newChart: any = new Chart(ctx, {
                     type: "line",
-                    plugins: [
-                        // {
-                        //     id: "medianLine",
-                        //     afterDraw(chart) {
-                        //         const {
-                        //             ctx,
-                        //             chartArea: { left, right },
-                        //             scales: { y },
-                        //         } = chart;
-
-                        //         const yPos = y.getPixelForValue(median);
-
-                        //         ctx.save();
-                        //         ctx.beginPath();
-                        //         ctx.moveTo(left, yPos);
-                        //         ctx.lineTo(right, yPos);
-                        //         ctx.lineWidth = 2;
-                        //         ctx.setLineDash([5, 5]);
-                        //         ctx.strokeStyle = "#FF0000";
-                        //         ctx.stroke();
-                        //         ctx.restore();
-
-                        //         ctx.fillStyle = "#FFFFFF";
-                        //         ctx.fillRect(left + 5, yPos - 15, 80, 15);
-
-                        //         ctx.fillStyle = "#FF0000";
-                        //         ctx.font = "bold 12px Arial";
-                        //         ctx.fillText(`Median: ${median?.toFixed(2)}`, left + 10, yPos - 3);
-                        //     },
-                        // },
-                        // {
-                        //     id: "averageLine",
-                        //     afterDraw(chart) {
-                        //         const {
-                        //             ctx,
-                        //             chartArea: { left, right },
-                        //             scales: { y },
-                        //         } = chart;
-
-                        //         const yPos = y.getPixelForValue(average);
-
-                        //         ctx.save();
-                        //         ctx.beginPath();
-                        //         ctx.moveTo(left, yPos);
-                        //         ctx.lineTo(right, yPos);
-                        //         ctx.lineWidth = 2;
-                        //         ctx.setLineDash([5, 5]);
-                        //         ctx.strokeStyle = "#008000";
-                        //         ctx.stroke();
-                        //         ctx.restore();
-
-                        //         const labelWidth = 100;
-                        //         ctx.fillStyle = "#FFFFFF";
-                        //         ctx.fillRect(right - labelWidth - 5, yPos - 15, labelWidth, 15);
-
-                        //         ctx.fillStyle = "#008000";
-                        //         ctx.font = "bold 12px Arial";
-                        //         ctx.fillText(`Average: ${average?.toFixed(2)}`, right - labelWidth, yPos - 3);
-                        //     },
-                        // },
-                    ],
                     data: {
                         labels: labels,
-                        datasets: datasets
+                        datasets: datasets,
                     },
                     options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
                         interaction: {
-                            mode: "index",
+                            mode: "x",
                             axis: "x",
                             intersect: false,
                         },
-                        maintainAspectRatio: false,
-                        responsive: true,
+                        animation: {
+                            duration: 1000,
+                            easing: "easeOutCubic",
+                        },
+                        elements: {
+                            line: {
+                                tension: 0.4,
+                                borderWidth: 2,
+                            },
+                            point: {
+                                radius: 0,
+                            },
+                        },
+                        plugins: {
+                            legend: {
+                                display: false, // Sembunyikan legenda
+                            },
+                            tooltip: {
+                                enabled: false, // Nonaktifkan tooltip
+                            },
+                        },
+                        layout: {
+                            padding: {
+                                top: 20, // Tambahan ruang di atas grafik
+                                right: 20, // Tambahan ruang ke kanan
+                            },
+                        },
                         scales: {
                             y: {
                                 beginAtZero: true,
@@ -141,22 +107,49 @@ const FairScoreCard = ({ platform }) => {
                             },
                             x: {
                                 ticks: {
-                                    callback: function (value, index, ticks) {
+                                    callback: function (value, index) {
                                         return `${moment(labels[index]).format("DD")}`;
                                     },
                                 },
                             },
                         },
-                        plugins: {
-                            legend: { position: "top", display: false },
-                        },
-                        elements: {
-                            point: {
-                                radius: 0,
-                                hoverRadius: 4,
+                    },
+                    plugins: [
+                        {
+                            id: "customLabels", // Plugin kustom untuk menambahkan label
+                            afterDatasetsDraw(chart) {
+                                const { ctx } = chart;
+                                ctx.save();
+                                const datasets = chart.data.datasets;
+                                const chartArea = chart.chartArea; // Area grafik tanpa padding
+
+                                datasets.forEach((dataset, datasetIndex) => {
+                                    const lastPoint = dataset.data[dataset.data.length - 1]; // Ambil data terakhir
+                                    const meta = chart.getDatasetMeta(datasetIndex);
+
+                                    if (meta.data.length) {
+                                        const lastElement = meta.data[meta.data.length - 1]; // Ambil titik/elemen poin data terakhir
+                                        const x = lastElement.x; // Koordinat horizontal titik terakhir
+                                        const y = lastElement.y - 10; // Posisikan label sedikit di atas garis (-10 px)
+
+                                        ctx.font = "12px Arial"; // Font untuk label
+                                        ctx.fillStyle = dataset.borderColor.toString() || "black"; // Warna label sesuai garis
+                                        ctx.textAlign = "center"; // Posisi teks di tengah
+                                        ctx.textBaseline = "bottom"; // Tampilan teks di atas titik terakhir
+
+                                        // Gambar label tepat di atas grafik
+                                        ctx.fillText(
+                                            dataset.label || `Data ${datasetIndex + 1}`, // Label yang akan ditampilkan
+                                            x,
+                                            y
+                                        );
+                                    }
+                                });
+
+                                ctx.restore();
                             },
                         },
-                    },
+                    ],
                 });
 
                 setFairScoreChart(newChart);
