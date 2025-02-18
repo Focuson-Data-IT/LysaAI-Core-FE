@@ -8,44 +8,55 @@ import { TPeriod } from "@/types/PerformanceTypes";
 import { periodInitialValue } from "@/constant/PerfomanceContants";
 
 const DateRangePicker = ({ onClick }) => {
-	const { period, setPeriod } = usePerformanceContext();
-	const [selectedMonth, setSelectedMonth] = useState<Date | null>(moment().toDate());
+    const { period, setPeriod } = usePerformanceContext();
+    const [selectedMonth, setSelectedMonth] = useState<Date | null>(moment().startOf("month").toDate());
 
-	useEffect(() => {
-		// Saat period berubah, update selectedMonth agar sesuai dengan bulan yang dipilih
-		setSelectedMonth(moment(period.start).toDate());
-	}, [period]);
+    useEffect(() => {
+        // Saat period berubah, update selectedMonth agar sesuai dengan bulan yang dipilih
+        setSelectedMonth(moment(period.start).toDate());
+    }, [period]);
 
-	const handleMonthChange = (date: Date) => {
-		if (date) {
-			const startOfMonth = moment(date).startOf("month").format("YYYY-MM-DD");
-			const endOfMonth = moment(date).endOf("month").format("YYYY-MM-DD");
+    useEffect(() => {
+        // Set default period to the current month
+        const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
+        const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
 
-			// Update periode di context
-			setPeriod({
-				start: startOfMonth,
-				end: endOfMonth,
-			});
+        setPeriod({
+            start: startOfMonth,
+            end: endOfMonth,
+        });
+    }, [setPeriod]);
 
-			// Update selected month
-			setSelectedMonth(date);
-		}
-	};
+    const handleMonthChange = (date: Date) => {
+        if (date) {
+            const startOfMonth = moment(date).startOf("month").format("YYYY-MM-DD");
+            const endOfMonth = moment(date).endOf("month").format("YYYY-MM-DD");
 
-	return (
-		<div className="datepicker-container">
-			<DatePicker
-				selected={selectedMonth}
-				onChange={handleMonthChange}
-				dateFormat="MMMM yyyy"
-				showMonthYearPicker
-				className="custom-datepicker-input"
-				calendarClassName="custom-datepicker-calendar"
-				popperClassName="custom-datepicker-popper"
-				placeholderText="Select month"
-			/>
-		</div>
-	);
+            // Update periode di context
+            setPeriod({
+                start: startOfMonth,
+                end: endOfMonth,
+            });
+
+            // Update selected month
+            setSelectedMonth(date);
+        }
+    };
+
+    return (
+        <div className="datepicker-container">
+            <DatePicker
+                selected={selectedMonth}
+                onChange={handleMonthChange}
+                dateFormat="MMMM yyyy"
+                showMonthYearPicker
+                className="custom-datepicker-input"
+                calendarClassName="custom-datepicker-calendar"
+                popperClassName="custom-datepicker-popper"
+                placeholderText="Select month"
+            />
+        </div>
+    );
 };
 
 export default DateRangePicker;

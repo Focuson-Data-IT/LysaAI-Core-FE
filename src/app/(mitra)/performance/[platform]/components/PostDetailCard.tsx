@@ -10,6 +10,7 @@ import request from "@/utils/request";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useAuth } from "@/hooks/useAuth";
 import { performanceBuilder } from "@/resolver";
+import { FaUserCircle, FaHeart, FaCommentDots, FaPlayCircle, FaShareSquare, FaSave, FaDownload, FaChartBar, FaRegCalendarAlt, FaQuoteLeft } from "react-icons/fa"
 
 interface Post {
     username: string;
@@ -18,383 +19,271 @@ interface Post {
     post_code: string;
     unique_id_post: string;
     created_at: string;
+    thumbnail_url: string;
     likes: number;
     comments: number;
     playCount: number;
     shareCount: number;
     collectCount: number;
     downloadCount: number;
-    performaKonten: number;
+    performa_konten: number;
+    performa_color: string;
 }
 
 const PostsTable = ({ platform = null }) => {
     const { authUser } = useAuth();
-
     const { period, selectedCompetitor } = usePerformanceContext();
 
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "created_at", direction: "desc"});
-    const [perPage, setPerPage] = useState(10);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
+        key: "performa_konten",
+        direction: "desc"
+    });
+
+    const [perPage] = useState(5); // Default 5 per load
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalRows, setTotalRows] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
+    const [avatars, setAvatars] = useState<{ [key: string]: string | null }>({});
 
+    // Fetch data function
     const getPosts = async () => {
+        if (!hasMore) return;
+    
         setLoading(true);
-        const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=${sortConfig.key}&direction=${sortConfig.direction}`);
-        // const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=created_at&direction=desc`);
+        try {
+            const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=${sortConfig.key}&direction=${sortConfig.direction}`);
+    
+            let newPosts = performanceBuilder(response.data?.data);
+    
+            // Hindari duplikasi dengan menyaring data yang sudah ada
+            setPosts((prev) => {
+                const existingIds = new Set(prev.map((post) => post.post_code)); // Gunakan unique key
+                return [...prev, ...newPosts.filter((post) => !existingIds.has(post.post_code))];
+            });
+    
+            setHasMore(response.data?.hasMore);
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        }
+        setLoading(false);
+    };    
 
-        setTotalPages(response.data?.totalPages);
-        setTotalRows(response.data?.totalRows);
-        return response.data?.data;
-    }
+    useEffect(() => {
+        const fetchAvatars = async () => {
+            const newAvatars = { ...avatars };
 
-    const requestSort = (key) => {
+            for (const post of posts) {
+                if (!newAvatars[post.username]) {
+                    try {
+                        console.log(`Fetching avatar for: ${post.username}`);
+
+                        const response = await request.get(
+                            `/getPictureData?kategori=${authUser?.username}&platform=${platform}&username=${post.username}`
+                        );
+
+                        console.log("Avatar response:", response.data);
+
+                        if (response.data?.data[0]?.profile_pic_url) {
+                            newAvatars[post.username] = `http://localhost:7770/proxy-image?url=${encodeURIComponent(response.data.data[0].profile_pic_url)}`;
+                            console.log(`Avatar URL for ${post.username}:`, response.data.data[0].profile_pic_url);
+                        } else {
+                            console.warn(`No avatar found for ${post.username}`);
+                            newAvatars[post.username] = "/default-avatar.png"; // Avatar default jika tidak ditemukan
+                        }
+                    } catch (error) {
+                        console.error("Error fetching avatar:", error);
+                        newAvatars[post.username] = "/default-avatar.png"; // Pakai avatar default jika gagal
+                    }
+                }
+            }
+
+            setAvatars((prevAvatars) => ({ ...prevAvatars, ...newAvatars }));
+        };
+
+        if (posts.length > 0) {
+            console.log("Fetching avatars...");
+            fetchAvatars();
+        }
+    }, [posts]);
+
+    // Handle sorting
+    const requestSort = (key: string) => {
         let direction: "asc" | "desc" = "asc";
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+        if (sortConfig.key === key && sortConfig.direction === "asc") {
             direction = "desc";
         }
         setSortConfig({ key, direction });
+        setPosts([]); // Reset posts ketika sorting berubah
+        setCurrentPage(1); // Reset ke halaman pertama
+        setHasMore(true); // Reset load more state
     };
-
-    const getSortIcon = (key: keyof Post) => {
-        const isActive = sortConfig && sortConfig.key === key;
-        const activeColor = "text-red-500"; // Warna aqua stabilo
-    
-        return (
-            <span className="ml-2">
-                <FontAwesomeIcon
-                    icon={faSortUp}
-                    className={`${isActive && sortConfig.direction === "asc" ? activeColor : "text-gray-500"}`}
-                />
-                <FontAwesomeIcon
-                    icon={faSortDown}
-                    className={`${isActive && sortConfig.direction === "desc" ? activeColor : "text-gray-500"}`}
-                />
-            </span>
-        );
-    };
-
-    const handlePageClick = (page: number) => {
-        setCurrentPage(page);
-    }
-
-    const handlePreviousPage = () => {
-        setCurrentPage(currentPage - 1);
-    }
-
-    const handleNextPage = () => {
-        setCurrentPage(currentPage + 1);
-    }
 
     useEffect(() => {
-        getPosts().then((v) => {
-            let contentPerformance = performanceBuilder(v);
-            setPosts(contentPerformance);
-
-            if (selectedCompetitor && selectedCompetitor.length > 0) {
-                const filteredData = contentPerformance.filter((item: any) => {
-                    return selectedCompetitor.some((competitor: any) => competitor.value === item.username);
-                });
-
-                setPosts(filteredData);
-            }
-
-            setLoading(false);
-        });
-    }, [authUser, platform, period, selectedCompetitor, currentPage, perPage, sortConfig]);
+        getPosts();
+    }, [authUser, platform, period, selectedCompetitor, sortConfig]);
 
     return (
-        <div className="box box-sizing overflow-x-hidden py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
+        <div className="box box-sizing overflow-x-hidden py-5 h-auto flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
             <div className="info flex justify-end space-x-2 mr-5">
                 <div className="w-4 h-4 rounded-full bg-green-500"></div>
                 <p className="text-sm">Best</p>
-
                 <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
                 <p className="text-sm">Mediocre</p>
-
                 <div className="w-4 h-4 rounded-full bg-red-500"></div>
                 <p className="text-sm">Worst</p>
             </div>
-
             <div className="table-content flex-grow overflow-y-auto">
-                <table className="w-full h-[200px] overflow-y-scroll flex-grow justify-center items-center border-collapse border-gray-300 dark:border-gray-700">
+                <table className="w-full table-fixed border-collapse border-gray-300 dark:border-gray-700">
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("username")}
-                            >
-                                Username {getSortIcon("username")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("caption")}
-                            >
-                                Content {getSortIcon("caption")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("created_at")}
-                            >
-                                Date {getSortIcon("created_at")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("likes")}
-                            >
-                                Liked {getSortIcon("likes")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("comments")}
-                            >
-                                Commented {getSortIcon("comments")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("playCount")}
-                            >
-                                Viewed {getSortIcon("playCount")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("shareCount")}
-                            >
-                                Shared {getSortIcon("shareCount")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("collectCount")}
-                            >
-                                Saved {getSortIcon("collectCount")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("downloadCount")}
-                            >
-                                Downloaded {getSortIcon("downloadCount")}
-                            </th>
-                            <th
-                                className="px-4 py-2 text-sm text-center font-bold dark:border-gray-600 cursor-pointer"
-                                onClick={() => requestSort("performaKonten")}
-                            >
-                                Performance {getSortIcon("performaKonten")}
-                            </th>
+                            {[
+                                // { key: "username", label: <FaUser className="text-[#07d1d6] text-lg" />, width: "w-[200px]", tooltip: "Username" },
+                                { key: "caption", label: <FaQuoteLeft className="text-[#07d1d6] text-lg" />, width: "w-[250px]", tooltip: "Caption" },
+                                { key: "created_at", label: <FaRegCalendarAlt className="text-[#07d1d6] text-lg" />, width: "w-[150px]", tooltip: "Date" },
+                                { key: "likes", label: <FaHeart className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Likes" },
+                                { key: "comments", label: <FaCommentDots className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Comments" },
+                                { key: "playCount", label: <FaPlayCircle className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Play Count" },
+                                { key: "shareCount", label: <FaShareSquare className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Shares" },
+                                { key: "collectCount", label: <FaSave className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Saves" },
+                                { key: "downloadCount", label: <FaDownload className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Downloads" },
+                                { key: "performa_konten", label: <FaChartBar className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Performance" },
+                            ].map(({ key, label, width, tooltip }) => (
+                                <th key={key} className={`px-4 py-2 text-sm font-bold dark:border-gray-600 cursor-pointer ${width}`} onClick={() => requestSort(key)}>
+                                    <div className="relative group flex justify-center items-center gap-2">
+                                        {label}
+                                        <span className="ml-1 flex">
+                                            <FontAwesomeIcon icon={faSortUp} className={`${sortConfig.key === key && sortConfig.direction === "asc" ? "text-red-500" : "text-gray-500"} text-xs`} />
+                                            <FontAwesomeIcon icon={faSortDown} className={`${sortConfig.key === key && sortConfig.direction === "desc" ? "text-red-500" : "text-gray-500"} text-xs`} />
+                                        </span>
+                                        {tooltip && (
+                                            <div className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:flex bg-gray-700 text-white text-xs rounded-md px-2 py-1">
+                                                {tooltip}
+                                            </div>
+                                        )}
+                                    </div>
+                                </th>
+                            ))}
                         </tr>
                     </thead>
-
-
-                    <tbody className="h-[500px] bg-gray-200 dark:bg-gray-900 text-black dark:text-white overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700"
-                    >
-                        {loading ? (
+                    <tbody className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
+                        {posts.length === 0 && !loading ? (
                             <tr>
-                                <td colSpan={10} className="text-center p-5">
-                                    <OurLoading />
-                                </td>
-                            </tr>
-                        ) : posts.length > 0 ? (
-                            posts.map((post, key) => {
-                                return (
-                                    <tr key={key}
-                                        className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                                        <td className="px-2 py-4 text-center break-words w-[100px]">{post.username}</td>
-                                        <td className="px-2 py-4 text-left text-sm break-words w-[100px]">
-                                            {post.caption.split(" ").length > 20
-                                                ? `${post.caption.split(" ").slice(0, 10).join(" ")}...`
-                                                : post.caption} <br />
-                                            <span
-                                                onClick={() =>
-                                                    window.open(
-                                                        post.platform === "Instagram"
-                                                            ? `https://www.instagram.com/p/${post.post_code}`
-                                                            : `https://www.tiktok.com/@${post.username}/video/${post.unique_id_post}`,
-                                                        "_blank"
-                                                    )
-                                                }
-                                                className="text-blue-500 dark:text-blue-300 cursor-pointer"
-                                            >
-                                                Original Post
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
-                                        <td className="px-2 py-4 text-center">{post.likes || 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.comments || 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.playCount || 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.shareCount || 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.collectCount || 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.downloadCount || 0}</td>
-                                        <td className="px-2 py-4 flex items-center justify-center h-full">
-                                            {post?.performa_konten !== undefined && post?.performa_konten !== null ? (
-                                                parseInt(post.performa_konten) > 500 ? (
-                                                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                                                ) : parseInt(post.performa_konten) >= 10 ? (
-                                                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                                                ) : (
-                                                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                                )
-                                            ) : (
-                                                <div className="w-4 h-4 rounded-full bg-gray-500"></div> // Warna default jika tidak ada nilai
-                                            )}
-                                        </td>
-
-                                    </tr>
-                                )
-                            })
-                        ) : (
-                            <tr>
-                                <td colSpan={10} className="text-center p-5">
+                                <td colSpan={9} className="text-center p-5">
                                     <OurEmptyData width={100} />
                                 </td>
                             </tr>
+                        ) : (
+                            posts.map((post, key) => (
+                                <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+
+                                    {/* Kolom gabungan Username + Caption */}
+                                    <td className="px-4 py-4 text-left text-sm w-[300px]">
+                                        <div className="flex items-start gap-2">
+                                            {/* Avatar / Ikon User */}
+                                            <div className="flex-shrink-0 w-10 h-10">
+                                                {avatars[post.username] ? (
+                                                    <>
+                                                        <img
+                                                            src={avatars[post.username]}
+                                                            // alt={post.username}
+                                                            className="w-full h-full object-cover rounded-full"
+                                                            onError={(e) => {
+                                                                console.error(`Error loading avatar for ${post.username}:`, e);
+                                                                (e.target as HTMLImageElement).src = "/default-avatar.png"; // Gunakan gambar default jika gagal
+                                                            }}
+                                                        />
+                                                    </>
+                                                ) : (
+                                                    <FaUserCircle className="text-gray-500 w-10 h-10" />
+                                                )}
+                                            </div>
+
+                                            {/* Info Username + Caption */}
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-semibold text-black dark:text-white">{post.username}</span>
+                                                    {/* {post.platform === "Instagram" ? (
+                                                        <FaInstagram className="text-[#bc2a8d] text-sm" />
+                                                    ) : (
+                                                        <FaTiktok className="text-black dark:text-white text-sm" />
+                                                    )} */}
+                                                </div>
+
+                                                {/* Caption */}
+                                                <p className="text-gray-700 dark:text-gray-300 text-sm leading-tight mt-1">
+                                                    {post.caption.length > 50 ? `${post.caption.substring(0, 50)}...` : post.caption}
+                                                </p>
+
+                                                {/* Link ke Original Post dengan Thumbnail Tooltip */}
+                                                <div className="relative group inline-block">
+                                                    <a
+                                                        href={
+                                                            post.platform === "Instagram"
+                                                                ? `https://www.instagram.com/p/${post.post_code}`
+                                                                : `https://www.tiktok.com/@${post.username}/video/${post.unique_id_post}`
+                                                        }
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 dark:text-blue-300 text-sm font-semibold mt-1 block"
+                                                    >
+                                                        Original Post
+                                                    </a>
+
+                                                    {/* Tooltip untuk Thumbnail */}
+                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex w-40 h-40 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 z-50">
+                                                        <img
+                                                            src={`http://localhost:7770/proxy-image?url=${encodeURIComponent(post.thumbnail_url)}`}
+                                                            alt="Thumbnail"
+                                                            className="w-full h-full object-cover rounded-md"
+                                                        />
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    {/* Kolom Lainnya */}
+                                    <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
+                                    <td className="px-2 py-4 text-center">{post.likes ? new Intl.NumberFormat('id-ID').format(post.likes) : 0}</td>
+                                    <td className="px-2 py-4 text-center">{post.comments ? new Intl.NumberFormat('id-ID').format(post.comments) : 0}</td>
+                                    <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : 0}</td>
+                                    <td className="px-2 py-4 text-center">{post.shareCount ? new Intl.NumberFormat('id-ID').format(post.shareCount) : 0}</td>
+                                    <td className="px-2 py-4 text-center">{post.collectCount ? new Intl.NumberFormat('id-ID').format(post.collectCount) : 0}</td>
+                                    <td className="px-2 py-4 text-center">{post.downloadCount ? new Intl.NumberFormat('id-ID').format(post.downloadCount) : 0}</td>
+
+                                    {/* Indikator Performa */}
+                                    <td className="px-2 py-4 items-center justify-center h-full w-full">
+                                        <div className={`w-4 h-4 mx-auto rounded-full bg-${post.performa_color}-500`}></div>
+                                    </td>
+
+
+                                </tr>
+                            ))
                         )}
                     </tbody>
+
                 </table>
-
-                <div className="sticky bottom-0 z-10 pagination-content w-full p-2 bg-gray-300 dark:bg-gray-700 text-black dark:text-white">
-                    <div className="flex w-full items-center justify-center lg:justify-between">
-                        {/* Dropdown untuk memilih jumlah item per halaman */}
-                        <div className="hidden items-center space-x-4 lg:flex">
-                            <span className="text-sm font-semibold text-bgray-600 dark:text-white">
-                                Show result:
-                            </span>
-                            <div className="relative dark:bg-darkblack-500">
-                                <select
-                                    value={perPage}
-                                    onChange={(e) => setPerPage(parseInt(e?.target?.value))}
-                                    className="rounded-lg border border-bgray-300 p-2 dark:border-darkblack-400 text-bgray-900 dark:text-bgray-50 bg-white dark:bg-gray-800 focus:outline-none focus:border-bgray-500 focus:ring-0"
-                                >
-                                    {[5, 10, 20, 50].map((size, key) => (
-                                        <option key={key} value={size}>
-                                            {size}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-
-                        {/* Tombol Pagination */}
-                        <div className="flex items-center space-x-5 sm:space-x-[35px]">
-                            {/* Navigasi Halaman */}
-                            <div className="flex items-center space-x-2">
-                                {/* Tombol '<<' untuk ke halaman pertama */}
-                                <button
-                                    onClick={() => setCurrentPage(1)}
-                                    disabled={currentPage === 1}
-                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                                        currentPage === 1
-                                            ? "text-gray-400 cursor-not-allowed"
-                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
-                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                >
-                                    {"<<"}
-                                </button>
-
-                                {/* Tombol '<' untuk halaman sebelumnya */}
-                                <button
-                                    onClick={handlePreviousPage}
-                                    disabled={currentPage === 1}
-                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                                        currentPage === 1
-                                            ? "text-gray-400 cursor-not-allowed"
-                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
-                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                >
-                                    <span>
-                                    <svg
-                                        width="21"
-                                        height="21"
-                                        viewBox="0 0 21 21"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M12.7217 5.03271L7.72168 10.0327L12.7217 15.0327"
-                                            stroke="#A0AEC0"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </span>
-                                </button>
-
-                                {/* Nomor halaman */}
-                                {Array.from({ length: 5 }) // Hanya 5 halaman ditampilkan.
-                                    .map((_, index) => {
-                                        // Hitung halaman yang valid
-                                        const page = currentPage - 2 + index; // Offset halaman sekitar currentPage
-
-                                        if (page < 1 || page > totalPages) return null; // Pastikan halaman valid
-
-                                        return (
-                                            <button
-                                                key={page}
-                                                onClick={() => handlePageClick(page)}
-                                                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                                                    currentPage === page
-                                                        ? "bg-blue-500 text-white dark:bg-blue-400"
-                                                        : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
-                                                } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                            >
-                                                {page}
-                                            </button>
-                                        );
-                                    })}
-
-                                {/* Tombol '>' untuk halaman berikutnya */}
-                                <button
-                                    onClick={handleNextPage}
-                                    disabled={posts?.length < 1 || currentPage === totalPages}
-                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                                        posts?.length < 1 || currentPage === totalPages
-                                            ? "text-gray-400 cursor-not-allowed"
-                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
-                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                >
-                                    <span>
-                                    <svg
-                                        width="21"
-                                        height="21"
-                                        viewBox="0 0 21 21"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M7.72168 5.03271L12.7217 10.0327L7.72168 15.0327"
-                                            stroke="#A0AEC0"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </span>
-                                </button>
-
-                                {/* Tombol '>>' untuk ke halaman terakhir */}
-                                <button
-                                    onClick={() => setCurrentPage(totalPages)}
-                                    disabled={posts?.length < 1 || currentPage === totalPages}
-                                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                                        posts?.length < 1 || currentPage === totalPages
-                                            ? "text-gray-400 cursor-not-allowed"
-                                            : "text-gray-500 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-600 dark:hover:text-white"
-                                    } lg:px-6 lg:py-2.5 lg:text-sm`}
-                                >
-                                    {">>"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+                <div className="flex justify-center mt-4">
+                    <button
+                        onClick={() => {
+                            setCurrentPage((prev) => prev + 1);
+                            getPosts();
+                        }}
+                        className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                        disabled={loading}
+                    >
+                        {loading ? "Loading..." : "Load More"}
+                    </button>
+                </div>
+            )}
         </div>
-        // <section className="h-[700px] mb-6 2xl:mb-0 2xl:flex-1 shadow-md rounded-lg bg-gray-200 dark:bg-gray-800 p-5">
-        // </section>
     );
 };
 

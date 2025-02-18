@@ -291,12 +291,12 @@ const FairScoreCard = ({ platform, description }) => {
 
 
             {/* Data Section */}
-            <div className="h-[250px] pt-3 flex items-center justify-center">
-                <div className="my-3 w-full text-center text-muted-foreground pt-[90px]">
+            <div className="h-[650px] pt-3 flex items-center justify-center">
+                <div className="my-3 w-full text-center text-muted-foreground">
                     <canvas
                         id="fairScoreCanvas"
                         ref={chartRef}
-                        height="300"
+                        height="600"
                     ></canvas>
                 </div>
             </div>

@@ -1,186 +1,110 @@
-// "use client";
-
-// import React from "react";
-// import Select from "react-select";
-// import { usePerformanceContext } from "@/context/PerformanceContext";
-
-// const customSelectStyles = {
-// 	control: (provided, state) => ({
-// 		...provided,
-// 		display: "flex",
-// 		alignItems: "center",
-// 		justifyContent: "center",
-// 		height: "40px",
-// 		width: "100%",
-// 		borderRadius: "8px",
-// 		// border: "1px solid #d1d5db",
-// 		backgroundColor: "#1f2937",
-// 		boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "none",
-// 		fontSize: "14px",
-// 		padding: "0 12px",
-// 		transition: "all 0.2s ease-in-out",
-// 		color: "#ffffff",
-// 		minWidth: "120px", // **Menjaga ukuran minimal agar input tidak mengecil saat diketik**
-// 		"&:hover": {
-// 			borderColor: "#60a5fa",
-// 		},
-// 	}),
-
-// 	menu: (provided) => ({
-// 		...provided,
-// 		borderRadius: "8px",
-// 		// border: "1px solid #d1d5db",
-// 		boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-// 		backgroundColor: "#1f2937",
-// 		zIndex: 10,
-// 		color: "#ffffff",
-// 	}),
-
-// 	option: (provided, state) => ({
-// 		...provided,
-// 		backgroundColor: state.isSelected ? "#3b82f6" : state.isFocused ? "#374151" : "#1f2937",
-// 		color: state.isSelected ? "white" : "#d1d5db",
-// 		cursor: "pointer",
-// 		fontSize: "14px",
-// 		padding: "8px 12px",
-// 		transition: "all 0.2s ease-in-out",
-// 		"&:hover": {
-// 			backgroundColor: "#374151",
-// 		},
-// 	}),
-
-// 	placeholder: (provided) => ({
-// 		...provided,
-// 		color: "#d1d5db",
-// 		fontSize: "14px",
-// 		textAlign: "center",
-// 	}),
-
-// 	input: (provided) => ({
-// 		...provided,
-// 		fontSize: "14px",
-// 		color: "#ffffff",
-// 		textAlign: "center",
-// 		flex: "1 1 auto",
-// 		width: "100%",
-// 		minWidth: "120px", // **Menjaga agar input tidak mengecil saat diketik**
-// 	}),
-// };
-
-// const OurSelect = ({ options, disabled = false }) => {
-// 	const { selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
-
-// 	const handleChange = (selected) => {
-// 		setSelectedCompetitor(selected);
-// 	};
-
-// 	return (
-// 		<div className="datepicker-container">
-// 			<div className="datepicker-wrapper">
-// 				<Select
-// 					placeholder="Select Your Account"
-// 					styles={customSelectStyles}
-// 					options={options}
-// 					isMulti
-// 					value={selectedCompetitor}
-// 					onChange={handleChange}
-// 					closeMenuOnSelect={false}
-// 					hideSelectedOptions={false}
-// 					controlShouldRenderValue={false}
-// 					isDisabled={disabled}
-// 				/>
-// 			</div>
-// 		</div>
-// 	);
-// };
-
-// export default OurSelect;
-
-"use client";
-
 import React from "react";
-import Select from "react-select";
+import Select, { components } from "react-select";
+
+const CheckboxOption = (props) => {
+    const { data, isSelected, innerRef, innerProps } = props;
+    return (
+        <div ref={innerRef} {...innerProps} className="flex items-center px-3 py-2 cursor-pointer">
+            <input type="checkbox" checked={isSelected} readOnly className="mr-2" />
+            <span className="text-white">{data.label}</span>
+        </div>
+    );
+};
 
 const customSelectStyles = {
-	control: (provided, state) => ({
-		...provided,
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		height: "40px",
-		width: "100%",
-		borderRadius: "8px",
-		backgroundColor: "#1f2937",
-		boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "none",
-		fontSize: "14px",
-		padding: "0 12px",
-		transition: "all 0.2s ease-in-out",
-		color: "#ffffff",
-		minWidth: "120px",
-		"&:hover": {
-			borderColor: "#60a5fa",
-		},
-	}),
+    control: (provided, state) => ({
+        ...provided,
+        display: "flex",
+        alignItems: "center",
+        height: "40px",
+        width: "100%",
+        borderRadius: "8px",
+        backgroundColor: "#1f2937",
+        // boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "none",
+        fontSize: "14px",
+        padding: "0 12px",
+        transition: "all 0.2s ease-in-out",
+        color: "#ffffff",
+        minWidth: "120px",
+        "&:hover": {
+            borderColor: "#60a5fa",
+        },
+    }),
 
-	menu: (provided) => ({
-		...provided,
-		borderRadius: "8px",
-		boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-		backgroundColor: "#1f2937",
-		zIndex: 10,
-		color: "#ffffff",
-	}),
+    menu: (provided) => ({
+        ...provided,
+        borderRadius: "8px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        backgroundColor: "#1f2937",
+        zIndex: 10,
+        color: "#ffffff",
+    }),
 
-	option: (provided, state) => ({
+    option: (provided, state) => ({
 		...provided,
-		backgroundColor: state.isSelected ? "#3b82f6" : state.isFocused ? "#374151" : "#1f2937",
-		color: state.isSelected ? "white" : "#d1d5db",
+		color: state.isSelected ? "#ffffff" : "#ffffff", // Pastikan teks tetap putih
 		cursor: "pointer",
 		fontSize: "14px",
 		padding: "8px 12px",
 		transition: "all 0.2s ease-in-out",
+	
 		"&:hover": {
-			backgroundColor: "#374151",
+			backgroundColor: "#374151", // Hover tetap sama
 		},
-	}),
+	}),	
 
-	placeholder: (provided) => ({
-		...provided,
-		color: "#d1d5db",
-		fontSize: "14px",
-		textAlign: "center",
-	}),
+    placeholder: (provided) => ({
+        ...provided,
+        color: "#ffffff",
+        fontSize: "14px",
+        textAlign: "left",
+    }),
 
-	input: (provided) => ({
+    input: (provided) => ({
+        ...provided,
+        fontSize: "14px",
+        color: "#ffffff",
+        textAlign: "left",
+        minWidth: "120px",
+    }),
+
+	singleValue: (provided) => ({
 		...provided,
-		fontSize: "14px",
 		color: "#ffffff",
-		textAlign: "center",
-		flex: "1 1 auto",
-		width: "100%",
-		minWidth: "120px",
 	}),
+
+    multiValue: (provided) => ({
+        ...provided,
+        // backgroundColor: "#374151",
+        color: "#ffffff",
+        borderRadius: "4px",
+        padding: "4px 8px",
+        maxWidth: "150px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+    }),
 };
 
 const OurSelect = ({ options, value, onChange, isMulti = false, placeholder, disabled = false }) => {
-	return (
-		<div className="datepicker-container">
-			<div className="datepicker-wrapper">
-				<Select
-					placeholder={placeholder}
-					styles={customSelectStyles}
-					options={options}
-					isMulti={isMulti}
-					value={value}
-					onChange={onChange}
-					closeMenuOnSelect={!isMulti}
-					hideSelectedOptions={false}
-					controlShouldRenderValue={true}
-					isDisabled={disabled}
-				/>
-			</div>
-		</div>
-	);
+    return (
+        <div className="datepicker-container">
+            <div className="datepicker-wrapper">
+                <Select
+                    placeholder={placeholder}
+                    styles={customSelectStyles}
+                    options={options}
+                    isMulti={isMulti}
+                    value={value}
+                    onChange={onChange}
+                    closeMenuOnSelect={!isMulti}
+                    hideSelectedOptions={false}
+                    controlShouldRenderValue={!isMulti}
+                    isDisabled={disabled}
+                    components={isMulti ? { Option: CheckboxOption } : {}}
+                />
+            </div>
+        </div>
+    );
 };
 
 export default OurSelect;
