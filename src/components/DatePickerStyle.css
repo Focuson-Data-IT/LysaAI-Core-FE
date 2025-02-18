@@ -1,41 +1,139 @@
-/* Styling untuk input agar sejajar dengan tombol di sebelah kanan */
-.custom-datepicker-input {
-    width: 100%; /* Mengisi lebar container */
-    max-width: 220px; /* Sesuaikan dengan tombol sebelah */
-    height: 40px; /* Sesuaikan tinggi agar sama */
-    border-radius: 8px;
-    font-size: 14px;
-    padding: 8px 12px;
-    background-color: white;
-    color: #1f2937;
-    outline: none;
-    transition: all 0.2s ease-in-out;
-    display: flex;
-    align-items: center;
-}
-
-/* Dark mode styling */
-.dark .custom-datepicker-input {
-    background-color: #1f2937;
-    border: 1px solid #4b5563;
-    color: white;
-}
-
-/* Hover & Focus */
-.custom-datepicker-input:hover,
-.custom-datepicker-input:focus {
-    border-color: #60a5fa;
-}
-
-/* Styling untuk memastikan input dan tombol sejajar */
+/* 📌 Container utama DatePicker */
 .datepicker-container {
     display: flex;
     align-items: center;
-    gap: 8px; /* Spasi antara input dan tombol */
+    justify-content: center;
+    gap: 8px;
 }
 
-.datepicker-wrapper {
-    flex: 1; /* Mengisi space yang ada */
+/* 📌 Input utama DatePicker */
+.custom-datepicker-input {
+    width: 100%;
+    max-width: 220px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 8px 12px;
+    background-color: #1e1e2f;
+    color: white;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #4b5563;
+    text-align: center;
+    cursor: pointer;
 }
 
+/* 📌 Hover & Focus efek untuk input */
+.custom-datepicker-input:hover,
+.custom-datepicker-input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+}
 
+/* 📌 Kalender popup styling */
+.custom-datepicker-calendar {
+    background-color: #1e1e2f !important;
+    color: white !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+}
+
+/* 📌 Styling untuk header tahun */
+.react-datepicker__header {
+    background-color: #1e1e2f !important; /* Warna sesuai dark mode */
+    border-bottom: 1px solid #4b5563;
+    color: white;
+    display: flex;
+    justify-content: center; /* Supaya teks tahun tetap center */
+    align-items: center;
+    padding: 5px 0;
+    position: relative;
+}
+
+/* 📌 Styling teks tahun agar tetap di tengah */
+.react-datepicker__current-month {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1; /* Supaya tombol navigasi tidak merapat ke tengah */
+}
+
+/* 📌 Styling tombol navigasi (prev & next) */
+.react-datepicker__navigation {
+    position: absolute;
+    /* top: 15px; */
+    /* transform: translateY(-50%); */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: transparent;
+    transition: background 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* 📌 Styling icon dalam tombol navigasi */
+.react-datepicker__navigation-icon {
+    width: 10px;
+    height: 10px;
+    filter: brightness(80%);
+}
+
+/* 📌 Styling untuk dropdown tahun & bulan */
+.react-datepicker__year-dropdown-container,
+.react-datepicker__month-dropdown-container {
+    background-color: #282a36;
+    color: white;
+    border-radius: 6px;
+    padding: 5px;
+}
+
+/* 📌 Hover untuk opsi dropdown */
+.react-datepicker__year-option:hover,
+.react-datepicker__month-option:hover {
+    background-color: #44475a;
+}
+
+/* 📌 Styling untuk pemilihan bulan */
+.react-datepicker__month-text {
+    color: white !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 6px;
+    transition: background 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+/* 📌 Hover untuk bulan */
+.react-datepicker__month-text:hover {
+    background-color: #44475a !important;
+}
+
+/* 📌 Styling bulan yang dipilih */
+.react-datepicker__month-text--selected {
+    background-color: #6272a4 !important;
+    font-weight: bold;
+}
+
+/* 📌 Styling untuk popper */
+.custom-datepicker-popper {
+    z-index: 9999 !important;
+}
+
+/* 📌 Dark mode adjustments */
+.dark .custom-datepicker-input {
+    background-color: #1f2937;
+    border: 1px solid #ffffff;
+    color: white;
+}
+
+/* 📌 Memastikan popper dropdown tidak tertutup elemen lain */
+.react-datepicker-popper {
+    z-index: 10000;
+}

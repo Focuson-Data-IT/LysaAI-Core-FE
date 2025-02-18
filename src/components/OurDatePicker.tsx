@@ -1,58 +1,62 @@
 import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.min.css";
+import "react-datepicker/dist/react-datepicker.css";
 import "./DatePickerStyle.css";
 import moment from "moment";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { TPeriod } from "@/types/PerformanceTypes";
 import { periodInitialValue } from "@/constant/PerfomanceContants";
 
-type OurDatePickerProps = {
-	applyCallback: (date: Date | null) => void;
-	onClick: () => void;
-	type?: "calendar" | "range";
-};
+const DateRangePicker = ({ onClick }) => {
+    const { period, setPeriod } = usePerformanceContext();
+    const [selectedMonth, setSelectedMonth] = useState<Date | null>(moment().startOf("month").toDate());
 
-const DateRangePicker = ({ applyCallback = null, onClick, type = "calendar" }) => {
-	const { period, setPeriod } = usePerformanceContext();
+    useEffect(() => {
+        // Saat period berubah, update selectedMonth agar sesuai dengan bulan yang dipilih
+        setSelectedMonth(moment(period.start).toDate());
+    }, [period]);
 
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([moment().toDate(), moment().toDate()]);
-	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    useEffect(() => {
+        // Set default period to the current month
+        const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
+        const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
 
-	useEffect(() => {
-		// Update `dateRange` saat `period` berubah
-		setDateRange([moment(period.start).toDate(), moment(period.end).toDate()]);
-	}, [period]);
+        setPeriod({
+            start: startOfMonth,
+            end: endOfMonth,
+        });
+    }, [setPeriod]);
 
-	return (
-		<div className="flex flex-col">
-			<div className="relative" style={{ zIndex: 10 }}>
-				<DatePicker
+    const handleMonthChange = (date: Date) => {
+        if (date) {
+            const startOfMonth = moment(date).startOf("month").format("YYYY-MM-DD");
+            const endOfMonth = moment(date).endOf("month").format("YYYY-MM-DD");
 
-					selected={moment(period.start).toDate()}
-					onChange={(dates) => {
-						const [start, end] = dates as [Date | null, Date | null];
-						setDateRange([start, end]);
+            // Update periode di context
+            setPeriod({
+                start: startOfMonth,
+                end: endOfMonth,
+            });
 
-						if (start && end) {
-							setPeriod({
-								start: moment(start).format("YYYY-MM-DD"),
-								end: moment(end).format("YYYY-MM-DD"),
-							});
-						}
-					}}
-					startDate={dateRange[0]}
-					endDate={dateRange[1]}
-					selectsRange
-					isClearable
-					placeholderText="Select period"
-					className="custom-datepicker-input w-[350px]"
-					calendarClassName="custom-datepicker-calendar"
-					popperClassName="custom-datepicker-popper"
-				/>
-			</div>
-		</div>
-	);
+            // Update selected month
+            setSelectedMonth(date);
+        }
+    };
+
+    return (
+        <div className="datepicker-container">
+            <DatePicker
+                selected={selectedMonth}
+                onChange={handleMonthChange}
+                dateFormat="MMMM yyyy"
+                showMonthYearPicker
+                className="custom-datepicker-input"
+                calendarClassName="custom-datepicker-calendar"
+                popperClassName="custom-datepicker-popper"
+                placeholderText="Select month"
+            />
+        </div>
+    );
 };
 
 export default DateRangePicker;
