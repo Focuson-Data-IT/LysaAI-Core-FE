@@ -86,7 +86,8 @@ const PostsTable = ({ platform = null }) => {
                         console.log("Avatar response:", response.data);
 
                         if (response.data?.data[0]?.profile_pic_url) {
-                            newAvatars[post.username] = `${process.env.NEXT_PUBLIC_HOST}/proxy-image?url=${encodeURIComponent(response.data.data[0].profile_pic_url)}`;
+                            // newAvatars[post.username] = `${process.env.NEXT_PUBLIC_HOST}/proxy-image?url=${encodeURIComponent(response.data.data[0].profile_pic_url)}`;
+                            newAvatars[post.username] = `${response.data.data[0].profile_pic_url}`;
                             console.log(`Avatar URL for ${post.username}:`, response.data.data[0].profile_pic_url);
                         } else {
                             console.warn(`No avatar found for ${post.username}`);
@@ -231,6 +232,7 @@ const PostsTable = ({ platform = null }) => {
                                                     <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex w-40 h-40 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 z-50">
                                                         <img
                                                             src={`${process.env.NEXT_PUBLIC_HOST}/proxy-image?url=${encodeURIComponent(post.thumbnail_url)}`}
+                                                            // src={`${post.thumbnail_url}`}
                                                             alt="Thumbnail"
                                                             className="w-full h-full object-cover rounded-md"
                                                         />
