@@ -10,7 +10,7 @@ import { followersValueFormatter } from "@/utils/numberFormatter";
 
 const FairDetailBar = ({ platform = null, label = null, description = null, unit = null }) => {
     const { authUser } = useAuth();
-    const { period, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState<boolean>(true);
     const [fairChartData, setFairChartData] = useState<any>([]);
@@ -42,7 +42,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
         } else {
             setStickyProfiles([]);
         }
-    }, [selectedCompetitor, fairChartData]);
+    }, [selectedAccount, selectedCompetitor, fairChartData]);
 
     return (
         <div className="flex-1 xl:block shadow-[4px_0_8px_rgba(0,0,0,0.05)]">

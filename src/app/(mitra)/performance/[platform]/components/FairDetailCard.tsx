@@ -11,11 +11,13 @@ import OurDatePicker from "@/components/OurDatePicker";
 import OurSelect from "@/components/OurSelect";
 import { useAuth } from "@/hooks/useAuth";
 import { getDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
+import OurLoading from "@/components/OurLoading";
+import OurEmptyData from "@/components/OurEmptyData";
 
 
 const FairDetailCard = ({ platform, label, description }) => {
     const { authUser } = useAuth();
-    const { period, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
 
 
     const chartRef = useRef<HTMLCanvasElement | null>(null);
@@ -225,7 +227,7 @@ const FairDetailCard = ({ platform, label, description }) => {
         drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
 
         // drawChart(labels, datasetsWithColor);
-    }, [fairScoreData, selectedCompetitor]);
+    }, [fairScoreData, selectedAccount, selectedCompetitor]);
 
     return (
         <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors h-full">
@@ -262,11 +264,26 @@ const FairDetailCard = ({ platform, label, description }) => {
             {/* Data Section */}
             <div className="h-[250px] pt-3 flex items-center justify-center">
                 <div className="my-3 w-full text-center text-muted-foreground pt-[90px]">
-                    <canvas
-                        id="fairScoreCanvas"
-                        ref={chartRef}
-                        height="300"
-                    ></canvas>
+                    {
+                        isLoading ? (
+                            <div className="flex items-center justify-center h-full items-center">
+                                <OurLoading />
+                            </div>
+                        ) : fairScoreData.length === 0 ? (
+                            <div className="flex items-center justify-center h-full items-center">
+                                <OurEmptyData width={100} />
+                            </div>
+                        ) : selectedAccount == null ? (
+                            <div className="flex items-center justify-center h-full items-center">
+                                <p className={"text-sm"}>Please fill your account first</p>
+                            </div>
+                        ) :
+                        <canvas
+                            id="fairScoreCanvas"
+                            ref={chartRef}
+                            height="300"
+                        ></canvas>
+                    }
                 </div>
             </div>
         </div >

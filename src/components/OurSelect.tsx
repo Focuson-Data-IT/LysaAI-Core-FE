@@ -90,7 +90,8 @@ const OurSelect = ({ options, value, onChange, isMulti = false, placeholder, dis
         <div className="datepicker-container">
             <div className="datepicker-wrapper">
                 <Select
-                    placeholder={placeholder}
+                    className={`custom-select-input ${disabled ? "datepicker-disabled cursor-not-allowed opacity-50" : ""}`}
+                    placeholder={disabled ? "Please fill account" : placeholder}
                     styles={customSelectStyles}
                     options={options}
                     isMulti={isMulti}

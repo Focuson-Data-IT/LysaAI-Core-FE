@@ -7,25 +7,14 @@ import { usePerformanceContext } from "@/context/PerformanceContext";
 import { TPeriod } from "@/types/PerformanceTypes";
 import { periodInitialValue } from "@/constant/PerfomanceContants";
 
-const DateRangePicker = ({ onClick }) => {
+const DateRangePicker = ({ onClick, disabled }) => {
     const { period, setPeriod } = usePerformanceContext();
     const [selectedMonth, setSelectedMonth] = useState<Date | null>(moment().startOf("month").toDate());
 
     useEffect(() => {
         // Saat period berubah, update selectedMonth agar sesuai dengan bulan yang dipilih
-        setSelectedMonth(moment(period.start).toDate());
+        setSelectedMonth(moment(period?.start).toDate());
     }, [period]);
-
-    useEffect(() => {
-        // Set default period to the current month
-        const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
-        const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
-
-        setPeriod({
-            start: startOfMonth,
-            end: endOfMonth,
-        });
-    }, [setPeriod]);
 
     const handleMonthChange = (date: Date) => {
         if (date) {
@@ -46,14 +35,15 @@ const DateRangePicker = ({ onClick }) => {
     return (
         <div className="datepicker-container">
             <DatePicker
-                selected={selectedMonth}
+                disabled={disabled}
+                selected={disabled ? undefined : selectedMonth}
                 onChange={handleMonthChange}
                 dateFormat="MMMM yyyy"
                 showMonthYearPicker
-                className="custom-datepicker-input"
+                className={`custom-datepicker-input ${disabled ? "datepicker-disabled cursor-not-allowed opacity-50" : ""}`}
                 calendarClassName="custom-datepicker-calendar"
                 popperClassName="custom-datepicker-popper"
-                placeholderText="Select month"
+                placeholderText={disabled ? "Please fill account" : "Select month"}
             />
         </div>
     );

@@ -32,7 +32,7 @@ interface Post {
 
 const PostsTable = ({ platform = null }) => {
     const { authUser } = useAuth();
-    const { period, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
 
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(false);
@@ -67,7 +67,6 @@ const PostsTable = ({ platform = null }) => {
         } catch (error) {
             console.error("Error fetching posts:", error);
         }
-        setLoading(false);
     };    
 
     useEffect(() => {
@@ -122,7 +121,9 @@ const PostsTable = ({ platform = null }) => {
     };
 
     useEffect(() => {
-        getPosts();
+        getPosts().then((v) => {
+            setLoading(false);
+        });
     }, [authUser, platform, period, selectedCompetitor, sortConfig]);
 
     return (
@@ -169,13 +170,24 @@ const PostsTable = ({ platform = null }) => {
                         </tr>
                     </thead>
                     <tbody className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
-                        {posts.length === 0 && !loading ? (
-                            <tr>
-                                <td colSpan={9} className="text-center p-5">
-                                    <OurEmptyData width={100} />
-                                </td>
-                            </tr>
-                        ) : (
+                        {
+                            loading ? (
+                                <div className="flex items-center justify-center h-full items-center">
+                                    <OurLoading />
+                                </div>
+                            ) : posts.length === 0 ? (
+                                <tr>
+                                    <td colSpan={9} className="text-center p-5">
+                                        <OurEmptyData width={100} />
+                                    </td>
+                                </tr>
+                            ) : selectedAccount == null ? (
+                                    <tr>
+                                        <td colSpan={9} className="text-center justify-center items-center w-full p-5 text-white rounded-lg">
+                                            <p className={"text-sm w-full"}>Please fill your account first</p>
+                                        </td>
+                                    </tr>
+                            ) : (
                             posts.map((post, key) => (
                                 <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
 
@@ -267,7 +279,7 @@ const PostsTable = ({ platform = null }) => {
             </div>
 
             {/* Load More Button */}
-            {hasMore && (
+            {hasMore && selectedAccount != null && (
                 <div className="flex justify-center mt-4">
                     <button
                         onClick={() => {

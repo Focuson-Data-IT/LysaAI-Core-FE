@@ -12,11 +12,13 @@ import OurSelect from "@/components/OurSelect";
 import { useAuth } from "@/hooks/useAuth";
 import { getDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
 import {FaInstagram, FaTiktok} from "react-icons/fa";
+import OurLoading from "@/components/OurLoading";
+import OurEmptyData from "@/components/OurEmptyData";
 
 
 const FairScoreCard = ({ platform, description }) => {
     const { authUser } = useAuth();
-    const { period, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
 
 
     const chartRef = useRef<HTMLCanvasElement | null>(null);
@@ -173,53 +175,55 @@ const FairScoreCard = ({ platform, description }) => {
     }, [authUser, period, platform]);
 
     useEffect(() => {
-        const dateArray = buildLabels(period?.start, period?.end);
-        const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
+        if (selectedAccount) {
+            const dateArray = buildLabels(period?.start, period?.end);
+            const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
 
 
-        const filterByUsername: any = selectedCompetitor?.map((v: any) => {
-            return v?.value;
-        });
+            const filterByUsername: any = selectedCompetitor?.map((v: any) => {
+                return v?.value;
+            });
 
-        let datasetsBuilderOption = {
-            filterByUsername: filterByUsername,
-        };
-
-        const dataGroupedByUsername = groupDataByUsername(fairScoreData)
-
-        let datasetsBuilded = buildDatasets(
-            dataGroupedByUsername,
-            labels,
-            datasetsBuilderOption,
-        );
-
-        const generateColors = (index) => {
-            const primaryColors = [
-                "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-            ];
-
-            return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
-        };
-
-        const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
-            return {
-                ...v,
-                backgroundColor: createGradient(chartRef),
-                borderColor: generateColors(index),
-                pointBackgroundColor: generateColors(index),
+            let datasetsBuilderOption = {
+                filterByUsername: filterByUsername,
             };
-        });
 
-        // untuk pertama kali load fairscoredata tampilkan hanya 5, tetapi tidak membatasi
-        //ketika selectedCompetitor bertambah lebih dari 5 akan tetap ditampilkan sesuai jumlah
-        //selectedCompetitornya
-        const limitDatasets = datasetsWithColor.slice(0, 5);
+            const dataGroupedByUsername = groupDataByUsername(fairScoreData)
 
-        // Render chart
-        drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+            let datasetsBuilded = buildDatasets(
+                dataGroupedByUsername,
+                labels,
+                datasetsBuilderOption,
+            );
 
-        // drawChart(labels, datasetsWithColor);
-    }, [fairScoreData, selectedCompetitor]);
+            const generateColors = (index) => {
+                const primaryColors = [
+                    "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+                ];
+
+                return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
+            };
+
+            const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+                return {
+                    ...v,
+                    backgroundColor: createGradient(chartRef),
+                    borderColor: generateColors(index),
+                    pointBackgroundColor: generateColors(index),
+                };
+            });
+
+            // untuk pertama kali load fairscoredata tampilkan hanya 5, tetapi tidak membatasi
+            //ketika selectedCompetitor bertambah lebih dari 5 akan tetap ditampilkan sesuai jumlah
+            //selectedCompetitornya
+            const limitDatasets = datasetsWithColor.slice(0, 5);
+
+            // Render chart
+            drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+
+            // drawChart(labels, datasetsWithColor);
+        }
+    }, [fairScoreData, selectedAccount, selectedCompetitor]);
 
     interface IconComponents {
         [key: string]: React.ComponentType;
@@ -286,11 +290,26 @@ const FairScoreCard = ({ platform, description }) => {
             {/* Data Section */}
             <div className="h-[650px] pt-3 flex items-center justify-center">
                 <div className="my-3 w-full text-center text-muted-foreground">
-                    <canvas
-                        id="fairScoreCanvas"
-                        ref={chartRef}
-                        height="600"
-                    ></canvas>
+                    {
+                        isLoading ? (
+                            <div className="flex items-center justify-center h-full items-center">
+                                <OurLoading />
+                            </div>
+                        ) : fairScoreData.length === 0 ? (
+                            <div className="flex items-center justify-center h-full items-center">
+                                <OurEmptyData width={100} />
+                            </div>
+                        ) : selectedAccount == null ? (
+                                <div className="flex items-center justify-center h-full items-center">
+                                    <p className={"text-sm"}>Please fill your account first</p>
+                                </div>
+                        ) :
+                        <canvas
+                            id="fairScoreCanvas"
+                            ref={chartRef}
+                            height="600"
+                        ></canvas>
+                    }
                 </div>
             </div>
         </div >

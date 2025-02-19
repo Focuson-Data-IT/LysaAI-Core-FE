@@ -9,7 +9,7 @@ import OurEmptyData from "@/components/OurEmptyData";
 const TopRankingCard = ({ platform = null, description }) => {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const { authUser } = useAuth();
-    const { period, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState(true);
     const [fairRankingData, setFairRankingData] = useState([]);
@@ -48,7 +48,7 @@ const TopRankingCard = ({ platform = null, description }) => {
         } else {
             setStickyProfiles([]);
         }
-    }, [selectedCompetitor, fairRankingData]);
+    }, [selectedAccount, selectedCompetitor, fairRankingData]);
 
     return (
         <div className="rounded-lg bg-gray-200 p-3 dark:bg-gray-900 transition-colors h-full relative">
@@ -121,12 +121,16 @@ const TopRankingCard = ({ platform = null, description }) => {
             {/* Ranking List */}
             <div className="overflow-y-scroll h-[600px]">
                 {loading ? (
-                    <div className="flex items-center justify-center h-full">
+                    <div className="flex items-center justify-center h-full items-center">
                         <OurLoading />
                     </div>
                 ) : fairRankingData.length === 0 ? (
-                    <div className="flex items-center justify-center h-[300px]">
+                    <div className="flex items-center justify-center h-full items-center">
                         <OurEmptyData width={100} />
+                    </div>
+                ) : selectedAccount == null ? (
+                    <div className="flex items-center justify-center h-full items-center">
+                        <p className={"text-sm"}>Please fill your account first</p>
                     </div>
                 ) : (
                     fairRankingData.map((item, index) => (
