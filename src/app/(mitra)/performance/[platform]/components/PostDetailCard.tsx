@@ -11,6 +11,7 @@ import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useAuth } from "@/hooks/useAuth";
 import { performanceBuilder } from "@/resolver";
 import { FaUserCircle, FaHeart, FaCommentDots, FaPlayCircle, FaShareSquare, FaSave, FaDownload, FaChartBar, FaRegCalendarAlt, FaQuoteLeft } from "react-icons/fa"
+import { MdOutlinePermMedia } from "react-icons/md";
 
 interface Post {
     username: string;
@@ -20,6 +21,7 @@ interface Post {
     unique_id_post: string;
     created_at: string;
     thumbnail_url: string;
+    media_name: string;
     likes: number;
     comments: number;
     playCount: number;
@@ -41,15 +43,17 @@ const PostsTable = ({ platform = null }) => {
         direction: "desc"
     });
 
+    const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
     const [perPage] = useState(5); // Default 5 per load
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
 
     const [avatars, setAvatars] = useState<{ [key: string]: string | null }>({});
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Fetch data function
     const getPosts = async () => {
-        if (!hasMore) return;
+        if (!authUser || !period || !platform || !hasMore ) return [];
     
         setLoading(true);
         try {
@@ -59,13 +63,19 @@ const PostsTable = ({ platform = null }) => {
     
             // Hindari duplikasi dengan menyaring data yang sudah ada
             setPosts((prev) => {
-                const existingIds = new Set(prev.map((post) => post.post_code)); // Gunakan unique key
+                const existingIds = new Set(prev.map((post) => post.post_code));
                 return [...prev, ...newPosts.filter((post) => !existingIds.has(post.post_code))];
             });
     
             setHasMore(response.data?.hasMore);
+    
+            // ✅ Pastikan `currentPage` bertambah setelah load sukses
+            setCurrentPage((prev) => prev + 1);
+    
         } catch (error) {
             console.error("Error fetching posts:", error);
+        } finally {
+            setLoading(false);
         }
     };    
 
@@ -85,7 +95,6 @@ const PostsTable = ({ platform = null }) => {
                         console.log("Avatar response:", response.data);
 
                         if (response.data?.data[0]?.profile_pic_url) {
-                            // newAvatars[post.username] = `${process.env.NEXT_PUBLIC_HOST}/proxy-image?url=${encodeURIComponent(response.data.data[0].profile_pic_url)}`;
                             newAvatars[post.username] = `${response.data.data[0].profile_pic_url}`;
                             console.log(`Avatar URL for ${post.username}:`, response.data.data[0].profile_pic_url);
                         } else {
@@ -106,7 +115,10 @@ const PostsTable = ({ platform = null }) => {
             console.log("Fetching avatars...");
             fetchAvatars();
         }
-    }, [posts]);
+
+        const filtered = posts.filter(post => post.caption.toLowerCase().includes(searchQuery.toLowerCase()));
+        setFilteredPosts(filtered);
+    }, [searchQuery, posts]);
 
     // Handle sorting
     const requestSort = (key: string) => {
@@ -121,37 +133,55 @@ const PostsTable = ({ platform = null }) => {
     };
 
     useEffect(() => {
-        getPosts().then((v) => {
+        if (authUser && period && platform && selectedCompetitor && sortConfig) setLoading(true);{
+            getPosts();
             setLoading(false);
-        });
+        }
     }, [authUser, platform, period, selectedCompetitor, sortConfig]);
+
+    if (!authUser || !period || !platform || !selectedCompetitor) {
+        return <OurLoading />;
+    }
 
     return (
         <div className="box box-sizing overflow-x-hidden py-5 h-auto flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
-            <div className="info flex justify-end space-x-2 mr-5">
-                <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                <p className="text-sm">Best</p>
-                <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                <p className="text-sm">Mediocre</p>
-                <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                <p className="text-sm">Worst</p>
+            <div className="flex justify-between">
+                <div >
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg ml-5"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+
+                <div className="info flex justify-end px-3 py-2 space-x-2 mr-5">
+                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                    <p className="text-sm">Best</p>
+                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+                    <p className="text-sm">Mediocre</p>
+                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                    <p className="text-sm">Worst</p>
+                </div>
             </div>
-            <div className="table-content flex-grow overflow-y-auto">
+
+            <div className="p-2 m-3 table-content flex-grow overflow-y-auto">
                 <table className="w-full table-fixed border-collapse border-gray-300 dark:border-gray-700">
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">
                             {[
-                                // { key: "username", label: <FaUser className="text-[#07d1d6] text-lg" />, width: "w-[200px]", tooltip: "Username" },
                                 { key: "caption", label: <FaQuoteLeft className="text-[#07d1d6] text-lg" />, width: "w-[250px]", tooltip: "Caption" },
                                 { key: "created_at", label: <FaRegCalendarAlt className="text-[#07d1d6] text-lg" />, width: "w-[150px]", tooltip: "Date" },
+                                platform === "Instagram" && { key: "media_name", label: <MdOutlinePermMedia className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Konten Type" },
                                 { key: "likes", label: <FaHeart className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Likes" },
                                 { key: "comments", label: <FaCommentDots className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Comments" },
                                 { key: "playCount", label: <FaPlayCircle className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Play Count" },
-                                { key: "shareCount", label: <FaShareSquare className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Shares" },
-                                { key: "collectCount", label: <FaSave className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Saves" },
-                                { key: "downloadCount", label: <FaDownload className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Downloads" },
+                                platform === "TikTok" && { key: "shareCount", label: <FaShareSquare className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Shares" },
+                                platform === "TikTok" && { key: "collectCount", label: <FaSave className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Saves" },
+                                platform === "TikTok" && { key: "downloadCount", label: <FaDownload className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Downloads" },
                                 { key: "performa_konten", label: <FaChartBar className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Performance" },
-                            ].map(({ key, label, width, tooltip }) => (
+                            ].filter(Boolean).map(({ key, label, width, tooltip }) => ( // Gunakan filter(Boolean) agar nilai null tidak dirender
                                 <th key={key} className={`px-4 py-2 text-sm font-bold dark:border-gray-600 cursor-pointer ${width}`} onClick={() => requestSort(key)}>
                                     <div className="relative group flex justify-center items-center gap-2">
                                         {label}
@@ -172,107 +202,103 @@ const PostsTable = ({ platform = null }) => {
                     <tbody className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
                         {
                             loading ? (
-                                <div className="flex items-center justify-center h-full items-center">
-                                    <OurLoading />
-                                </div>
-                            ) : posts.length === 0 ? (
+                                <tr>
+                                    <td colSpan={9} className="p-5">
+                                        <div className="flex items-center justify-center h-full">
+                                            <OurLoading />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredPosts.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="text-center p-5">
                                         <OurEmptyData width={100} />
                                     </td>
                                 </tr>
                             ) : selectedAccount == null ? (
-                                    <tr>
-                                        <td colSpan={9} className="text-center justify-center items-center w-full p-5 text-white rounded-lg">
-                                            <p className={"text-sm w-full"}>Please fill your account first</p>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td colSpan={9} className="text-center justify-center items-center w-full p-5 text-white rounded-lg">
+                                        <p className={"text-sm w-full"}>Please fill your account first</p>
+                                    </td>
+                                </tr>
                             ) : (
-                            posts.map((post, key) => (
-                                <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                filteredPosts.map((post, key) => (
+                                    <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
 
-                                    {/* Kolom gabungan Username + Caption */}
-                                    <td className="px-4 py-4 text-left text-sm w-[300px]">
-                                        <div className="flex items-start gap-2">
-                                            {/* Avatar / Ikon User */}
-                                            <div className="flex-shrink-0 w-10 h-10">
-                                                {avatars[post.username] ? (
-                                                    <>
-                                                        <img
-                                                            src={avatars[post.username]}
-                                                            // alt={post.username}
-                                                            className="w-full h-full object-cover rounded-full"
-                                                            alt={"avatar_user"}/>
-                                                    </>
-                                                ) : (
-                                                    <FaUserCircle className="text-gray-500 w-10 h-10" />
-                                                )}
-                                            </div>
-
-                                            {/* Info Username + Caption */}
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-black dark:text-white">{post.username}</span>
-                                                    {/* {post.platform === "Instagram" ? (
-                                                        <FaInstagram className="text-[#bc2a8d] text-sm" />
+                                        {/* Kolom gabungan Username + Caption */}
+                                        <td className="px-4 py-4 text-left text-sm w-[300px]">
+                                            <div className="flex items-start gap-2">
+                                                {/* Avatar / Ikon User */}
+                                                <div className="flex-shrink-0 w-10 h-10">
+                                                    {avatars[post.username] ? (
+                                                        <>
+                                                            <img
+                                                                src={avatars[post.username]}
+                                                                className="w-full h-full object-cover rounded-full"
+                                                                alt={"avatar_user"} />
+                                                        </>
                                                     ) : (
-                                                        <FaTiktok className="text-black dark:text-white text-sm" />
-                                                    )} */}
+                                                        <FaUserCircle className="text-gray-500 w-10 h-10" />
+                                                    )}
                                                 </div>
 
-                                                {/* Caption */}
-                                                <p className="text-gray-700 dark:text-gray-300 text-sm leading-tight mt-1">
-                                                    {post.caption.length > 50 ? `${post.caption.substring(0, 50)}...` : post.caption}
-                                                </p>
-
-                                                {/* Link ke Original Post dengan Thumbnail Tooltip */}
-                                                <div className="relative group inline-block">
-                                                    <a
-                                                        href={
-                                                            post.platform === "Instagram"
-                                                                ? `https://www.instagram.com/p/${post.post_code}`
-                                                                : `https://www.tiktok.com/@${post.username}/video/${post.unique_id_post}`
-                                                        }
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-blue-500 dark:text-blue-300 text-sm font-semibold mt-1 block"
-                                                    >
-                                                        Original Post
-                                                    </a>
-
-                                                    {/* Tooltip untuk Thumbnail */}
-                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex w-40 h-40 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 z-50">
-                                                        <img
-                                                            src={`${process.env.NEXT_PUBLIC_HOST}/proxy-image?url=${encodeURIComponent(post.thumbnail_url)}`}
-                                                            // src={`${post.thumbnail_url}`}
-                                                            alt="Thumbnail"
-                                                            className="w-full h-full object-cover rounded-md"
-                                                        />
+                                                {/* Info Username + Caption */}
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-black dark:text-white">{post.username}</span>
                                                     </div>
 
+                                                    {/* Caption */}
+                                                    <p className="text-gray-700 dark:text-gray-300 text-sm leading-tight mt-1">
+                                                        {post.caption.length > 50 ? `${post.caption.substring(0, 50)}...` : post.caption}
+                                                    </p>
+
+                                                    {/* Link ke Original Post dengan Thumbnail Tooltip */}
+                                                    <div className="relative group inline-block">
+                                                        <a
+                                                            href={
+                                                                post.platform === "Instagram"
+                                                                    ? `https://www.instagram.com/p/${post.post_code}`
+                                                                    : `https://www.tiktok.com/@${post.username}/video/${post.unique_id_post}`
+                                                            }
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-500 dark:text-blue-300 text-sm font-semibold mt-1 block"
+                                                        >
+                                                            Original Post
+                                                        </a>
+
+                                                        {/* Tooltip untuk Thumbnail */}
+                                                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex w-40 h-40 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 z-50">
+                                                            <img
+                                                                src={`${post.thumbnail_url}`}
+                                                                alt="Thumbnail"
+                                                                className="w-full h-full object-cover rounded-md"
+                                                            />
+                                                        </div>
+
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                    {/* Kolom Lainnya */}
-                                    <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
-                                    <td className="px-2 py-4 text-center">{post.likes ? new Intl.NumberFormat('id-ID').format(post.likes) : 0}</td>
-                                    <td className="px-2 py-4 text-center">{post.comments ? new Intl.NumberFormat('id-ID').format(post.comments) : 0}</td>
-                                    <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : 0}</td>
-                                    <td className="px-2 py-4 text-center">{post.shareCount ? new Intl.NumberFormat('id-ID').format(post.shareCount) : 0}</td>
-                                    <td className="px-2 py-4 text-center">{post.collectCount ? new Intl.NumberFormat('id-ID').format(post.collectCount) : 0}</td>
-                                    <td className="px-2 py-4 text-center">{post.downloadCount ? new Intl.NumberFormat('id-ID').format(post.downloadCount) : 0}</td>
+                                        {/* Kolom Lainnya */}
+                                        <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
+                                        <td className="px-2 py-4 text-center">{post.media_name ? post.media_name.charAt(0).toUpperCase() + post.media_name.slice(1) : ""}</td>
+                                        <td className="px-2 py-4 text-center">{post.likes ? new Intl.NumberFormat('id-ID').format(post.likes) : 0}</td>
+                                        <td className="px-2 py-4 text-center">{post.comments ? new Intl.NumberFormat('id-ID').format(post.comments) : 0}</td>
+                                        <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : "Post is Not Reels"}</td>
+                                        {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.shareCount ? new Intl.NumberFormat('id-ID').format(post.shareCount) : 0}</td>}
+                                        {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.collectCount ? new Intl.NumberFormat('id-ID').format(post.collectCount) : 0}</td>}
+                                        {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.downloadCount ? new Intl.NumberFormat('id-ID').format(post.downloadCount) : 0}</td>}
 
-                                    {/* Indikator Performa */}
-                                    <td className="px-2 py-4 items-center justify-center h-full w-full">
-                                        <div className={`w-4 h-4 mx-auto rounded-full bg-${post.performa_color}-500`}></div>
-                                    </td>
-
-
-                                </tr>
-                            ))
-                        )}
+                                        {/* Indikator Performa */}
+                                        <td className="px-2 py-4 items-center justify-center h-full w-full">
+                                            <div className={`w-4 h-4 mx-auto rounded-full bg-${post.performa_color}-500`}></div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                     </tbody>
 
                 </table>

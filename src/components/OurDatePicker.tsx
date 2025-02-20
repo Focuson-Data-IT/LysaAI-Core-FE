@@ -9,11 +9,15 @@ import { periodInitialValue } from "@/constant/PerfomanceContants";
 
 const DateRangePicker = ({ onClick, disabled }) => {
     const { period, setPeriod } = usePerformanceContext();
-    const [selectedMonth, setSelectedMonth] = useState<Date | null>(moment().startOf("month").toDate());
+    const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
 
     useEffect(() => {
         // Saat period berubah, update selectedMonth agar sesuai dengan bulan yang dipilih
-        setSelectedMonth(moment(period?.start).toDate());
+        if (period?.start) {
+            setSelectedMonth(moment(period.start).toDate());
+        } else {
+            setSelectedMonth(null);
+        }
     }, [period]);
 
     const handleMonthChange = (date: Date) => {
@@ -36,14 +40,16 @@ const DateRangePicker = ({ onClick, disabled }) => {
         <div className="datepicker-container">
             <DatePicker
                 disabled={disabled}
-                selected={disabled ? undefined : selectedMonth}
+                selected={selectedMonth}
                 onChange={handleMonthChange}
                 dateFormat="MMMM yyyy"
                 showMonthYearPicker
                 className={`custom-datepicker-input ${disabled ? "datepicker-disabled cursor-not-allowed opacity-50" : ""}`}
                 calendarClassName="custom-datepicker-calendar"
                 popperClassName="custom-datepicker-popper"
-                placeholderText={disabled ? "Please fill account" : "Select month"}
+                placeholderText={disabled ? "Please fill account" : "Select Month"}
+                onKeyDown={(e) => e.preventDefault()} // Mencegah input dari keyboard
+                onFocus={(e) => e.target.blur()}
             />
         </div>
     );

@@ -1,9 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import OurLoading from "@/components/OurLoading";
 import "@/app/globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -17,6 +17,7 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
     const [stickyProfiles, setStickyProfiles] = useState<any[]>([]);
 
     const getFairDetailData = async () => {
+        if (!authUser || !period || !platform || !label || !description || !unit) return [];
         const url = `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`;
         const response = await request.get(url);
         const newResponse = response.data?.data?.map((v: any) => ({
@@ -27,10 +28,12 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
     };
 
     useEffect(() => {
-        getFairDetailData().then((data) => {
-            setFairChartData(data || []);
-            setLoading(false);
-        });
+        if (authUser && period && platform) setLoading(true);{
+            getFairDetailData().then((data) => {
+                setFairChartData(data || []);
+                setLoading(false);
+            });
+        }
     }, [authUser, period, platform]);
 
     useEffect(() => {
@@ -43,6 +46,10 @@ const FairDetailBar = ({ platform = null, label = null, description = null, unit
             setStickyProfiles([]);
         }
     }, [selectedAccount, selectedCompetitor, fairChartData]);
+
+    if (!authUser || !period || !platform || !label || !description || !unit) {
+        return <OurLoading />;
+    }
 
     return (
         <div className="flex-1 xl:block shadow-[4px_0_8px_rgba(0,0,0,0.05)]">
