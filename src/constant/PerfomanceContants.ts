@@ -2,10 +2,11 @@ import {TOption, TPerformanceContext, TPeriod, TSingleMonthPeriod} from "@/types
 import moment from "moment/moment";
 
 export const periodInitialValue: TPeriod =  {
-    start: moment().startOf('month').format("YYYY-MM-DD"),
-    end: moment().endOf('month').format("YYYY-MM-DD")
+    // start: moment().startOf('month').format("YYYY-MM-DD"),
+    // end: moment().endOf('month').format("YYYY-MM-DD")
+    start: null,
+    end: null
 }
-
 
 export const singleMonthPeriodInitialValue: TSingleMonthPeriod = moment().format("YYYY-MM-DD");
 

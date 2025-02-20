@@ -16,10 +16,10 @@ export default function LoginPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem("theme") as "light" | "dark";
-        if (savedTheme) {
-            setTheme(savedTheme);
-        }
+        // const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+        // if (savedTheme) {
+        //     setTheme(savedTheme);
+        // }
 
         const observer = new MutationObserver(() => {
             const newTheme = document.documentElement.classList.contains("dark") ? "dark" : "light";

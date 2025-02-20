@@ -27,7 +27,7 @@ const FairDetailCard = ({ platform, label, description }) => {
     const [options, setOptions] = useState<any>(null);
 
     const getFairScoreChartData = async () => {
-        setIsLoading(true);
+        if (!authUser || !platform || !description) return [];
 
         const response = await request.get(
             `/getDaily${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`,
@@ -105,6 +105,7 @@ const FairDetailCard = ({ platform, label, description }) => {
     };
 
     useEffect(() => {
+        if (authUser && period && platform) setIsLoading(true);{
         getFairScoreChartData().then((v) => {
             const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
                 return {
@@ -116,6 +117,7 @@ const FairDetailCard = ({ platform, label, description }) => {
             setOptions(groupedUsername)
             setIsLoading(false);
         });
+    }
     }, [authUser, period, platform]);
 
     useEffect(() => {
@@ -139,19 +141,20 @@ const FairDetailCard = ({ platform, label, description }) => {
             datasetsBuilderOption,
         );
 
-        const generateColors = (index) => {
+        const generateColors = (index, opacity?) => {
             const primaryColors = [
                 "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
             ];
 
-            return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
+            return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
         };
 
         const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
             return {
                 ...v,
                 backgroundColor: createGradient(chartRef),
-                borderColor: generateColors(index),
+                // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
+                borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
                 pointBackgroundColor: generateColors(index),
             };
         });
@@ -161,8 +164,12 @@ const FairDetailCard = ({ platform, label, description }) => {
 
     }, [fairScoreData, selectedAccount, selectedCompetitor]);
 
+    if (!authUser || !period || !platform || !label || !description ) {
+        return <OurLoading />;
+    }
+
     return (
-        <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors h-full">
+        <div className="h-[300px] lg:col-span-6 rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors">
             {/* Header with Icon and Title */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -194,8 +201,8 @@ const FairDetailCard = ({ platform, label, description }) => {
             </div>
 
             {/* Data Section */}
-            <div className="h-[250px] pt-3 flex items-center justify-center">
-                <div className="my-3 w-full text-center text-muted-foreground pt-[90px]">
+            <div className="h-[250px] flex items-center justify-center">
+                <div className="my-3 w-full text-center text-muted-foreground">
                     {
                         isLoading ? (
                             <div className="flex items-center justify-center h-full items-center">
@@ -213,12 +220,12 @@ const FairDetailCard = ({ platform, label, description }) => {
                         <canvas
                             id="fairScoreCanvas"
                             ref={chartRef}
-                            height="300"
+                            height="200"
                         ></canvas>
                     }
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

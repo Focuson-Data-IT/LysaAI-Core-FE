@@ -30,7 +30,7 @@ const FairScoreCard = ({ platform, description }) => {
 
 
     const getFairScoreChartData = async () => {
-        setIsLoading(true);
+        if (!authUser || !period || !platform || !description) return [];
 
         const response = await request.get(
             `/getFairScores?kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&platform=${platform}`,
@@ -167,6 +167,7 @@ const FairScoreCard = ({ platform, description }) => {
 
 
     useEffect(() => {
+        if (authUser && period && platform) setIsLoading(true);{
         getFairScoreChartData().then((v) => {
             const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
                 return {
@@ -178,6 +179,7 @@ const FairScoreCard = ({ platform, description }) => {
             setOptions(groupedUsername)
             setIsLoading(false);
         });
+    }
     }, [authUser, period, platform]);
 
     useEffect(() => {
@@ -202,19 +204,20 @@ const FairScoreCard = ({ platform, description }) => {
                 datasetsBuilderOption,
             );
 
-            const generateColors = (index) => {
+            const generateColors = (index, opacity?) => {
                 const primaryColors = [
                     "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
                 ];
 
-                return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
+                return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
             };
 
             const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
                 return {
                     ...v,
                     backgroundColor: createGradient(chartRef),
-                    borderColor: generateColors(index),
+                    // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
+                    borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"), 
                     pointBackgroundColor: generateColors(index),
                 };
             });
@@ -239,6 +242,10 @@ const FairScoreCard = ({ platform, description }) => {
     };
 
     const IconComponent = getIconComponent(platform);
+
+    if (!authUser || !period || !platform || !description) {
+        return <OurLoading />;
+    }
 
     return (
         <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors h-full">
@@ -318,7 +325,7 @@ const FairScoreCard = ({ platform, description }) => {
                     }
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 
