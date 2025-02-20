@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Chart from "chart.js/auto";
 import moment from "moment";
 import request from "@/utils/request";
-import { buildDatasets, buildLabels, createGradient, groupDataByUsername } from "@/utils/chart";
+import { buildDatasets, buildDatasetsPie, buildLabels, createGradient, groupDataByUsername } from "@/utils/chart";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useParams } from "next/navigation";
 import OurDatePicker from "@/components/OurDatePicker";
@@ -14,6 +14,7 @@ import { getDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
 import {FaInstagram, FaTiktok} from "react-icons/fa";
 import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
+import { AxiosResponse } from 'axios';
 
 
 const FairScoreCard = ({ platform, description }) => {
@@ -29,17 +30,25 @@ const FairScoreCard = ({ platform, description }) => {
     const [activeTab, setActiveTab] = useState<string>("FAIR");
 
 
-    const getFairScoreChartData = async () => {
+    const getFairScoreChartData = async (label: string) => {
         if (!authUser || !period || !platform || !description) return [];
+        let response: AxiosResponse<any, any>;
+        if(activeTab == "FAIR") {
 
-        const response = await request.get(
-            `/getFairScores?kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&platform=${platform}`,
-        );
+            response = await request.get(
+                `/getFairScores?kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&platform=${platform}`,
+            );
+        } else {
+            response = await request.get(
+                `/getDaily${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`,
+            );
+        }
+
 
         return response.data?.data;
     };
 
-    const drawChart = (labels: any, datasets: any) => {
+    const drawLineChart = (labels: any, datasets: any) => {
         if (chartRef && chartRef.current) {
             const ctx = chartRef.current?.getContext("2d");
 
@@ -160,15 +169,225 @@ const FairScoreCard = ({ platform, description }) => {
         }
     };
 
+    const drawPieChart = (
+            data: {
+                labels: any;
+                datasets: {
+                    data: any;
+                    backgroundColor: string[];
+                }[],
+            },
+        ) => {
+        if (chartRef && chartRef.current) {
+            const ctx = chartRef.current?.getContext("2d");
+
+            if (fairScoreChart) {
+                fairScoreChart.destroy();
+            }
+
+            if (ctx) {
+                const newChart: any = new Chart(ctx, {
+                    type: "pie",
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: "Followers",
+                                data: data.datasets[0].data,
+                                backgroundColor: data.datasets[0].backgroundColor,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                                position: 'bottom',
+                            },
+                        }
+                    }
+                });
+                setFairScoreChart(newChart);
+            }
+        }
+    };
+
+    const drawRadarChart = (
+            labels: any,
+            datasets: {
+                data: any;
+                backgroundColor: string;
+                borderColor: string;
+                pointBackgroundColor: string;
+                pointBorderColor: string;
+                pointHoverBackgroundColor: string;
+                pointHoverBorderColor: string;
+            }[],
+        
+    ) => {
+        if (chartRef && chartRef.current) {
+            const ctx = chartRef.current?.getContext("2d");
+            if (fairScoreChart) {
+                fairScoreChart.destroy();
+            }
+            console.log('data radar', datasets)
+            const newChart =new Chart(ctx, {
+                type: "radar",
+                data: {
+                    labels: labels,
+                    datasets: datasets,
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                        },
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                            position: 'bottom',
+                        },
+                    },
+                },
+            });
+            setFairScoreChart(newChart);            
+        }
+    };
+
+    const drawBarChart = (labels: any, datasets: any) => {
+        if (chartRef && chartRef.current) {
+            const ctx = chartRef.current?.getContext("2d");
+
+            if (fairScoreChart) {
+                fairScoreChart.destroy();
+            }
+
+            if (ctx) {
+                const newChart: any = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: datasets,
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: "x",
+                            axis: "x",
+                            intersect: false,
+                        },
+                        animation: {
+                            duration: 1000,
+                            easing: "easeOutCubic",
+                        },
+                        elements: {
+                            line: {
+                                tension: 0.4,
+                                borderWidth: 2,
+                            },
+                            point: {
+                                radius: 0,
+                            },
+                        },
+                        plugins: {
+                            legend: {
+                                display: false,
+                                position: 'bottom',
+                            },
+                        },
+                        layout: {
+                            padding: {
+                                top: 20,
+                                right: 20,
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback(value) {
+                                        return `${value} `;
+                                    },
+                                },
+                            },
+                            x: {
+                                ticks: {
+                                    callback: function (value, index) {
+                                        return `${moment(labels[index]).format("DD")}`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+                setFairScoreChart(newChart);
+            }
+        }
+    };
+
+
+    const drawPolarChart = (
+            data: {
+                labels: any;
+                datasets: {
+                    data: any;
+                    backgroundColor: string[];
+                }[],
+            },
+        ) => {
+        if (chartRef && chartRef.current) {
+            const ctx = chartRef.current?.getContext("2d");
+
+            if (fairScoreChart) {
+                fairScoreChart.destroy();
+            }
+
+            if (ctx) {
+                const newChart: any = new Chart(ctx, {
+                    type: "polarArea",
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: "Responsiveness",
+                                data: data.datasets[0].data,
+                                backgroundColor: data.datasets[0].backgroundColor,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                                position: 'bottom',
+                            },
+                        }
+                    }
+                });
+                setFairScoreChart(newChart);
+            }
+        }
+    };
+
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
         console.log(`Tab switched to: ${tab}`);
     };
 
-
     useEffect(() => {
+        // I = Interactions
+        // R = Responsiveness
+        
         if (authUser && period && platform) setIsLoading(true);{
-        getFairScoreChartData().then((v) => {
+        getFairScoreChartData(activeTab).then((v) => {
             const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
                 return {
                     label: e[0],
@@ -180,51 +399,208 @@ const FairScoreCard = ({ platform, description }) => {
             setIsLoading(false);
         });
     }
-    }, [authUser, period, platform]);
+    }, [authUser, period, platform, activeTab]);
 
     useEffect(() => {
         if (selectedAccount) {
-            const dateArray = buildLabels(period?.start, period?.end);
-            const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
-
-
-            const filterByUsername: any = selectedCompetitor?.map((v: any) => {
-                return v?.value;
-            });
-
-            let datasetsBuilderOption = {
-                filterByUsername: filterByUsername,
-            };
-
-            const dataGroupedByUsername = groupDataByUsername(fairScoreData)
-
-            let datasetsBuilded = buildDatasets(
-                dataGroupedByUsername,
-                labels,
-                datasetsBuilderOption,
-            );
-
-            const generateColors = (index, opacity?) => {
-                const primaryColors = [
-                    "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-                ];
-
-                return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
-            };
-
-            const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
-                return {
-                    ...v,
-                    backgroundColor: createGradient(chartRef),
-                    // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
-                    borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"), 
-                    pointBackgroundColor: generateColors(index),
+            if(activeTab == "FAIR") {
+                const dateArray = buildLabels(period?.start, period?.end);
+                const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
+                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
+                    return v?.value;
+                });
+    
+                let datasetsBuilderOption = {
+                    filterByUsername: filterByUsername,
                 };
-            });
+    
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
+    
+                let datasetsBuilded = buildDatasets(
+                    dataGroupedByUsername,
+                    labels,
+                    datasetsBuilderOption,
+                );
+    
+                const generateColors = (index, opacity?) => {
+                    const primaryColors = [
+                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+                    ];
+    
+                    return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
+                };
+    
+                const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+                    return {
+                        ...v,
+                        backgroundColor: createGradient(chartRef),
+                        // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
+                        borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"), 
+                        pointBackgroundColor: generateColors(index),
+                    };
+                });
+    
+                const limitDatasets = datasetsWithColor.slice(0, 5);
+    
+                drawLineChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+            }
 
-            const limitDatasets = datasetsWithColor.slice(0, 5);
+            if (activeTab == "Followers") {
+                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
+                    return v?.value;
+                });
+    
+                let datasetsBuilderOption = {
+                    filterByUsername: filterByUsername,
+                };
+    
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
+    
+                let datasetsBuilded = buildDatasetsPie(
+                    dataGroupedByUsername,
+                    datasetsBuilderOption,
+                );
+                const generateColors = (index, opacity?) => {
+                    const primaryColors = [
+                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+                    ];
+    
+                    return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
+                };
+    
+                const limitDatasets = {
+                    labels: datasetsBuilded.labels.slice(0, 5),
+                    datasets: [{
+                        backgroundColor: datasetsBuilded.datasets[0].backgroundColor.map((_, index) => {
+                                return datasetsBuilded.labels[index] == selectedAccount ? generateColors(index) : generateColors(index, "33")
+                            } 
+                        ),
+                        data: datasetsBuilded.datasets[0].data.slice(0, 5)
+                    }]
+                };
+    
+                drawPieChart(selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
+            }
 
-            drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+            if(activeTab == "Activities") {
+                const dateArray = buildLabels(period?.start, period?.end);
+                const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
+                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
+                    return v?.value;
+                });
+    
+                let datasetsBuilderOption = {
+                    filterByUsername: filterByUsername,
+                };
+    
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
+    
+                let datasetsBuilded = buildDatasets(
+                    dataGroupedByUsername,
+                    labels,
+                    datasetsBuilderOption,
+                );
+    
+                const generateColors = (index, opacity?) => {
+                    const primaryColors = [
+                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+                    ];
+    
+                    return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
+                };
+    
+                const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+                    return {
+                        label: v.label,
+                        data: v.data,
+                        fill: true,
+                        backgroundColor: v.label == selectedAccount ? generateColors(index, "B3") : generateColors(index, "20"),
+                        borderColor: v.label == selectedAccount ? generateColors(index, "B3") : generateColors(index, "20"),
+                    };
+                });
+                const limitDatasets = datasetsWithColor.slice(0, 5);
+                drawRadarChart(labels, selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
+            }
+
+            if(activeTab == "Interactions") {
+                const dateArray = buildLabels(period?.start, period?.end);
+                const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
+                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
+                    return v?.value;
+                });
+    
+                let datasetsBuilderOption = {
+                    filterByUsername: filterByUsername,
+                };
+    
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
+    
+                let datasetsBuilded = buildDatasets(
+                    dataGroupedByUsername,
+                    labels,
+                    datasetsBuilderOption,
+                );
+    
+                const generateColors = (index, opacity?) => {
+                    const primaryColors = [
+                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+                    ];
+    
+                    return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
+                };
+    
+                const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+                    return {
+                        ...v,
+                        backgroundColor: createGradient(chartRef),
+                        // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
+                        borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"), 
+                        pointBackgroundColor: generateColors(index),
+                    };
+                });
+    
+                const limitDatasets = datasetsWithColor.slice(0, 5);
+    
+                drawBarChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+            }
+
+            if (activeTab == "Responsiveness") {
+                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
+                    return v?.value;
+                });
+    
+                let datasetsBuilderOption = {
+                    filterByUsername: filterByUsername,
+                };
+    
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
+    
+                let datasetsBuilded = buildDatasetsPie(
+                    dataGroupedByUsername,
+                    datasetsBuilderOption,
+                );
+                const generateColors = (index, opacity?) => {
+                    const primaryColors = [
+                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+                    ];
+    
+                    return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
+                };
+    
+                const limitDatasets = {
+                    labels: datasetsBuilded.labels.slice(0, 5),
+                    datasets: [{
+                        backgroundColor: datasetsBuilded.datasets[0].backgroundColor.map((_, index) => {
+                                return datasetsBuilded.labels[index] == selectedAccount ? generateColors(index) : generateColors(index, "33")
+                            } 
+                        ),
+                        borderColor: '#00FF00',
+                        data: datasetsBuilded.datasets[0].data.slice(0, 5)
+                    }]
+                };
+    
+                drawPolarChart(selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
+            }
         }
     }, [fairScoreData, selectedAccount, selectedCompetitor, activeTab]);
 
@@ -282,7 +658,7 @@ const FairScoreCard = ({ platform, description }) => {
 
                     {/* Tabs di bawah teks FAIR Score */}
                     <div className="flex space-x-4npm run mb-4">
-                        {["FAIR", "F", "A", "I", "R"].map((tab) => (
+                        {["FAIR", "Followers", "Activities", "Interactions", "Responsiveness"].map((tab) => (
                             <button
                                 key={tab}
                                 className={`px-4 py-2 ${
@@ -292,7 +668,7 @@ const FairScoreCard = ({ platform, description }) => {
                                 }`}
                                 onClick={() => handleTabChange(tab)}
                             >
-                                {tab}
+                                {tab =="FAIR" ? tab : tab.slice(0,1)}
                             </button>
                         ))}
                     </div>
@@ -320,7 +696,7 @@ const FairScoreCard = ({ platform, description }) => {
                         <canvas
                             id="fairScoreCanvas"
                             ref={chartRef}
-                            height="600"
+                            height='600'
                         ></canvas>
                     }
                 </div>

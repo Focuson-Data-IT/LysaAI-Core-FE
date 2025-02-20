@@ -67,7 +67,7 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 		});
 
 
-		sortedData.sort((a, b) => b.totalValue - a.totalValue) // Urutkan dari terbesar ke terkecil
+	sortedData.sort((a, b) => b.totalValue - a.totalValue) // Urutkan dari terbesar ke terkecil
 		.slice(0, 10); // Ambil hanya 10 pengguna teratas
 
 	// Membuat dataset hanya untuk 10 pengguna dengan nilai terbesar
@@ -95,6 +95,38 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 	return datasets;
 };
 
+export const buildDatasetsPie = (groupedData, options: any) => {
+	let filteredData: any = Object.entries(groupedData);
+
+	if (options) {
+		filteredData = Object.entries(groupedData).filter(
+			([username]: any) =>
+				options?.filterByUsername?.length === 0 ||
+				options?.filterByUsername?.includes(username)
+		);
+	}
+
+	let sortedData = filteredData
+		.map(([username, userData]) => {
+			const totalValue = userData.reduce((sum, item) => sum + parseFloat(String(item.value || 0)), 0);
+			return { username, totalValue };
+		})
+		.sort((a, b) => b.totalValue - a.totalValue)
+		.slice(0, 10);
+
+	const labels = sortedData.map(({ username }) => username);
+	const data = sortedData.map(({ totalValue }) => totalValue);
+
+	return {
+		labels,
+		datasets: [{
+			data,
+			backgroundColor: [
+				"#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+			],
+		}],
+	};
+};
 
 export const createGradient = (chartRef) => {
 	if (!chartRef?.current) return "#22C55E";
