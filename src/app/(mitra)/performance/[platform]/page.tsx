@@ -6,34 +6,40 @@ import FairDetailCard from "./components/FairDetailCard";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
-import PerformanceContextProvider, { usePerformanceContext } from "@/context/PerformanceContext";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
 import OurDatePicker from "@/components/OurDatePicker";
 import OurSelect from "@/components/OurSelect";
 import request from "@/utils/request";
 import { useAuth } from "@/hooks/useAuth";
-import {periodInitialValue} from "@/constant/PerfomanceContants";
+import { usePerformanceContext } from "@/context/PerformanceContext";
+import OurLoading from "@/components/OurLoading";
 
 const Competitor = () => {
     const { platform } = useParams();
     const { authUser } = useAuth();
 
-    // State untuk Select & DatePicker
     const [accountOptions, setAccountOptions] = useState([]);
     const [competitorOptions, setCompetitorOptions] = useState([]);
-    const [isShowDatepicker, setIsShowDatepicker] = useState<boolean>(false);
+    const [isShowDatepicker, setIsShowDatepicker] = useState(false);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    const { period, selectedCompetitor, selectedAccount, setPeriod, setSelectedCompetitor, setSelectedAccount } = usePerformanceContext();
+    const {
+        period,
+        selectedCompetitor,
+        selectedAccount,
+        setPeriod,
+        setSelectedCompetitor,
+        setSelectedAccount,
+    } = usePerformanceContext();
 
     useEffect(() => {
-        // Fetch daftar akun dari database hanya jika authUser sudah tersedia
         const fetchUsernames = async () => {
             if (authUser?.username) {
                 try {
-                    const response = await request.get(`/getAllUsername?kategori=${authUser.username}&platform=${platform}`);
+                    const response = await request.get(
+                        `/getAllUsername?kategori=${authUser.username}&platform=${platform}`
+                    );
                     const usernames = response.data?.data || [];
-
-                    // Konversi ke format OurSelect
                     const formattedOptions = usernames.map((user: { username: string }) => ({
                         label: user.username,
                         value: user.username,
@@ -50,122 +56,121 @@ const Competitor = () => {
         fetchUsernames();
     }, [authUser, platform]);
 
-    useEffect(() => {
-        console.info(selectedAccount)
-        console.info(period)
-    }, [selectedAccount]);
-
-    useEffect(() => {
-        console.info(period)
-    }, [period]);
-
-    interface IconComponents {
-        [key: string]: React.ComponentType;
-    }
-
-    const getIconComponent = (platform: string): React.ComponentType | null => {
-        const icons: IconComponents = {
+    const getIconComponent = (platform: string) => {
+        const icons = {
             Instagram: FaInstagram,
-            TikTok: FaTiktok
+            TikTok: FaTiktok,
         };
-
         return icons[platform] || null;
     };
 
     const IconComponent = getIconComponent(Array.isArray(platform) ? platform[0] : platform);
 
+    if (!authUser || !period || !platform ) {
+        return <OurLoading />;
+    }
+
     return (
-        <div className="min-h-screen justify-self-auto overflow-auto mb-5 overflow-x-hidden">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-            <div>
-                <h1 className="text-xl text-black dark:text-white font-bold">Competitor Analysis</h1>
-                <p className="text-black dark:text-white">Monitor your competitors every single day</p>
-            </div>
-
-            <div className="flex justify-between gap-5 items-center">
-                {/* Select Your Account */}
+        <div className="relative min-h-screen">
+            {/* HEADER - FOKUS DAN TIDAK BLUR */}
+            <div className="flex justify-between items-center relative z-20 bg-transparent">
                 <div>
-                    <OurSelect
-                        options={accountOptions}
-                        value={accountOptions.find(option => option.value === selectedAccount)} // **Pastikan sesuai format**
-                        onChange={(selected) => {
-                            setSelectedAccount(selected?.value)
-                        }}
-                        isMulti={false} // Hanya bisa pilih satu akun
-                        placeholder="Select Your Account"
-                    />
+                    <h1 className="text-xl text-black dark:text-white font-bold">Competitor Analysis</h1>
+                    <p className="text-black dark:text-white">Monitor your competitors every single day</p>
                 </div>
 
-                {/* Select Period */}
-                <div>
-                    <OurDatePicker
-                        disabled={selectedAccount == null}
-                        onClick={() => setIsShowDatepicker(!isShowDatepicker)}
-                    />
+                {/* SELECTIONS */}
+                <div className="flex justify-between gap-5 items-center">
+                    <div>
+                        <OurSelect
+                            options={accountOptions}
+                            value={accountOptions.find((option) => option.value === selectedAccount)}
+                            onChange={(selected) => setSelectedAccount(selected?.value)}
+                            isMulti={false}
+                            placeholder="Type / Select Username"
+                        />
+                    </div>
+
+                    <div>
+                        <OurDatePicker
+                            disabled={!selectedAccount}
+                            onClick={() => setIsShowDatepicker(!isShowDatepicker)}
+                        />
+                    </div>
+
+                    <div>
+                        <OurSelect
+                            disabled={!selectedAccount || !period}
+                            options={competitorOptions}
+                            value={
+                                selectedAccount && period
+                                    ? competitorOptions.filter((option) =>
+                                        selectedCompetitor.includes(option.value)
+                                    )
+                                    : []
+                            }
+                            onChange={(selected) => setSelectedCompetitor(selected.map((item) => item.value))}
+                            isMulti={true}
+                            placeholder="Hide / Show Competitors"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* KONTEN LAINNYA YANG TERBLUR */}
+            <div
+                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount ? "blur-sm pointer-events-none" : ""
+                    }`}
+            >
+                {/* FAIR Score & Top Ranking */}
+                <div className="grid grid-cols-12 gap-4 mt-4">
+                    <div className="lg:col-span-9 rounded-lg">
+                        <FairScoreCard platform={platform} description="Jumlah orang yang mengikuti akun." />
+                    </div>
+                    <div className="lg:col-span-3 rounded-lg">
+                        <TopRankingCard platform={platform} description="Jumlah orang yang mengikuti akun." />
+                    </div>
                 </div>
 
-                {/* Select Your Competitor */}
-                <div>
-                    <OurSelect
-                        disabled={selectedAccount == null}
-                        options={competitorOptions}
-                        value={(selectedAccount != null && period != null) && competitorOptions.filter(option => selectedCompetitor.includes(option.value))} // **Cek array match**
-                        onChange={(selected) => setSelectedCompetitor(selected.map(item => item.value))} // **Ambil array value**
-                        isMulti={true} // Bisa memilih lebih dari satu akun
-                        placeholder="Select Your Competitors"
-                    />
+                {/* Growth Chart Analysis */}
+                <div className="lg:col-span-12 rounded-lg flex w-full items-center my-4">
+                    {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" />}
+                    <div className="mx-3 w-auto text-lg font-bold">Growth Chart Analysis</div>
+                    <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
+                </div>
+
+                {/* FAIR Detail */}
+                <div className="grid grid-cols-12 gap-4 mt-4">
+                    <FairDetailCard platform={platform} label="Followers" description="Jumlah orang yang mengikuti akun." />
+                    <FairDetailCard platform={platform} label="Activities" description="Tingkat produktivitas dalam membuat konten." />
+                    <FairDetailCard platform={platform} label="Interactions" description="Jumlah warganet yang berinteraksi dengan akun." />
+                    <FairDetailCard platform={platform} label="Responsiveness" description="Persentase respons dari tim pengelola." />
+                </div>
+
+                {/* POST DETAIL */}
+                <div className="flex w-full items-center my-4">
+                    {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" />}
+                    <div className="mx-3 w-auto text-lg font-bold">Post Detail</div>
+                    <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
+                </div>
+
+                {/* Detail Post */}
+                <div className="grid grid-cols-12 gap-4 mt-4 h-[800px]">
+                    <div className="lg:col-span-12 rounded-lg">
+                        <PostsTable platform={platform} />
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {/* FAIR Score & Top Ranking */}
-        <div className="grid grid-cols-12 gap-4 mt-4">
-            <div className="lg:col-span-8 rounded-lg">
-                <FairScoreCard platform={platform} description="Jumlah orang yang mengikuti akun." />
-            </div>
-            <div className="lg:col-span-4 rounded-lg">
-                <TopRankingCard platform={platform} description="Jumlah orang yang mengikuti akun." />
-            </div>
+            {/* OVERLAY TEKS SAAT BELUM PILIH USERNAME */}
+            {!selectedAccount && (
+                <div className="h-screen absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-black/50 z-10">
+                    <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                        Please select a username to continue...
+                    </p>
+                </div>
+            )}
         </div>
-
-        {/* Growth Chart Analysis */}
-        <div className="lg:col-span-12 rounded-lg flex w-full items-center my-4">
-            {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" {...(IconComponent as any)} />}
-            <div className="mx-3 w-auto text-lg font-bold">Growth Chart Analysis</div>
-            <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
-        </div>
-
-        {/* FAIR Detail */}
-        <div className="grid grid-cols-12 gap-4 mt-4">
-            <div className="lg:col-span-6 rounded-lg h-[400px]">
-                <FairDetailCard platform={platform} label="Followers" description="Jumlah orang yang mengikuti akun." />
-            </div>
-            <div className="lg:col-span-6 rounded-lg h-[400px]">
-                <FairDetailCard platform={platform} label="Activities" description="Tingkat produktivitas dalam membuat dan mengunggah konten setiap hari." />
-            </div>
-            <div className="lg:col-span-6 rounded-lg h-[400px]">
-                <FairDetailCard platform={platform} label="Interactions" description="Jumlah warganet yang berinteraksi dengan akun pada setiap konten yang diunggah." />
-            </div>
-            <div className="lg:col-span-6 rounded-lg h-[400px]">
-                <FairDetailCard platform={platform} label="Responsiveness" description="Persentase respons dari tim pengelola terhadap warganet yang berkomentar." />
-            </div>
-        </div>
-
-        {/* POST DETAIL Section */}
-        <div className="flex w-full items-center my-4">
-            {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" {...(IconComponent as any)} />}
-            <div className="mx-3 w-auto text-lg font-bold">Post Detail</div>
-            <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
-        </div>
-
-        {/* Detail Post */}
-        <div className="grid grid-cols-12 gap-4 mt-4 h-[800px]">
-            <div className="lg:col-span-12 rounded-lg">
-                <PostsTable platform={platform} />
-            </div>
-        </div>
-    </div>
     );
 };
 
