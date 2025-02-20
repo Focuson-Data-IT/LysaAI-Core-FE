@@ -203,19 +203,20 @@ const FairDetailCard = ({ platform, label, description }) => {
             datasetsBuilderOption,
         );
 
-        const generateColors = (index) => {
+        const generateColors = (index, opacity?) => {
             const primaryColors = [
                 "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
             ];
 
-            return index < primaryColors.length ? primaryColors[index] : "#BDC3C7";
+            return index < primaryColors.length ? primaryColors[index]+(opacity ? opacity : "") : "#BDC3C7"+(opacity ? opacity : "");
         };
 
         const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
             return {
                 ...v,
                 backgroundColor: createGradient(chartRef),
-                borderColor: generateColors(index),
+                // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
+                borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
                 pointBackgroundColor: generateColors(index),
             };
         });

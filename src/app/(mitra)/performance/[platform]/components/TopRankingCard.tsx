@@ -95,7 +95,7 @@ const TopRankingCard = ({ platform = null, description }) => {
         if (index === 0) return '<span style="font-size: 42px;">🥇</span>';
         if (index === 1) return '<span style="font-size: 38px;">🥈</span>';
         if (index === 2) return '<span style="font-size: 35px;">🥉</span>';
-        return `<span style="font-size: 16px;">${index + 1}</span><sup style="font-size: 16px;">th</sup>`;
+        return `<span style="font-size: 16px;">${index + 1}</span><text style="font-size: .75em; vertical-align: super; z-index: 0;">th</text>`;
     };
 
     if (!authUser || !period || !platform || !description) {
@@ -168,7 +168,7 @@ const TopRankingCard = ({ platform = null, description }) => {
                             href={`https://www.instagram.com/${item?.username}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2 rounded-md transition duration-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            className={`flex items-center justify-between p-2 rounded-md transition duration-300 ${item.username == selectedAccount ? 'sticky top-0 bottom-0' : ''} ${item.username == selectedAccount ? 'bg-gray-100 dark:bg-gray-700' : ''} hover:bg-gray-100 dark:hover:bg-gray-700`}
                         >
                             {/* Ranking & Icon */}
                             <div className="flex items-center w-[15%] text-right">

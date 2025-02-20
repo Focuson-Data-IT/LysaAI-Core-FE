@@ -43,7 +43,7 @@ const PostsTable = ({ platform = null }) => {
         direction: "desc"
     });
 
-    const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+    const [filteredPosts, setFilteredPosts] = useState<Post[]>(null);
     const [perPage] = useState(5); // Default 5 per load
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -53,7 +53,7 @@ const PostsTable = ({ platform = null }) => {
 
     // Fetch data function
     const getPosts = async () => {
-        if (!authUser || !period || !platform || !hasMore ) return [];
+        if (!authUser && !period && !platform && !hasMore ) return [];
     
         setLoading(true);
         try {
@@ -166,8 +166,8 @@ const PostsTable = ({ platform = null }) => {
                 </div>
             </div>
 
-            <div className="p-2 m-3 table-content flex-grow overflow-y-auto">
-                <table className="w-full table-fixed border-collapse border-gray-300 dark:border-gray-700">
+            <div className="m-3 table-content flex-grow overflow-y-auto max-h-[500px]">
+                <table className="w-full table-fixed border-collapse border-gray-300 dark:border-gray-700 p-2">
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">
                             {[
