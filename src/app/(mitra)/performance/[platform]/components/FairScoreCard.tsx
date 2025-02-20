@@ -25,8 +25,9 @@ const FairScoreCard = ({ platform, description }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fairScoreChart, setFairScoreChart] = useState<Chart | null>(null);
     const [fairScoreData, setFairScoreData] = useState<any>(null);
-    const [isShowDatepicker, setIsShowDatepicker] = useState<boolean>(false);
     const [options, setOptions] = useState<any>(null);
+    const [activeTab, setActiveTab] = useState<string>("FAIR");
+
 
     const getFairScoreChartData = async () => {
         setIsLoading(true);
@@ -87,16 +88,16 @@ const FairScoreCard = ({ platform, description }) => {
                         },
                         plugins: {
                             legend: {
-                                display: false, // Sembunyikan legenda
+                                display: false,
                             },
                             tooltip: {
-                                enabled: false, // Nonaktifkan tooltip
+                                enabled: false,
                             },
                         },
                         layout: {
                             padding: {
-                                top: 20, // Tambahan ruang di atas grafik
-                                right: 20, // Tambahan ruang ke kanan
+                                top: 20,
+                                right: 20,
                             },
                         },
                         scales: {
@@ -119,30 +120,29 @@ const FairScoreCard = ({ platform, description }) => {
                     },
                     plugins: [
                         {
-                            id: "customLabels", // Plugin kustom untuk menambahkan label
+                            id: "customLabels",
                             afterDatasetsDraw(chart) {
                                 const { ctx } = chart;
                                 ctx.save();
                                 const datasets = chart.data.datasets;
-                                const chartArea = chart.chartArea; // Area grafik tanpa padding
+                                const chartArea = chart.chartArea;
 
                                 datasets.forEach((dataset, datasetIndex) => {
-                                    const lastPoint = dataset.data[dataset.data.length - 1]; // Ambil data terakhir
+                                    const lastPoint = dataset.data[dataset.data.length - 1];
                                     const meta = chart.getDatasetMeta(datasetIndex);
 
                                     if (meta.data.length) {
-                                        const lastElement = meta.data[meta.data.length - 1]; // Ambil titik/elemen poin data terakhir
-                                        const x = lastElement.x; // Koordinat horizontal titik terakhir
-                                        const y = lastElement.y - 10; // Posisikan label sedikit di atas garis (-10 px)
+                                        const lastElement = meta.data[meta.data.length - 1];
+                                        const x = lastElement.x;
+                                        const y = lastElement.y - 10;
 
-                                        ctx.font = "12px Arial"; // Font untuk label
-                                        ctx.fillStyle = dataset.borderColor.toString() || "black"; // Warna label sesuai garis
-                                        ctx.textAlign = "center"; // Posisi teks di tengah
-                                        ctx.textBaseline = "bottom"; // Tampilan teks di atas titik terakhir
+                                        ctx.font = "12px Arial";
+                                        ctx.fillStyle = dataset.borderColor.toString() || "black";
+                                        ctx.textAlign = "center";
+                                        ctx.textBaseline = "bottom";
 
-                                        // Gambar label tepat di atas grafik
                                         ctx.fillText(
-                                            dataset.label || `Data ${datasetIndex + 1}`, // Label yang akan ditampilkan
+                                            dataset.label || `Data ${datasetIndex + 1}`,
                                             x,
                                             y
                                         );
@@ -159,6 +159,12 @@ const FairScoreCard = ({ platform, description }) => {
             }
         }
     };
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+        console.log(`Tab switched to: ${tab}`);
+    };
+
 
     useEffect(() => {
         getFairScoreChartData().then((v) => {
@@ -213,17 +219,11 @@ const FairScoreCard = ({ platform, description }) => {
                 };
             });
 
-            // untuk pertama kali load fairscoredata tampilkan hanya 5, tetapi tidak membatasi
-            //ketika selectedCompetitor bertambah lebih dari 5 akan tetap ditampilkan sesuai jumlah
-            //selectedCompetitornya
             const limitDatasets = datasetsWithColor.slice(0, 5);
 
-            // Render chart
             drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
-
-            // drawChart(labels, datasetsWithColor);
         }
-    }, [fairScoreData, selectedAccount, selectedCompetitor]);
+    }, [fairScoreData, selectedAccount, selectedCompetitor, activeTab]);
 
     interface IconComponents {
         [key: string]: React.ComponentType;
@@ -244,46 +244,52 @@ const FairScoreCard = ({ platform, description }) => {
         <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors h-full">
             {/* Header with Icon and Title */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                    {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" {...(IconComponent as any)} />}
-                    <div className="font-bold mx-3 ">
-                        FAIR Score
+                <div className="flex flex-col">
+                    {/* Header dengan Icon & Label */}
+                    <div className="flex items-center mb-3">
+                        {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" {...(IconComponent as any)} />}
+                        <div className="font-bold mx-3">
+                            FAIR Score
+                        </div>
+                        {description && (
+                            <div className="relative group">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 256 256"
+                                    className="cursor-pointer"
+                                >
+                                    <g fill="#8f8f8f">
+                                        <g transform="scale(9.84615,9.84615)">
+                                            <path d="M13,1.1875c-6.52344,0 -11.8125,5.28906 -11.8125,11.8125c0,6.52344 5.28906,11.8125 11.8125,11.8125c6.52344,0 11.8125,-5.28906 11.8125,-11.8125c0,-6.52344 -5.28906,-11.8125 -11.8125,-11.8125zM15.46094,19.49609c-0.60937,0.23828 -1.09375,0.42188 -1.45703,0.54688c-0.36328,0.125 -0.78125,0.1875 -1.26172,0.1875c-0.73437,0 -1.30859,-0.17969 -1.71875,-0.53906c-0.40625,-0.35547 -0.60937,-0.8125 -0.60937,-1.36719c0,-0.21484 0.01563,-0.43359 0.04688,-0.65625c0.02734,-0.22656 0.07813,-0.47656 0.14453,-0.76172l0.76172,-2.6875c0.06641,-0.25781 0.125,-0.5 0.17188,-0.73047c0.04688,-0.23047 0.06641,-0.44141 0.06641,-0.63281c0,-0.33984 -0.07031,-0.58203 -0.21094,-0.71484c-0.14453,-0.13672 -0.41406,-0.20312 -0.8125,-0.20312c-0.19531,0 -0.39844,0.03125 -0.60547,0.08984c-0.20703,0.0625 -0.38281,0.12109 -0.53125,0.17578l0.20313,-0.82812c0.49609,-0.20312 0.97266,-0.375 1.42969,-0.51953c0.45313,-0.14453 0.88672,-0.21875 1.28906,-0.21875c0.73047,0 1.29688,0.17969 1.69141,0.53125c0.39453,0.35156 0.59375,0.8125 0.59375,1.375c0,0.11719 -0.01172,0.32422 -0.03906,0.61719c-0.02734,0.29297 -0.07812,0.5625 -0.15234,0.8125l-0.75781,2.67969c-0.0625,0.21484 -0.11719,0.46094 -0.16797,0.73438c-0.04687,0.27344 -0.07031,0.48438 -0.07031,0.625c0,0.35547 0.07813,0.60156 0.23828,0.73047c0.15625,0.12891 0.43359,0.19141 0.82813,0.19141c0.18359,0 0.39063,-0.03125 0.625,-0.09375c0.23047,-0.06641 0.39844,-0.12109 0.50391,-0.17187z"></path>
+                                        </g>
+                                    </g>
+                                </svg>
+                                <span className="absolute bottom-7 left-1/2 -translate-x-1/2 whitespace-normal w-[150px] text-left dark:bg-black bg-black text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100">
+                    {description}
+                </span>
+                            </div>
+                        )}
                     </div>
-                    {description && (
-                                    <div className="relative group">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="15"
-                                            height="15"
-                                            viewBox="0 0 256 256"
-                                            className="cursor-pointer"
-                                        >
-                                            <g fill="#8f8f8f">
-                                                <g transform="scale(9.84615,9.84615)">
-                                                    <path d="M13,1.1875c-6.52344,0 -11.8125,5.28906 -11.8125,11.8125c0,6.52344 5.28906,11.8125 11.8125,11.8125c6.52344,0 11.8125,-5.28906 11.8125,-11.8125c0,-6.52344 -5.28906,-11.8125 -11.8125,-11.8125zM15.46094,19.49609c-0.60937,0.23828 -1.09375,0.42188 -1.45703,0.54688c-0.36328,0.125 -0.78125,0.1875 -1.26172,0.1875c-0.73437,0 -1.30859,-0.17969 -1.71875,-0.53906c-0.40625,-0.35547 -0.60937,-0.8125 -0.60937,-1.36719c0,-0.21484 0.01563,-0.43359 0.04688,-0.65625c0.02734,-0.22656 0.07813,-0.47656 0.14453,-0.76172l0.76172,-2.6875c0.06641,-0.25781 0.125,-0.5 0.17188,-0.73047c0.04688,-0.23047 0.06641,-0.44141 0.06641,-0.63281c0,-0.33984 -0.07031,-0.58203 -0.21094,-0.71484c-0.14453,-0.13672 -0.41406,-0.20312 -0.8125,-0.20312c-0.19531,0 -0.39844,0.03125 -0.60547,0.08984c-0.20703,0.0625 -0.38281,0.12109 -0.53125,0.17578l0.20313,-0.82812c0.49609,-0.20312 0.97266,-0.375 1.42969,-0.51953c0.45313,-0.14453 0.88672,-0.21875 1.28906,-0.21875c0.73047,0 1.29688,0.17969 1.69141,0.53125c0.39453,0.35156 0.59375,0.8125 0.59375,1.375c0,0.11719 -0.01172,0.32422 -0.03906,0.61719c-0.02734,0.29297 -0.07812,0.5625 -0.15234,0.8125l-0.75781,2.67969c-0.0625,0.21484 -0.11719,0.46094 -0.16797,0.73438c-0.04687,0.27344 -0.07031,0.48438 -0.07031,0.625c0,0.35547 0.07813,0.60156 0.23828,0.73047c0.15625,0.12891 0.43359,0.19141 0.82813,0.19141c0.18359,0 0.39063,-0.03125 0.625,-0.09375c0.23047,-0.06641 0.39844,-0.12109 0.50391,-0.17187z"></path>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        <span className="absolute bottom-7 left-1/2 -translate-x-1/2 whitespace-normal w-[150px] text-left dark:bg-black bg-black text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100">
-                                            {description}
-                                        </span>
-                                    </div>
-                                )}
+
+                    {/* Tabs di bawah teks FAIR Score */}
+                    <div className="flex space-x-4npm run mb-4">
+                        {["FAIR", "F", "A", "I", "R"].map((tab) => (
+                            <button
+                                key={tab}
+                                className={`px-4 py-2 ${
+                                    activeTab === tab
+                                        ? "text-blue-500 border-b-2 border-blue-500"
+                                        : "text-gray-500"
+                                }`}
+                                onClick={() => handleTabChange(tab)}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-
-                {/* Buttons */}
-                {/* <div className="datepicker-container">
-
-                    <div className="datepicker-wrapper">
-                        <OurDatePicker
-                            onClick={() => setIsShowDatepicker(!isShowDatepicker)}
-                        />
-                    </div>
-                    <div className="select-wrapper">
-                        <OurSelect options={options} disabled={isLoading}
-                        />
-                    </div>
-                </div> */}
             </div>
 
 
