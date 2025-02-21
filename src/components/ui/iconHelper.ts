@@ -11,6 +11,7 @@ import { MdOutlinePermMedia, MdSort } from "react-icons/md";
 import { IoBookmarkSharp } from "react-icons/io5";
 import React, { JSX } from "react";
 import { GoSortAsc, GoSortDesc } from "react-icons/go";
+import { RiAiGenerate2 } from "react-icons/ri";
 
 /**
  * Fungsi untuk mendapatkan ikon berdasarkan label.
@@ -35,6 +36,8 @@ export const getIconByLabel = (label: string) => {
     SortUp: React.createElement(GoSortAsc, { size: 16, color: "#41c2cb" }),
     SortDown: React.createElement(GoSortDesc, { size: 16, color: "#41c2cb" }),
     Sort: React.createElement(MdSort, { size: 13 }),
+
+    AiGenerate: React.createElement(RiAiGenerate2, { size: 24 }),
     
   };
 

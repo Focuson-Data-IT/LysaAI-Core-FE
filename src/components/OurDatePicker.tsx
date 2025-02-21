@@ -72,7 +72,6 @@ const DateRangePicker = ({ onClick, disabled }) => {
         &.custom-datepicker-input {
             &.datepicker-disabled {
                 cursor: not-allowed;
-                opacity: 0.5;
             }
         }
     `;

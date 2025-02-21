@@ -119,9 +119,9 @@ const Competitor = () => {
 
             {/* KONTEN LAINNYA YANG TERBLUR */}
             <div
-                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount ? "blur-sm pointer-events-none" : ""
+                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount || !period  ? "blur-sm pointer-events-none" : ""
                     }`}
-            >
+                >
                 {/* FAIR Score & Top Ranking */}
                 <div className="grid grid-cols-12 gap-4 mt-4">
                     <div className="lg:col-span-9 rounded-lg">
@@ -171,7 +171,7 @@ const Competitor = () => {
             </div>
 
             {/* OVERLAY TEKS SAAT BELUM PILIH USERNAME */}
-            {!selectedAccount && (
+            {!selectedAccount || !period && (
                 <div className="h-screen absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-black/50 z-10">
                     <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                         Please select a username to continue...

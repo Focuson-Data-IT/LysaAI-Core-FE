@@ -7,8 +7,6 @@ import request from "@/utils/request";
 import { buildDatasets, buildDatasetsPie, buildLabels, createGradient, groupDataByUsername } from "@/utils/chart";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useParams } from "next/navigation";
-import OurDatePicker from "@/components/OurDatePicker";
-import OurSelect from "@/components/OurSelect";
 import { useAuth } from "@/hooks/useAuth";
 import { getDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
@@ -16,13 +14,15 @@ import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
 import { AxiosResponse } from 'axios';
 import TooltipIcon from '@/components/TooltipIcon';
-import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { IoInformationCircle } from "react-icons/io5";
+import { getIconByLabel } from "@/components/ui/iconHelper";
+import AiModal from "@/components/AiModal";
 
 const FairScoreCard = ({ platform, description }) => {
     const { authUser } = useAuth();
     const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [aiData, setAiData] = useState(null);
 
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -48,6 +48,22 @@ const FairScoreCard = ({ platform, description }) => {
 
 
         return response.data?.data;
+    };
+
+    const fetchAISummary = async () => {
+        setIsModalOpen(true); // Langsung tampilkan modal
+        setIsLoading(true);   // Set loading saat mulai fetch
+        try {
+            const response = await request.get(
+                `/getFairSummary?username=${selectedAccount}&month=${period.start?.slice(0, 7)}&kategori=disparbud&platform=${platform}`
+            );
+            setAiData(response.data);
+        } catch (err) {
+            console.error('Error fetching AI summary:', err);
+            setAiData(null);
+        } finally {
+            setIsLoading(false); // Selesai loading
+        }
     };
 
     const drawLineChart = (labels: any, datasets: any) => {
@@ -636,43 +652,58 @@ const FairScoreCard = ({ platform, description }) => {
     return (
         <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors h-full">
             {/* Header with Icon and Title */}
-            <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                    {/* Header dengan Icon & Label */}
-                    <div className="flex items-center mb-3">
-                        {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" {...(IconComponent as any)} />}
-                        <div className="font-bold mx-3">
-                            FAIR Score Performance
+            <div className="relative w-full">
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        {/* Kiri */}
+                        <div className="flex items-center mb-3">
+                            {IconComponent && (
+                                <IconComponent className="h-7 w-7 text-[#41c2cb]" {...(IconComponent as any)} />
+                            )}
+                            <div className="font-bold mx-3">
+                                FAIR Score Performance
+                            </div>
+                            {description && (
+                                <TooltipIcon description={description}>
+                                    <IoInformationCircle size={18} className="cursor-pointer text-gray-500" />
+                                </TooltipIcon>
+                            )}
                         </div>
-                        {description && (
-                            <TooltipIcon description={description}>
-                                <IoInformationCircle size={18} className="cursor-pointer text-gray-500" />
-                            </TooltipIcon>
-                        )}
 
+                        {/* Tabs */}
+                        <div className="flex space-x-4 mb-4">
+                            {["FAIR", "Followers", "Activities", "Interactions", "Responsiveness"].map((tab) => (
+                                <TooltipIcon key={tab} description={tabDescriptions[tab]}>
+                                    <button
+                                        className={`px-4 py-2 ${activeTab === tab
+                                            ? "text-blue-500 border-b-2 border-blue-500"
+                                            : "text-gray-500"
+                                            }`}
+                                        onClick={() => handleTabChange(tab)}
+                                    >
+                                        {tab === "FAIR" ? tab : tab.slice(0, 1)}
+                                    </button>
+                                </TooltipIcon>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Tabs di bawah teks FAIR Score */}
-                    <div className="flex space-x-4 mb-4">
-                        {["FAIR", "Followers", "Activities", "Interactions", "Responsiveness"].map((tab) => (
-                            <TooltipIcon key={tab} description={tabDescriptions[tab]}>
-                                <button
-                                    className={`px-4 py-2 ${activeTab === tab
-                                        ? "text-blue-500 border-b-2 border-blue-500"
-                                        : "text-gray-500"
-                                        }`}
-                                    onClick={() => handleTabChange(tab)}
-                                >
-                                    {tab === "FAIR" ? tab : tab.slice(0, 1)}
-                                </button>
-                            </TooltipIcon>
-                        ))}
+                    {/* Kanan */}
+                    <div className="absolute top-0 right-0">
+                        <TooltipIcon description="Artificial Intelligence which help you to summarize your current performance">
+                            <button
+                                onClick={fetchAISummary}
+                                className="flex items-center justify-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+                                disabled={isLoading}
+                            >
+                                {getIconByLabel("AiGenerate") ?? (
+                                    <img src="/icon-circle.png" alt="default_icon" className="h-7" />
+                                )}
+                            </button>
+                        </TooltipIcon>
                     </div>
-
-
                 </div>
             </div>
-
 
             {/* Data Section */}
             <div className="h-[650px] pt-3 flex items-center justify-center">
@@ -697,6 +728,13 @@ const FairScoreCard = ({ platform, description }) => {
                                 height='600'
                             ></canvas>
                     }
+                    {/* Modal untuk AI Summary */}
+                    <AiModal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        data={aiData}
+                        isLoading={isLoading}
+                    />
                 </div>
             </div>
         </div>
