@@ -125,7 +125,7 @@ const Competitor = () => {
                 {/* FAIR Score & Top Ranking */}
                 <div className="grid grid-cols-12 gap-4 mt-4">
                     <div className="lg:col-span-9 rounded-lg">
-                        <FairScoreCard platform={platform} description="Jumlah orang yang mengikuti akun." />
+                        <FairScoreCard platform={platform} description="A measurement for assessing account performance on social media." />
                     </div>
                     <div className="lg:col-span-3 rounded-lg">
                         <TopRankingCard platform={platform} description="Jumlah orang yang mengikuti akun." />
@@ -135,22 +135,31 @@ const Competitor = () => {
                 {/* Growth Chart Analysis */}
                 <div className="lg:col-span-12 rounded-lg flex w-full items-center my-4">
                     {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" />}
-                    <div className="mx-3 w-auto text-lg font-bold">Growth Chart Analysis</div>
+                    <div className="mx-3 w-auto text-lg font-bold">Growth Metrics</div>
                     <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
                 </div>
 
                 {/* FAIR Detail */}
                 <div className="grid grid-cols-12 gap-4 mt-4">
-                    <FairDetailCard platform={platform} label="Followers" description="Jumlah orang yang mengikuti akun." />
-                    <FairDetailCard platform={platform} label="Activities" description="Tingkat produktivitas dalam membuat konten." />
-                    <FairDetailCard platform={platform} label="Interactions" description="Jumlah warganet yang berinteraksi dengan akun." />
-                    <FairDetailCard platform={platform} label="Responsiveness" description="Persentase respons dari tim pengelola." />
+                    {/* Instagram */}
+                    {platform === "Instagram" && <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />}
+                    {platform === "Instagram" && <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />}
+                    {platform === "Instagram" && <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />}
+                    {platform === "Instagram" && <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />}
+                    {/* Tiktok */}
+                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />}
+                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />}
+                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />}
+                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Saves" description="Number of Save Counts" />}
+                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Downloads" description="Number of Download Counts" />}
+                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />}
+                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Shares" description="Number of Shares" />}
                 </div>
 
                 {/* POST DETAIL */}
                 <div className="flex w-full items-center my-4">
                     {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" />}
-                    <div className="mx-3 w-auto text-lg font-bold">Post Detail</div>
+                    <div className="mx-3 w-auto text-lg font-bold">Content Performance Report</div>
                     <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
                 </div>
 

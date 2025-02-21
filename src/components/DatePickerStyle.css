@@ -133,6 +133,7 @@
     background-color: #1f2937;
     border: 1px solid #ffffff;
     color: white;
+    text-align: center;
 }
 
 /* 📌 Memastikan popper dropdown tidak tertutup elemen lain */
@@ -143,5 +144,6 @@
 .custom-datepicker-input:disabled {
     color: #ffffff !important; /* Pastikan teks putih saat disabled */
     border-color: #ffffff;
+    text-align: center;
 }
 

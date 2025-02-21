@@ -10,8 +10,10 @@ import request from "@/utils/request";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useAuth } from "@/hooks/useAuth";
 import { performanceBuilder } from "@/resolver";
-import { FaUserCircle, FaHeart, FaCommentDots, FaPlayCircle, FaShareSquare, FaSave, FaDownload, FaChartBar, FaRegCalendarAlt, FaQuoteLeft } from "react-icons/fa"
-import { MdOutlinePermMedia } from "react-icons/md";
+import { FaUserCircle } from "react-icons/fa"
+import TooltipIcon from "@/components/TooltipIcon";
+import { IoInformationCircle } from "react-icons/io5";
+import { getIconByLabel } from "@/components/ui/iconHelper";
 
 interface Post {
     username: string;
@@ -53,31 +55,31 @@ const PostsTable = ({ platform = null }) => {
 
     // Fetch data function
     const getPosts = async () => {
-        if (!authUser && !period && !platform && !hasMore ) return [];
-    
+        if (!authUser && !period && !platform && !hasMore) return [];
+
         setLoading(true);
         try {
             const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=${sortConfig.key}&direction=${sortConfig.direction}`);
-    
+
             let newPosts = performanceBuilder(response.data?.data);
-    
+
             // Hindari duplikasi dengan menyaring data yang sudah ada
             setPosts((prev) => {
                 const existingIds = new Set(prev.map((post) => post.post_code));
                 return [...prev, ...newPosts.filter((post) => !existingIds.has(post.post_code))];
             });
-    
+
             setHasMore(response.data?.hasMore);
-    
+
             // ✅ Pastikan `currentPage` bertambah setelah load sukses
             setCurrentPage((prev) => prev + 1);
-    
+
         } catch (error) {
             console.error("Error fetching posts:", error);
         } finally {
             setLoading(false);
         }
-    };    
+    };
 
     useEffect(() => {
         const fetchAvatars = async () => {
@@ -133,7 +135,7 @@ const PostsTable = ({ platform = null }) => {
     };
 
     useEffect(() => {
-        if (authUser && period && platform && selectedCompetitor && sortConfig) setLoading(true);{
+        if (authUser && period && platform && selectedCompetitor && sortConfig) setLoading(true); {
             getPosts();
             setLoading(false);
         }
@@ -156,14 +158,27 @@ const PostsTable = ({ platform = null }) => {
                     />
                 </div>
 
-                <div className="info flex justify-end px-3 py-2 space-x-2 mr-5">
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <p className="text-sm">Best</p>
-                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                    <p className="text-sm">Mediocre</p>
-                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                    <p className="text-sm">Worst</p>
+                <div className="info flex justify-end items-center px-4 py-2 space-x-4 mr-5 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg">
+                    <TooltipIcon description="Post performance is measured based on the weight of engagement elements">
+                        <IoInformationCircle size={18} className="cursor-pointer text-gray-500" />
+                    </TooltipIcon>
+
+                    <div className="flex items-center space-x-1">
+                        <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                        <p className="text-sm">Best</p>
+                    </div>
+
+                    <div className="flex items-center space-x-1">
+                        <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+                        <p className="text-sm">Mediocre</p>
+                    </div>
+
+                    <div className="flex items-center space-x-1">
+                        <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                        <p className="text-sm">Worst</p>
+                    </div>
                 </div>
+
             </div>
 
             <div className="m-3 table-content flex-grow overflow-y-auto max-h-[500px]">
@@ -171,33 +186,42 @@ const PostsTable = ({ platform = null }) => {
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">
                             {[
-                                { key: "caption", label: <FaQuoteLeft className="text-[#07d1d6] text-lg" />, width: "w-[250px]", tooltip: "Caption" },
-                                { key: "created_at", label: <FaRegCalendarAlt className="text-[#07d1d6] text-lg" />, width: "w-[150px]", tooltip: "Date" },
-                                platform === "Instagram" && { key: "media_name", label: <MdOutlinePermMedia className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Konten Type" },
-                                { key: "likes", label: <FaHeart className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Likes" },
-                                { key: "comments", label: <FaCommentDots className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Comments" },
-                                { key: "playCount", label: <FaPlayCircle className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Play Count" },
-                                platform === "TikTok" && { key: "shareCount", label: <FaShareSquare className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Shares" },
-                                platform === "TikTok" && { key: "collectCount", label: <FaSave className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Saves" },
-                                platform === "TikTok" && { key: "downloadCount", label: <FaDownload className="text-[#07d1d6] text-lg" />, width: "w-[120px]", tooltip: "Downloads" },
-                                { key: "performa_konten", label: <FaChartBar className="text-[#07d1d6] text-lg" />, width: "w-[100px]", tooltip: "Performance" },
-                            ].filter(Boolean).map(({ key, label, width, tooltip }) => ( // Gunakan filter(Boolean) agar nilai null tidak dirender
-                                <th key={key} className={`px-4 py-2 text-sm font-bold dark:border-gray-600 cursor-pointer ${width}`} onClick={() => requestSort(key)}>
-                                    <div className="relative group flex justify-center items-center gap-2">
-                                        {label}
-                                        <span className="ml-1 flex">
-                                            <FontAwesomeIcon icon={faSortUp} className={`${sortConfig.key === key && sortConfig.direction === "asc" ? "text-red-500" : "text-gray-500"} text-xs`} />
-                                            <FontAwesomeIcon icon={faSortDown} className={`${sortConfig.key === key && sortConfig.direction === "desc" ? "text-red-500" : "text-gray-500"} text-xs`} />
-                                        </span>
-                                        {tooltip && (
-                                            <div className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 hidden group-hover:flex bg-gray-700 text-white text-xs rounded-md px-2 py-1">
-                                                {tooltip}
-                                            </div>
-                                        )}
-                                    </div>
-                                </th>
-                            ))}
+                                { key: "caption", label: getIconByLabel("Captions"), width: "w-[250px]", description: "Caption" },
+                                { key: "created_at", label: getIconByLabel("Dates"), width: "w-[150px]", description: "Date" },
+                                platform === "Instagram" && { key: "media_names", label: getIconByLabel("Contents"), width: "w-[100px]", description: "Content Type" },
+                                { key: "likes", label: getIconByLabel("Likes"), width: "w-[100px]", description: "Likes" },
+                                { key: "comments", label: getIconByLabel("Comments"), width: "w-[100px]", description: "Comments" },
+                                { key: "playCount", label: getIconByLabel("Views"), width: "w-[120px]", description: "Play Count" },
+                                platform === "TikTok" && { key: "shareCount", label: getIconByLabel("Shares"), width: "w-[120px]", description: "Shares" },
+                                platform === "TikTok" && { key: "collectCount", label: getIconByLabel("Saves"), width: "w-[120px]", description: "Saves" },
+                                platform === "TikTok" && { key: "downloadCount", label: getIconByLabel("Downloads"), width: "w-[120px]", description: "Downloads" },
+                                { key: "performa_konten", label: getIconByLabel("Performances"), width: "w-[100px]", description: "Performance" },
+                            ]
+                                .filter(Boolean) // Hapus nilai null dari mapping
+                                .map(({ key, label, width, description }) => (
+                                    <th
+                                        key={key}
+                                        className={`px-4 py-2 text-sm font-bold dark:border-gray-600 cursor-pointer ${width}`}
+                                        onClick={() => requestSort(key)}
+                                    >
+                                        <div className="relative group flex justify-center items-center gap-2">
+                                        <TooltipIcon description={description}>
+                                            {label}
+                                        </TooltipIcon>
+                                            <span className="ml-1 flex">
+                                                <span className="ml-1 flex">
+                                                    {sortConfig.key === key && sortConfig.direction === "asc"
+                                                        ? getIconByLabel("SortUp")
+                                                        : sortConfig.key === key && sortConfig.direction === "desc"
+                                                            ? getIconByLabel("SortDown")
+                                                            : getIconByLabel("Sort")}
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </th>
+                                ))}
                         </tr>
+
                     </thead>
                     <tbody className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
                         {
