@@ -9,12 +9,27 @@ module.exports = {
   theme: {
     extend: {
       animation: {
-        "spin-slow": "spin 6s linear infinite",
+        "fill": "fillAnim 1s ease forwards",
+        "fill-delay-1": "fillAnim 1s ease forwards 0.2s",
+        "fill-delay-2": "fillAnim 1s ease forwards 0.4s",
+        "fill-delay-3": "fillAnim 1s ease forwards 0.6s",
+      },
+      keyframes: {
+        fillAnim: {
+          from: { fillOpacity: "0" },
+          to: { fillOpacity: "1" },
+        },
       },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+    },
+    screens: {
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
     },
   },
   plugins: [],
