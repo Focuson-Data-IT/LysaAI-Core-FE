@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      animation: {
+        "spin-slow": "spin 6s linear infinite",
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
