@@ -284,7 +284,7 @@ const PostsTable = ({ platform = null }) => {
 
                                         {/* Kolom Lainnya */}
                                         <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
-                                        <td className="px-2 py-4 text-center">{post.media_name ? post.media_name.charAt(0).toUpperCase() + post.media_name.slice(1) : ""}</td>
+                                        {platform === "Instagram" && <td className="px-2 py-4 text-center">{post.media_name ? post.media_name.charAt(0).toUpperCase() + post.media_name.slice(1) : ""}</td>}
                                         <td className="px-2 py-4 text-center">{post.likes ? new Intl.NumberFormat('id-ID').format(post.likes) : 0}</td>
                                         <td className="px-2 py-4 text-center">{post.comments ? new Intl.NumberFormat('id-ID').format(post.comments) : 0}</td>
                                         <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : "Post is Not Reels"}</td>
