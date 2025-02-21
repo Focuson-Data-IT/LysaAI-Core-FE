@@ -24,7 +24,6 @@ const FairDetailCard = ({ platform, label, description }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fairScoreChart, setFairScoreChart] = useState<Chart | null>(null);
     const [fairScoreData, setFairScoreData] = useState<any>(null);
-    const [isShowDatepicker, setIsShowDatepicker] = useState<boolean>(false);
     const [options, setOptions] = useState<any>(null);
 
     const getFairScoreChartData = async () => {
@@ -59,67 +58,6 @@ const FairDetailCard = ({ platform, label, description }) => {
 
                 const newChart: any = new Chart(ctx, {
                     type: "line",
-                    plugins: [
-                        // {
-                        //     id: "medianLine",
-                        //     afterDraw(chart) {
-                        //         const {
-                        //             ctx,
-                        //             chartArea: { left, right },
-                        //             scales: { y },
-                        //         } = chart;
-
-                        //         const yPos = y.getPixelForValue(median);
-
-                        //         ctx.save();
-                        //         ctx.beginPath();
-                        //         ctx.moveTo(left, yPos);
-                        //         ctx.lineTo(right, yPos);
-                        //         ctx.lineWidth = 2;
-                        //         ctx.setLineDash([5, 5]);
-                        //         ctx.strokeStyle = "#FF0000";
-                        //         ctx.stroke();
-                        //         ctx.restore();
-
-                        //         ctx.fillStyle = "#FFFFFF";
-                        //         ctx.fillRect(left + 5, yPos - 15, 80, 15);
-
-                        //         ctx.fillStyle = "#FF0000";
-                        //         ctx.font = "bold 12px Arial";
-                        //         ctx.fillText(`Median: ${median?.toFixed(2)}`, left + 10, yPos - 3);
-                        //     },
-                        // },
-                        // {
-                        //     id: "averageLine",
-                        //     afterDraw(chart) {
-                        //         const {
-                        //             ctx,
-                        //             chartArea: { left, right },
-                        //             scales: { y },
-                        //         } = chart;
-
-                        //         const yPos = y.getPixelForValue(average);
-
-                        //         ctx.save();
-                        //         ctx.beginPath();
-                        //         ctx.moveTo(left, yPos);
-                        //         ctx.lineTo(right, yPos);
-                        //         ctx.lineWidth = 2;
-                        //         ctx.setLineDash([5, 5]);
-                        //         ctx.strokeStyle = "#008000";
-                        //         ctx.stroke();
-                        //         ctx.restore();
-
-                        //         const labelWidth = 100;
-                        //         ctx.fillStyle = "#FFFFFF";
-                        //         ctx.fillRect(right - labelWidth - 5, yPos - 15, labelWidth, 15);
-
-                        //         ctx.fillStyle = "#008000";
-                        //         ctx.font = "bold 12px Arial";
-                        //         ctx.fillText(`Average: ${average?.toFixed(2)}`, right - labelWidth, yPos - 3);
-                        //     },
-                        // },
-                    ],
                     data: {
                         labels: labels,
                         datasets: datasets
@@ -220,16 +158,10 @@ const FairDetailCard = ({ platform, label, description }) => {
                 pointBackgroundColor: generateColors(index),
             };
         });
-
-        // untuk pertama kali load fairscoredata tampilkan hanya 5, tetapi tidak membatasi
-        //ketika selectedCompetitor bertambah lebih dari 5 akan tetap ditampilkan sesuai jumlah
-        //selectedCompetitornya
         const limitDatasets = datasetsWithColor.slice(0, 5);
 
-        // Render chart
         drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
 
-        // drawChart(labels, datasetsWithColor);
     }, [fairScoreData, selectedAccount, selectedCompetitor]);
 
     if (!authUser || !period || !platform || !label || !description ) {
