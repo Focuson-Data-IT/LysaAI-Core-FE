@@ -6,6 +6,8 @@ import { scoreFormatter } from "@/utils/numberFormatter";
 import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
 import { FaEquals, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import TooltipIcon from '@/components/TooltipIcon';
+import { Tooltip } from 'chart.js';
 
 const TopRankingCard = ({ platform = null, description }) => {
     const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -106,10 +108,10 @@ const TopRankingCard = ({ platform = null, description }) => {
 
         const delta = previousRank - currentRank;
 
-        if (delta > 0) return { delta: `+${delta}`, icon: <FaArrowUp />, color: "text-green-500" };
-        if (delta < 0) return { delta: `${delta}`, icon: <FaArrowDown />, color: "text-red-500" };
+        if (delta > 0) return { delta: `+${delta}`, icon: <FaArrowUp />, color: "text-green-500", description: "Your FAIR Score has increased compared to yesterday" };
+        if (delta < 0) return { delta: `${delta}`, icon: <FaArrowDown />, color: "text-red-500", description: "Your FAIR Score has decreased compared to yesterday" };
 
-        return { delta: "0", icon: <FaEquals />, color: "text-yellow-500" };
+        return { delta: "0", icon: <FaEquals />, color: "text-yellow-500", description: "Your FAIR Score remains the same compared to yesterday" };
     };
 
     if (!authUser || !period || !platform || !description) {
@@ -194,12 +196,14 @@ const TopRankingCard = ({ platform = null, description }) => {
 
                                 {/* Perubahan Posisi */}
                                 {item.username === selectedAccount && (() => {
-                                    const { delta, icon, color } = getPositionChange(item.current_rank, item.previous_rank);
+                                    const { delta, icon, color, description } = getPositionChange(item.current_rank, item.previous_rank);
                                     return (
+                                        <TooltipIcon description={description}>
                                         <div className={`text-[14px] font-medium ${color} mt-1 flex items-center justify-end gap-1`}>
                                             <span>{delta}</span>
                                             <span className="text-[18px]">{icon}</span>
                                         </div>
+                                        </TooltipIcon>
                                     );
                                 })()}
                             </div>

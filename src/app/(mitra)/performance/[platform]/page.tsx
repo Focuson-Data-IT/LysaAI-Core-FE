@@ -151,7 +151,6 @@ const Competitor = () => {
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Saves" description="Number of Save Counts" />}
-                    {platform === "TikTok" && <FairDetailCard platform={platform} label="Downloads" description="Number of Download Counts" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Shares" description="Number of Shares" />}
                 </div>
