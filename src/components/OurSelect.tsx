@@ -4,20 +4,20 @@ import Select, { components } from "react-select";
 const CheckboxOption = (props) => {
     const { data, isSelected, innerRef, innerProps } = props;
     return (
-        <div ref={innerRef} {...innerProps} className="flex items-center px-3 py-2 cursor-pointer">
-            <input type="checkbox" checked={isSelected} readOnly className="mr-2" />
-            <span className="text-white">{data.label}</span>
+        <div ref={innerRef} {...innerProps} style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', cursor: 'pointer' }}>
+            <input type="checkbox" checked={isSelected} readOnly style={{ marginRight: '8px' }} />
+            <span style={{ color: 'white' }}>{data.label}</span>
         </div>
     );
 };
 
 const SelectAllOption = ({ options, selectAllSelected, onSelectAllToggle }) => (
     <div 
-        className="flex items-center px-3 py-2 cursor-pointer bg-gray-700 hover:bg-gray-600" 
+        style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', cursor: 'pointer', backgroundColor: '#374151', color: 'white' }} 
         onClick={onSelectAllToggle}
     >
-        <input type="checkbox" checked={selectAllSelected} readOnly className="mr-2" />
-        <span className="text-white">{selectAllSelected ? "Unselect All" : "Select All"}</span>
+        <input type="checkbox" checked={selectAllSelected} readOnly style={{ marginRight: '8px' }} />
+        <span>{selectAllSelected ? "Unselect All" : "Select All"}</span>
     </div>
 );
 
@@ -116,8 +116,8 @@ const OurSelect = ({ options, value, onChange, isMulti = false, placeholder, dis
     };
 
     return (
-        <div className="datepicker-container">
-            <div className="datepicker-wrapper">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <div>
                 <Select
                     className={`custom-select-input ${disabled ? "datepicker-disabled cursor-not-allowed opacity-50" : ""}`}
                     placeholder={disabled ? "Please fill account" : placeholder}

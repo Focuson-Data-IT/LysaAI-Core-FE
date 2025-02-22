@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
-export default {
-  darkMode: "class", // Tambahkan ini untuk mengisolasi tema dari sistem
+
+const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,18 +9,31 @@ export default {
   ],
   theme: {
     extend: {
+      animation: {
+        "fill": "fillAnim 1s ease forwards",
+        "fill-delay-1": "fillAnim 1s ease forwards 0.2s",
+        "fill-delay-2": "fillAnim 1s ease forwards 0.4s",
+        "fill-delay-3": "fillAnim 1s ease forwards 0.6s",
+      },
+      keyframes: {
+        fillAnim: {
+          from: { fillOpacity: "0" },
+          to: { fillOpacity: "1" },
+        },
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
     },
     screens: {
-      sm: '640px', // Layar kecil (mobile)
-      md: '768px', // Tablet
-      lg: '1024px', // Desktop
-      xl: '1280px', // Layar besar
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
     },
-
   },
   plugins: [],
-} satisfies Config;
+};
+
+export default config;
