@@ -1,6 +1,10 @@
 import {TOption, TPerformanceContext, TPeriod, TSingleMonthPeriod} from "@/types/PerformanceTypes";
 import moment from "moment/moment";
 
+export const primaryColors = [
+    "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
+];
+
 export const periodInitialValue: TPeriod =  {
     // start: moment().startOf('month').format("YYYY-MM-DD"),
     // end: moment().endOf('month').format("YYYY-MM-DD")
