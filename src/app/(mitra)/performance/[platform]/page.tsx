@@ -119,7 +119,7 @@ const Competitor = () => {
 
             {/* KONTEN LAINNYA YANG TERBLUR */}
             <div
-                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount || !period  ? "blur-sm pointer-events-none" : ""
+                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount || (!period.start && !period.end) ? "blur-sm pointer-events-none" : ""
                     }`}
                 >
                 {/* FAIR Score & Top Ranking */}
