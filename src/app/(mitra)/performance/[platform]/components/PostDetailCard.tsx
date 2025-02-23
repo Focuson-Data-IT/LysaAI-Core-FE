@@ -201,7 +201,7 @@ const PostsTable = ({ platform = null }) => {
                                 .map(({ key, label, width, description }) => (
                                     <th
                                         key={key}
-                                        className={`px-4 py-2 text-sm font-bold dark:border-gray-600 cursor-pointer ${width}`}
+                                        className={`px-4 py-2 text-sm font-bold w-full dark:border-gray-600 cursor-pointer ${width}`}
                                         onClick={() => requestSort(key)}
                                     >
                                         <div className="relative group flex justify-center items-center gap-2">
