@@ -151,7 +151,7 @@ const PostsTable = ({ platform = null }) => {
                 <div >
                     <input
                         type="text"
-                        placeholder="Search..."
+                        placeholder="Search Username..."
                         className="px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg ml-5"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
