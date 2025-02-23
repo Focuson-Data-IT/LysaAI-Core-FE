@@ -39,7 +39,7 @@ const PostsTable = ({ platform = null }) => {
     const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
 
     const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
         key: "performa_konten",
         direction: "desc"
@@ -136,13 +136,29 @@ const PostsTable = ({ platform = null }) => {
 
     useEffect(() => {
         if (authUser && period && platform && selectedCompetitor && sortConfig) setLoading(true); {
-            getPosts();
-            setLoading(false);
+            getPosts().then(()=>{
+                setLoading(false);
+            });
         }
     }, [authUser, platform, period, selectedCompetitor, sortConfig]);
 
     if (!authUser || !period || !platform || !selectedCompetitor) {
         return <OurLoading />;
+    }
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const bottom =
+        e.currentTarget.scrollHeight - e.currentTarget.scrollTop <=
+        e.currentTarget.clientHeight + 50;
+        if (bottom && !loading) {
+            setCurrentPage((prev) => prev + 1);
+            getPosts();
+        }
+    };
+
+    const onLoadMore = () => {
+        setCurrentPage((prev) => prev + 1);
+        getPosts();
     }
 
     return (
@@ -151,7 +167,7 @@ const PostsTable = ({ platform = null }) => {
                 <div >
                     <input
                         type="text"
-                        placeholder="Search..."
+                        placeholder="Search Username..."
                         className="px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg ml-5"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -181,7 +197,7 @@ const PostsTable = ({ platform = null }) => {
 
             </div>
 
-            <div className="m-3 table-content flex-grow overflow-y-auto max-h-[500px]">
+            <div className="m-3 table-content flex-grow overflow-y-auto max-h-[500px]" onScroll={handleScroll}>
                 <table className="w-full table-fixed border-collapse border-gray-300 dark:border-gray-700 p-2">
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">
@@ -201,7 +217,7 @@ const PostsTable = ({ platform = null }) => {
                                 .map(({ key, label, width, description }) => (
                                     <th
                                         key={key}
-                                        className={`px-4 py-2 text-sm font-bold dark:border-gray-600 cursor-pointer ${width}`}
+                                        className={`px-4 py-2 text-sm font-bold w-full dark:border-gray-600 cursor-pointer ${width}`}
                                         onClick={() => requestSort(key)}
                                     >
                                         <div className="relative group flex justify-center items-center gap-2">
@@ -225,15 +241,7 @@ const PostsTable = ({ platform = null }) => {
                     </thead>
                     <tbody className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
                         {
-                            loading ? (
-                                <tr>
-                                    <td colSpan={9} className="p-5">
-                                        <div className="flex items-center justify-center h-full">
-                                            <OurLoading />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : filteredPosts.length === 0 ? (
+                            filteredPosts.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="text-center p-5">
                                         <OurEmptyData width={100} />
@@ -245,8 +253,7 @@ const PostsTable = ({ platform = null }) => {
                                         <p className={"text-sm w-full"}>Please fill your account first</p>
                                     </td>
                                 </tr>
-                            ) : (
-                                filteredPosts.map((post, key) => (
+                            ) : filteredPosts.map((post, key) => (
                                     <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
 
                                         {/* Kolom gabungan Username + Caption */}
@@ -322,27 +329,33 @@ const PostsTable = ({ platform = null }) => {
                                         </td>
                                     </tr>
                                 ))
-                            )}
+                            }
+                            {loading && filteredPosts.length !== 0 &&
+                                <tr>
+                                    <td colSpan={9} className="p-5">
+                                        <div className="flex items-center justify-center">
+                                            Loading...
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                     </tbody>
 
                 </table>
             </div>
 
             {/* Load More Button */}
-            {hasMore && selectedAccount != null && (
+            {/* {hasMore && selectedAccount != null && (
                 <div className="flex justify-center mt-4">
                     <button
-                        onClick={() => {
-                            setCurrentPage((prev) => prev + 1);
-                            getPosts();
-                        }}
+                        onClick={onLoadMore}
                         className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                         disabled={loading}
                     >
                         {loading ? "Loading..." : "Load More"}
                     </button>
                 </div>
-            )}
+            )} */}
         </div>
     );
 };

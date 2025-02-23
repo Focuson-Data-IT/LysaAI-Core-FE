@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Chart from "chart.js/auto";
 import moment from "moment";
 import request from "@/utils/request";
-import { buildDatasets, buildLabels, createGradient, groupDataByUsername } from "@/utils/chart";
+import { buildDatasets, buildLabels, createGradient, generateColors, groupDataByUsername } from "@/utils/chart";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useParams } from "next/navigation";
 import OurDatePicker from "@/components/OurDatePicker";
@@ -145,26 +145,18 @@ const FairDetailCard = ({ platform, label, description }) => {
             datasetsBuilderOption,
         );
 
-        const generateColors = (index, opacity?) => {
-            const primaryColors = [
-                "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-            ];
-
-            return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
-        };
-
-        const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+        const datasetsWithColor = datasetsBuilded?.filter((v: any)=>v.label == selectedAccount).map((v: any, index: number) => {
             return {
                 ...v,
                 backgroundColor: createGradient(chartRef),
                 // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
+                // TODO: Kalo ingin warnanya sama, harus sorting selectedCompetitor berdasarkan FAIR SCORE pada saat setSelectedCompetitor di context
                 borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
                 pointBackgroundColor: generateColors(index),
             };
         });
-        const limitDatasets = datasetsWithColor.slice(0, 5);
 
-        drawChart(labels, selectedCompetitor?.length > 5 ? datasetsWithColor : limitDatasets);
+        drawChart(labels, datasetsWithColor);
 
     }, [fairScoreData, selectedAccount, selectedCompetitor]);
 
