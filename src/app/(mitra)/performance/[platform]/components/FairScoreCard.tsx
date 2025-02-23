@@ -4,7 +4,14 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Chart from "chart.js/auto";
 import moment from "moment";
 import request from "@/utils/request";
-import { buildDatasets, buildDatasetsPie, buildLabels, createGradient, groupDataByUsername } from "@/utils/chart";
+import {
+    buildDatasets,
+    buildDatasetsPie,
+    buildLabels,
+    createGradient,
+    generateColors,
+    groupDataByUsername
+} from "@/utils/chart";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,10 +24,11 @@ import TooltipIcon from '@/components/TooltipIcon';
 import { IoInformationCircle } from "react-icons/io5";
 import { getIconByLabel } from "@/components/ui/iconHelper";
 import AiModal from "@/components/AiModal";
+import {primaryColors} from "@/constant/PerfomanceContants";
 
 const FairScoreCard = ({ platform, description }) => {
     const { authUser } = useAuth();
-    const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedAccount, selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [aiData, setAiData] = useState(null);
 
@@ -30,6 +38,7 @@ const FairScoreCard = ({ platform, description }) => {
     const [fairScoreData, setFairScoreData] = useState<any>(null);
     const [options, setOptions] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<string>("FAIR");
+    const [limitDatasets, setLimitDatasets] = useState(null);
 
 
     const getFairScoreChartData = async (label: string) => {
@@ -250,7 +259,6 @@ const FairScoreCard = ({ platform, description }) => {
             if (fairScoreChart) {
                 fairScoreChart.destroy();
             }
-            console.log('data radar', datasets)
             const newChart = new Chart(ctx, {
                 type: "radar",
                 data: {
@@ -397,7 +405,6 @@ const FairScoreCard = ({ platform, description }) => {
 
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
-        console.log(`Tab switched to: ${tab}`);
     };
 
     useEffect(() => {
@@ -420,6 +427,12 @@ const FairScoreCard = ({ platform, description }) => {
     }, [authUser, period, platform, activeTab]);
 
     useEffect(() => {
+        if (!selectedCompetitor?.length) {
+            setSelectedCompetitor(options);
+        }
+    }, [options]);
+
+    useEffect(() => {
         if (selectedAccount) {
             if (activeTab == "FAIR") {
                 const dateArray = buildLabels(period?.start, period?.end);
@@ -440,27 +453,62 @@ const FairScoreCard = ({ platform, description }) => {
                     datasetsBuilderOption,
                 );
 
-                const generateColors = (index, opacity?) => {
-                    const primaryColors = [
-                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-                    ];
-
-                    return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
-                };
-
                 const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
                     return {
                         ...v,
                         backgroundColor: createGradient(chartRef),
-                        // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
                         borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
                         pointBackgroundColor: generateColors(index),
+                        borderWidth: v.label == selectedAccount ? 5 : 3,
                     };
                 });
 
-                const limitDatasets = datasetsWithColor.slice(0, 5);
+                console.info(limitDatasets)
+                if (limitDatasets?.length === 0 || limitDatasets === null) {
+                    setLimitDatasets(datasetsWithColor.slice(0, 5));
 
-                drawLineChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+                    console.info(datasetsWithColor)
+                    drawLineChart(
+                        labels,
+                        !datasetsWithColor.slice(0, 5)?.find(dataset => dataset.label === selectedAccount)
+                            ? [...datasetsWithColor.map((v, index) => {
+                                if (v.label === selectedAccount) {
+                                    return {
+                                        ...v,
+                                        borderWidth: 5,
+                                        borderColor: generateColors(index)
+                                    }
+                                } else {
+                                    return {
+                                        ...v,
+                                        borderWidth: 3,
+                                        borderColor: generateColors(index, "33")
+                                    };
+                                }
+                            }).slice(0, 5), datasetsWithColor.find(dataset => dataset.label === selectedAccount)]
+                            : datasetsWithColor.slice(0, 5));
+                } else {
+                    drawLineChart(
+                        labels,
+                        !limitDatasets?.find(dataset => dataset.label === selectedAccount)
+                            ? [...limitDatasets.map((v, index) => {
+                                if (v.label === selectedAccount) {
+                                    return {
+                                        ...v,
+                                        borderWidth: 5,
+                                        borderColor: generateColors(index)
+                                    }
+                                } else {
+                                    return {
+                                        ...v,
+                                        borderWidth: 3,
+                                        borderColor: generateColors(index, "33")
+                                    };
+                                }
+                            }), datasetsWithColor.find(dataset => dataset.label === selectedAccount)]
+                                .filter(dataset => selectedCompetitor.some(comp => comp.value === dataset.label))
+                            : limitDatasets.filter(dataset => selectedCompetitor.some(comp => comp.value === dataset.label)));
+                }
             }
 
             if (activeTab == "Followers") {
@@ -479,10 +527,6 @@ const FairScoreCard = ({ platform, description }) => {
                     datasetsBuilderOption,
                 );
                 const generateColors = (index, opacity?) => {
-                    const primaryColors = [
-                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-                    ];
-
                     return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
                 };
 
@@ -520,10 +564,6 @@ const FairScoreCard = ({ platform, description }) => {
                 );
 
                 const generateColors = (index, opacity?) => {
-                    const primaryColors = [
-                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-                    ];
-
                     return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
                 };
 
@@ -560,10 +600,6 @@ const FairScoreCard = ({ platform, description }) => {
                 );
 
                 const generateColors = (index, opacity?) => {
-                    const primaryColors = [
-                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-                    ];
-
                     return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
                 };
 
@@ -598,10 +634,6 @@ const FairScoreCard = ({ platform, description }) => {
                     datasetsBuilderOption,
                 );
                 const generateColors = (index, opacity?) => {
-                    const primaryColors = [
-                        "#6A5ACD", "#FFB347", "#20B2AA", "#FF6347", "#FFD700"
-                    ];
-
                     return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
                 };
 

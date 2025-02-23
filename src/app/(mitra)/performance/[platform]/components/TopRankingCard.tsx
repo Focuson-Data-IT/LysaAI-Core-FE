@@ -8,11 +8,15 @@ import OurEmptyData from "@/components/OurEmptyData";
 import { FaEquals, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import TooltipIcon from '@/components/TooltipIcon';
 import { Tooltip } from 'chart.js';
+import {redirect} from "next/navigation";
+import {RedirectType} from "next/dist/client/components/redirect-error";
+import {primaryColors} from "@/constant/PerfomanceContants";
+import {TOption} from "@/types/PerformanceTypes";
 
 const TopRankingCard = ({ platform = null, description }) => {
     const [theme, setTheme] = useState<"light" | "dark">("light");
     const { authUser } = useAuth();
-    const { period, selectedAccount, selectedCompetitor } = usePerformanceContext();
+    const { period, selectedAccount, selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState(true);
     const [fairRankingData, setFairRankingData] = useState([]);
@@ -137,26 +141,57 @@ const TopRankingCard = ({ platform = null, description }) => {
                 ) : selectedAccount == null ? (
                     <p className="text-sm text-center">Please fill your account first</p>
                 ) : (
-                    fairRankingData.map((item, index) => (
-                        <a
+                    fairRankingData.map((item, index: number) => (
+                        <div
                             key={index}
-                            href={
-                                platform === "Instagram"
-                                    ? `https://www.instagram.com/${item?.username}`
-                                    : platform === "TikTok"
-                                        ? `https://www.tiktok.com/@${item?.username}`
-                                        : "#"
-                            }
-                            target="_blank"
                             rel="noopener noreferrer"
-                            className={`flex items-center justify-between p-2 rounded-md transition duration-300 
+                            className={`
+                                mb-1 cursor-pointer flex items-center justify-between p-2 rounded-md transition duration-300 
                                 ${item.username == selectedAccount ? 'sticky top-0 bottom-0' : ''} 
                                 ${item.username == selectedAccount ? 'bg-gray-100 dark:bg-gray-700' : ''} 
-                                hover:bg-gray-100 dark:hover:bg-gray-700`}
+                                hover:bg-gray-100 dark:hover:bg-gray-300
+                                ${index < 5 ? `border border-[${primaryColors[index]}]` : ''}`}
+                            style={{borderColor: index < 5 ? primaryColors[index] : undefined}}
+                            onClick={(e) => {
+                                if (selectedAccount === item.username) {
+                                    e.preventDefault();
+                                } else {
+                                    const checkboxContainer = e.currentTarget.querySelector(".checkbox-container");
+                                    if (checkboxContainer) {
+                                        checkboxContainer.style.display = checkboxContainer.style.display === "flex" ? "none" : "flex";
+                                    }
+                                }
+                            }}
                         >
+                            {/* Checkbox */}
+                            <div className="checkbox-container flex items-center w-[10%] text-left"
+                                 style={{display: "none"}}>
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox w-5 h-5"
+                                    checked={selectedCompetitor.some((competitor) => competitor.value === item.username)}
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            setSelectedCompetitor((prev: TOption[]) => [
+                                                ...prev,
+                                                {
+                                                    value: item.username,
+                                                    label: item.username
+                                                }
+                                            ]);
+                                        } else {
+                                            setSelectedCompetitor((prev: TOption[]) =>
+                                                prev.filter((competitor) => competitor.value !== item.username)
+                                            );
+                                        }
+                                    }}
+                                />
+                            </div>
+
                             {/* Ranking & Icon */}
                             <div className="flex items-center w-[15%] text-right">
-                                <div className="w-6 text-[16px]" dangerouslySetInnerHTML={{ __html: getMedal(index) }}></div>
+                                <div className="w-6 text-[16px]"
+                                     dangerouslySetInnerHTML={{__html: getMedal(index)}}></div>
                             </div>
 
                             {/* Username & Avatar */}
@@ -166,14 +201,25 @@ const TopRankingCard = ({ platform = null, description }) => {
                                     className="w-9 h-9 object-cover rounded-full border border-gray-300"
                                     alt={item?.username}
                                 />
-                                <div className="ml-2 min-w-0">
+                                <div className="">
                                     <div className="text-[14px] font-semibold truncate">{item?.username}</div>
-                                    <div className="text-[11px] text-[#0ED1D6] truncate">
-                                        {platform === "Instagram"
-                                            ? `https://www.instagram.com/${item?.username}`
-                                            : platform === "TikTok"
-                                                ? `https://www.tiktok.com/@${item?.username}`
-                                                : "#"}
+                                    <div className="text-[11px] text-[#0ED1D6] truncate w-40">
+                                        <button
+                                            className="hover:text-gray-500 p-1.5 rounded dark:bg-gray-800 border-none cursor-pointer w-full"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                window.open(
+                                                    platform === "Instagram"
+                                                        ? `https://www.instagram.com/${item?.username}`
+                                                        : platform === "TikTok"
+                                                            ? `https://www.tiktok.com/@${item?.username}`
+                                                            : "#",
+                                                    "_blank"
+                                                );
+                                            }}
+                                        >
+                                            View profile
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -184,10 +230,10 @@ const TopRankingCard = ({ platform = null, description }) => {
                                 <div
                                     className={`font-bold
                                         ${index === 0 ? "text-[22px]" :
-                                            index === 1 ? "text-[20px]" :
-                                                index === 2 ? "text-[18px]" :
-                                                    "text-[16px]"
-                                        }
+                                        index === 1 ? "text-[20px]" :
+                                            index === 2 ? "text-[18px]" :
+                                                "text-[16px]"
+                                    }
                                         ${item.username === selectedAccount ? 'text-[#0ED1D6]' : ''}
                                     `}
                                 >
@@ -196,19 +242,25 @@ const TopRankingCard = ({ platform = null, description }) => {
 
                                 {/* Perubahan Posisi */}
                                 {item.username === selectedAccount && (() => {
-                                    const { delta, icon, color, description } = getPositionChange(item.current_rank, item.previous_rank);
+                                    const {
+                                        delta,
+                                        icon,
+                                        color,
+                                        description
+                                    } = getPositionChange(item.current_rank, item.previous_rank);
                                     return (
                                         <TooltipIcon description={description}>
-                                        <div className={`text-[14px] font-medium ${color} mt-1 flex items-center justify-end gap-1`}>
-                                            <span>{delta}</span>
-                                            <span className="text-[18px]">{icon}</span>
-                                        </div>
+                                            <div
+                                                className={`text-[14px] font-medium ${color} mt-1 flex items-center justify-end gap-1`}>
+                                                <span>{delta}</span>
+                                                <span className="text-[18px]">{icon}</span>
+                                            </div>
                                         </TooltipIcon>
                                     );
                                 })()}
                             </div>
 
-                        </a>
+                        </div>
                     ))
                 )}
             </div>

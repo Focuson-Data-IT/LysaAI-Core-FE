@@ -164,7 +164,7 @@ const FairDetailCard = ({ platform, label, description }) => {
         });
         const limitDatasets = datasetsWithColor.slice(0, 5);
 
-        drawChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+        drawChart(labels, selectedCompetitor?.length > 5 ? datasetsWithColor : limitDatasets);
 
     }, [fairScoreData, selectedAccount, selectedCompetitor]);
 

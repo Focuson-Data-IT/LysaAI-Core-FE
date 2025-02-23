@@ -5,7 +5,7 @@ export type TPerformanceContext = {
     selectedAccount: string | null;
     setPeriod: (period: TPeriod) => void;
     setPlatform: (platform: string) => void;
-    setSelectedCompetitor: (selectedCompetitor: Array<TOption>) => void;
+    setSelectedCompetitor: (selectedCompetitor) => void;
     setSelectedAccount: (selectedAccount: string) => void;
 };
 

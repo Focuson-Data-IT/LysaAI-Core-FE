@@ -1,4 +1,5 @@
 import moment from "moment";
+import {primaryColors} from "@/constant/PerfomanceContants";
 
 export const buildLabels = (startDate, endDate) => {
 	const dateArray = [];
@@ -46,9 +47,6 @@ export const groupDataByUsername = (data) => {
 };
 
 export const buildDatasets = (groupedData, labels, options: any) => {
-	console.info(groupedData);
-	// Filter data berdasarkan username yang diinginkan
-
 	let filteredData: any = Object.entries(groupedData);
 
 	if (options) {
@@ -59,19 +57,18 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 		);
 	}
 
-	// Menghitung total nilai (value) dari masing-masing pengguna
 	let sortedData = filteredData
 		.map(([username, userData]) => {
 			const totalValue = userData.reduce((sum, item) => sum + parseFloat(String(item.value || 0)), 0);
-			return { username, userData, totalValue };
+			const lastValue = parseFloat(String(userData[userData.length - 1]?.value)) || 0;
+			return {username, userData, totalValue, lastValue};
 		});
 
 
-	sortedData.sort((a, b) => b.totalValue - a.totalValue) // Urutkan dari terbesar ke terkecil
-		.slice(0, 10); // Ambil hanya 10 pengguna teratas
+	sortedData.sort((a, b) => b.lastValue - a.lastValue)
+		.slice(0, 5);
 
-	// Membuat dataset hanya untuk 10 pengguna dengan nilai terbesar
-	const datasets = sortedData.map(({ username, userData }) => {
+	const datasets = sortedData.map(({username, userData}) => {
 		const dataWithZeroes = labels.map((label) => {
 			const dataPoint = userData.find((item) => {
 				return moment(item.date, "YYYY-MM-DD").isSame(moment(label, "YYYY-MM-DD"));
@@ -93,6 +90,10 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 	});
 
 	return datasets;
+};
+
+export const generateColors = (index, opacity?) => {
+	return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
 };
 
 export const buildDatasetsPie = (groupedData, options: any) => {
