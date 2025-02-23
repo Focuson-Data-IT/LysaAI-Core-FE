@@ -213,6 +213,18 @@ const FairScoreCard = ({ platform, description }) => {
             }
 
             if (ctx) {
+                const limitedPieDatasets = data.datasets[0].data.slice(0, 5);
+                console.info(data)
+                // console.info(limitDatasets)
+
+                // limitedPieDatasets
+                //     .map(([username, userData]) => {
+                //         const totalValue = userData.reduce((sum, item) => sum + parseFloat(String(item.value || 0)), 0);
+                //         return { username, totalValue };
+                //     })
+                //     .sort((a, b) => b.totalValue - a.totalValue)
+                //     .slice(0, 10);
+
                 const newChart: any = new Chart(ctx, {
                     type: "pie",
                     data: {
@@ -220,8 +232,10 @@ const FairScoreCard = ({ platform, description }) => {
                         datasets: [
                             {
                                 label: "Followers",
-                                data: data.datasets[0].data,
-                                backgroundColor: data.datasets[0].backgroundColor,
+                                data: limitedPieDatasets,
+                                backgroundColor: limitedPieDatasets.map((v, index) => {
+                                    return limitDatasets[index].borderColor;
+                                })
                             }
                         ]
                     },
@@ -463,11 +477,9 @@ const FairScoreCard = ({ platform, description }) => {
                     };
                 });
 
-                console.info(limitDatasets)
                 if (limitDatasets?.length === 0 || limitDatasets === null) {
                     setLimitDatasets(datasetsWithColor.slice(0, 5));
 
-                    console.info(datasetsWithColor)
                     drawLineChart(
                         labels,
                         !datasetsWithColor.slice(0, 5)?.find(dataset => dataset.label === selectedAccount)
@@ -526,18 +538,19 @@ const FairScoreCard = ({ platform, description }) => {
                     dataGroupedByUsername,
                     datasetsBuilderOption,
                 );
-                const generateColors = (index, opacity?) => {
-                    return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
-                };
+
+                // TODO: urutkan dulu berdasarkan data labels fair score
+                const sortedIndices = datasetsBuilded.labels.slice(0, 5).map(label =>
+                    datasetsBuilded.labels.indexOf(label)
+                );
 
                 const limitDatasets = {
-                    labels: datasetsBuilded.labels.slice(0, 5),
+                    labels: sortedIndices.map(index => datasetsBuilded.labels[index]),
                     datasets: [{
-                        backgroundColor: datasetsBuilded.datasets[0].backgroundColor.map((_, index) => {
-                            return datasetsBuilded.labels[index] == selectedAccount ? generateColors(index) : generateColors(index, "33")
-                        }
+                        backgroundColor: sortedIndices.map(index =>
+                            datasetsBuilded.labels[index] == selectedAccount ? generateColors(index) : generateColors(index, "33")
                         ),
-                        data: datasetsBuilded.datasets[0].data.slice(0, 5)
+                        data: sortedIndices.map(index => datasetsBuilded.datasets[0].data[index])
                     }]
                 };
 
