@@ -13,6 +13,7 @@ import request from "@/utils/request";
 import { useAuth } from "@/hooks/useAuth";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import OurLoading from "@/components/OurLoading";
+import InstagramChart from "./components/charts/GrowthChart";
 
 const Competitor = () => {
     const { platform } = useParams();
@@ -98,7 +99,7 @@ const Competitor = () => {
                         />
                     </div>
 
-                    <div>
+                    {/* <div>
                         <OurSelect
                             disabled={!selectedAccount || !period}
                             options={competitorOptions}
@@ -113,7 +114,7 @@ const Competitor = () => {
                             isMulti={true}
                             placeholder="Hide / Show Competitors"
                         />
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
@@ -140,6 +141,12 @@ const Competitor = () => {
                 </div>
 
                 {/* FAIR Detail */}
+                <div className="grid lg:col-span-12 gap-4 mt-4">
+                    <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3 transition-colors">
+                        <InstagramChart username={selectedAccount} startDate={period.start} endDate={period.end} platform="Instagram" />
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-12 gap-4 mt-4">
                     {/* Instagram */}
                     {platform === "Instagram" && <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />}

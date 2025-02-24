@@ -61,7 +61,7 @@ const FairDetailCard = ({ platform, label, description }) => {
                 const average = totalSum / allDataPoints.length;
 
                 const newChart: any = new Chart(ctx, {
-                    type: "line",
+                    type: "bar",
                     data: {
                         labels: labels,
                         datasets: datasets

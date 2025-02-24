@@ -115,7 +115,7 @@ const TopRankingCard = ({ platform = null, description }) => {
         if (delta > 0) return { delta: `+${delta}`, icon: <FaArrowUp />, color: "text-green-500", description: "Your FAIR Score has increased compared to yesterday" };
         if (delta < 0) return { delta: `${delta}`, icon: <FaArrowDown />, color: "text-red-500", description: "Your FAIR Score has decreased compared to yesterday" };
 
-        return { delta: "0", icon: <FaEquals />, color: "text-yellow-500", description: "Your FAIR Score remains the same compared to yesterday" };
+        return { icon: <FaEquals />, color: "text-yellow-500", description: "Your FAIR Score remains the same compared to yesterday" };
     };
 
     if (!authUser || !period || !platform || !description) {
@@ -148,24 +148,26 @@ const TopRankingCard = ({ platform = null, description }) => {
                             className={`
                                 mb-1 cursor-pointer flex items-center justify-between p-2 rounded-md transition duration-300 
                                 ${item.username == selectedAccount ? 'sticky top-0 bottom-0' : ''} 
-                                ${item.username == selectedAccount ? 'bg-gray-100 dark:bg-gray-700' : ''} 
-                                hover:bg-gray-100 dark:hover:bg-gray-300
-                                ${index < 5 ? `border border-[${primaryColors[index]}]` : ''}`}
+                                ${item.username == selectedAccount ? 'bg-gray-200 dark:bg-gray-600' : ''} 
+                                hover:bg-gray-100 dark:hover:bg-gray-400
+                                ${index < 5 ? `border-2 border-[${primaryColors[index]}]` : ''}`}
                             style={{borderColor: index < 5 ? primaryColors[index] : undefined}}
                             onClick={(e) => {
                                 if (selectedAccount === item.username) {
                                     e.preventDefault();
                                 } else {
-                                    const checkboxContainer = e.currentTarget.querySelector(".checkbox-container");
+                                    const checkboxContainer = e.currentTarget.querySelector(".checkbox-container") as HTMLElement;
                                     if (checkboxContainer) {
-                                        checkboxContainer.style.display = checkboxContainer.style.display === "flex" ? "none" : "flex";
+                                        if (checkboxContainer) {
+                                            checkboxContainer.style.display = checkboxContainer.style.display === "flex" ? "none" : "flex";
+                                        }
                                     }
                                 }
                             }}
                         >
                             {/* Checkbox */}
                             <div className="checkbox-container flex items-center w-[10%] text-left"
-                                 style={{display: "none"}}>
+                                style={{display: "none"}}>
                                 <input
                                     type="checkbox"
                                     className="form-checkbox w-5 h-5"
@@ -191,7 +193,7 @@ const TopRankingCard = ({ platform = null, description }) => {
                             {/* Ranking & Icon */}
                             <div className="flex items-center w-[15%] text-right">
                                 <div className="w-6 text-[16px]"
-                                     dangerouslySetInnerHTML={{__html: getMedal(index)}}></div>
+                                    dangerouslySetInnerHTML={{__html: getMedal(index)}}></div>
                             </div>
 
                             {/* Username & Avatar */}

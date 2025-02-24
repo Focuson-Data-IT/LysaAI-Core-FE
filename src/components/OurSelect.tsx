@@ -56,10 +56,15 @@ const customSelectStyles = {
         fontSize: "14px",
         padding: "8px 12px",
         transition: "all 0.2s ease-in-out",
+        backgroundColor: state.isSelected
+            ? "#60a5fa" // Ubah ini untuk mengatur warna biru muda saat dipilih
+            : state.isFocused
+            ? "#374151" // Warna saat opsi di-hover
+            : "transparent",
         "&:hover": {
-            backgroundColor: "#374151",
+            backgroundColor: "#374151", // Tetap sama untuk hover
         },
-    }),
+    }),    
 
     placeholder: (provided) => ({
         ...provided,
