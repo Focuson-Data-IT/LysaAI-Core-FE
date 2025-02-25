@@ -38,7 +38,7 @@ const TopRankingCard = ({ platform = null, description }) => {
 
 
     const getFairRanking = async () => {
-        if (!authUser || !period || !platform || !description) return [];
+        if (!authUser || !period?.start || !period?.end  || !platform || !description) return [];
         try {
             const response = await request.get(
                 `/getFairRanking?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`

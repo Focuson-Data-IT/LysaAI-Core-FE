@@ -98,22 +98,22 @@ const Competitor = () => {
                         />
                     </div>
 
-                    <div>
-                        <OurSelect
-                            disabled={!selectedAccount || !period}
-                            options={competitorOptions}
-                            value={
-                                selectedAccount && period
-                                    ? competitorOptions.filter((option) =>
-                                        selectedCompetitor.includes(option.value)
-                                    )
-                                    : []
-                            }
-                            onChange={(selected) => setSelectedCompetitor(selected.map((item) => item.value))}
-                            isMulti={true}
-                            placeholder="Hide / Show Competitors"
-                        />
-                    </div>
+                    {/*<div>*/}
+                    {/*    <OurSelect*/}
+                    {/*        disabled={!selectedAccount || !period}*/}
+                    {/*        options={competitorOptions}*/}
+                    {/*        value={*/}
+                    {/*            selectedAccount && period*/}
+                    {/*                ? competitorOptions.filter((option) =>*/}
+                    {/*                    selectedCompetitor.includes(option.value)*/}
+                    {/*                )*/}
+                    {/*                : []*/}
+                    {/*        }*/}
+                    {/*        onChange={(selected) => setSelectedCompetitor(selected.map((item) => item.value))}*/}
+                    {/*        isMulti={true}*/}
+                    {/*        placeholder="Hide / Show Competitors"*/}
+                    {/*    />*/}
+                    {/*</div>*/}
                 </div>
             </div>
 
