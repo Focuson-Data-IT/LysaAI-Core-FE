@@ -67,7 +67,7 @@ const Competitor = () => {
 
     const IconComponent = getIconComponent(Array.isArray(platform) ? platform[0] : platform);
 
-    if (!authUser || !period || !platform ) {
+    if (!authUser || !period || !platform) {
         return <OurLoading />;
     }
 
@@ -147,20 +147,20 @@ const Competitor = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 mt-4">
-                    {/* Instagram */}
+                {/* <div className="grid grid-cols-12 gap-4 mt-4">
+                
                     {platform === "Instagram" && <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />}
                     {platform === "Instagram" && <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />}
                     {platform === "Instagram" && <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />}
                     {platform === "Instagram" && <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />}
-                    {/* Tiktok */}
+                
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Saves" description="Number of Save Counts" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />}
                     {platform === "TikTok" && <FairDetailCard platform={platform} label="Shares" description="Number of Shares" />}
-                </div>
+                </div> */}
 
                 {/* POST DETAIL */}
                 <div className="flex w-full items-center my-4">
@@ -175,16 +175,16 @@ const Competitor = () => {
                         <PostsTable platform={platform} />
                     </div>
                 </div>
-            </div>
 
-            {/* OVERLAY TEKS SAAT BELUM PILIH USERNAME */}
-            {!selectedAccount || !period && (
-                <div className="h-screen absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-black/50 z-10">
-                    <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                        Please select a username to continue...
-                    </p>
-                </div>
-            )}
+                {/* OVERLAY TEKS SAAT BELUM PILIH USERNAME */}
+                {(!selectedAccount || (!period.start && !period.end)) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-black/50 z-50 w-full h-full">
+                        <p className="text-lg font-semibold text-black dark:text-white">
+                            Please select a username to continue...
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

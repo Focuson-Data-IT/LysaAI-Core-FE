@@ -118,7 +118,7 @@ const PostsTable = ({ platform = null }) => {
             fetchAvatars();
         }
 
-        const filtered = posts.filter(post => post.caption.toLowerCase().includes(searchQuery.toLowerCase()));
+        const filtered = posts.filter(post => post.username.toLowerCase().includes(searchQuery.toLowerCase()));
         setFilteredPosts(filtered);
     }, [searchQuery, posts]);
 

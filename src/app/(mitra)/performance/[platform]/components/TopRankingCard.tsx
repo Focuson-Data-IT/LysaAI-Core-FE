@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import request from "@/utils/request";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,20 +38,29 @@ const TopRankingCard = ({ platform = null, description }) => {
 
 
     const getFairRanking = async () => {
-        if (!authUser || !period || !platform || !description) return [];
+        // Cek semua variabel sudah terisi sebelum request
+        if (!authUser?.username || !period?.start || !period?.end || !platform || !description) {
+            console.warn("Required data is missing, skipping API request.");
+            return;
+        }
+    
         try {
             const response = await request.get(
-                `/getFairRanking?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`
+                `/getFairRanking?platform=${platform}&kategori=${authUser.username}&start_date=${period.start}&end_date=${period.end}`
             );
+    
             const rankingData = response.data?.data || [];
-
             setFairRankingData(rankingData);
-            await fetchAvatars(rankingData); // Fetch avatar setelah mendapatkan ranking
+    
+            if (rankingData.length > 0) {
+                await fetchAvatars(rankingData); // Fetch avatar hanya jika data ada
+            }
         } catch (error) {
             console.error("Error fetching fair ranking:", error);
+        } finally {
+            setLoading(false); // Pastikan loading diakhiri meskipun error
         }
-        setLoading(false);
-    };
+    };    
 
     const fetchAvatars = async (rankingData) => {
         const newAvatars = { ...avatars };
