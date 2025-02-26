@@ -5,12 +5,14 @@ import * as echarts from "echarts";
 import request from "@/utils/request";
 import moment from "moment";
 
-interface InstagramData {
+interface TikTokData {
     date: string;
     followers: number;
     posts: number;
     likes: number;
     views: number;
+    saves: number;
+    shares: number;
     comments: number;
 }
 
@@ -19,17 +21,17 @@ interface ApiResponse {
     platform: string;
     start_date: string;
     end_date: string;
-    data: InstagramData[];
+    data: TikTokData[];
 }
 
-interface InstagramChartProps {
+interface TikTokChartProps {
     username: string;
     startDate: string;
     endDate: string;
     platform: string;
 }
 
-const InstagramChart: React.FC<InstagramChartProps> = ({
+const TikTokChart: React.FC<TikTokChartProps> = ({
     username,
     startDate,
     endDate,
@@ -49,17 +51,19 @@ const InstagramChart: React.FC<InstagramChartProps> = ({
         }
     };
 
-    const initializeChart = (data: InstagramData[]) => {
-        const dates = data.map((item) => moment(item.date).format("DD"));
+    const initializeChart = (data: TikTokData[]) => {
+        const dates = data.map((item) => moment(item.date).format("MM-DD"));
         const followers = data.map((item) => item.followers);
         const posts = data.map((item) => item.posts);
         const likes = data.map((item) => item.likes);
         const views = data.map((item) => item.views);
+        const saves = data.map((item) => item.saves);
+        const shares = data.map((item) => item.shares);
         const comments = data.map((item) => item.comments);
 
         const option: echarts.EChartsOption = {
             title: {
-                text: `Growth Metrics for ${username}`,
+                text: `Growth Metrics - ${username}`,
                 subtext: `Periode: ${startDate} - ${endDate}`,
                 left: "center",
                 textStyle: { color: "#ffffff" },
@@ -68,20 +72,20 @@ const InstagramChart: React.FC<InstagramChartProps> = ({
             legend: {
                 left: "center",
                 bottom: 10,
-                data: ["Followers", "Posts", "Likes", "Views", "Comments"],
+                data: ["Followers", "Posts", "Likes", "Views", "Saves", "Shares", "Comments"],
                 textStyle: { color: "#ffffff" },
             },
-            grid: { left: "5%", right: "5%", bottom: "15%", containLabel: true },
+            grid: { left: "5%", right: "8%", bottom: "15%", containLabel: true },
             toolbox: { feature: { saveAsImage: {} } },
             xAxis: {
                 type: "category",
                 data: dates,
-                axisLabel: { rotate: 0 },
+                axisLabel: { rotate: 45 },
             },
             yAxis: [
                 {
                     type: "value",
-                    name: "Followers, Likes, Views, Comments",
+                    name: "Followers, Likes, Views, Saves, Shares, Comments",
                     axisLabel: { 
                         formatter: function (value) {
                         const numericValue = Number(value);
@@ -105,11 +109,13 @@ const InstagramChart: React.FC<InstagramChartProps> = ({
                 { name: "Likes", type: "bar", data: likes, yAxisIndex: 0 },
                 { name: "Views", type: "bar", data: views, yAxisIndex: 0 },
                 { name: "Comments", type: "bar", data: comments, yAxisIndex: 0 },
+                { name: "Saves", type: "bar", data: saves, yAxisIndex: 0 },
+                { name: "Shares", type: "bar", data: shares, yAxisIndex: 0 },
                 { name: "Posts", type: "bar", data: posts, yAxisIndex: 1, barWidth: 10 },
             ],
         };
 
-        const chartDom = document.getElementById("instagramChart")!;
+        const chartDom = document.getElementById("TikTokChart")!;
         const newChart = echarts.init(chartDom);
         newChart.setOption(option);
         setChartInstance(newChart);
@@ -121,7 +127,7 @@ const InstagramChart: React.FC<InstagramChartProps> = ({
         });
     }, [username, startDate, endDate]);
 
-    return <div id="instagramChart" style={{ width: "100%", height: "600px" }}></div>;
+    return <div id="TikTokChart" style={{ width: "100%", height: "600px" }}></div>;
 };
 
-export default InstagramChart;
+export default TikTokChart;

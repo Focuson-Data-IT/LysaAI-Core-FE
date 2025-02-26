@@ -43,7 +43,7 @@ const AIModal: React.FC<AIModalProps> = ({ isOpen, onClose, data, isLoading }) =
 
                 {/* Judul */}
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white text-center">
-                    AI Summary
+                    
                 </h2>
 
                 {/* Konten */}

@@ -162,7 +162,7 @@ const PostsTable = ({ platform = null }) => {
     }
 
     return (
-        <div className="box box-sizing overflow-x-hidden py-5 h-auto flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
+        <div className="box box-sizing overflow-x-hidden py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
             <div className="flex justify-between">
                 <div >
                     <input
@@ -197,7 +197,7 @@ const PostsTable = ({ platform = null }) => {
 
             </div>
 
-            <div className="m-3 table-content flex-grow overflow-y-auto max-h-[500px]" onScroll={handleScroll}>
+            <div className="m-3 table-content flex-grow overflow-y-auto max-h-[650px]" onScroll={handleScroll}>
                 <table className="w-full table-fixed border-collapse border-gray-300 dark:border-gray-700 p-2">
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">

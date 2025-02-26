@@ -732,7 +732,7 @@ const FairScoreCard = ({ platform, description }) => {
 
                     {/* Kanan */}
                     <div className="absolute top-0 right-0">
-                        <TooltipIcon description="Artificial Intelligence which help you to summarize your current performance">
+                        <TooltipIcon description="Summarize the graphic ask Lysa">
                             <button
                                 onClick={fetchAISummary}
                                 className="flex items-center justify-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"

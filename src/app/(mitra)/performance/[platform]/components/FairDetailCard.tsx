@@ -40,31 +40,48 @@ const FairDetailCard = ({ platform, label, description }) => {
         return response.data?.data;
     };
 
+    const monthLabel = `${moment(period?.end).format("MMMM")}`;
+
     const drawChart = (labels: any, datasets: any) => {
         if (chartRef && chartRef.current) {
-            const ctx = chartRef.current?.getContext("2d");
-
+            const ctx = chartRef.current.getContext("2d");
+    
             if (fairScoreChart) {
                 fairScoreChart.destroy();
             }
-
+    
             if (ctx) {
-                const allDataPoints = datasets.flatMap((dataset) => dataset.data);
-
-                const sortedData = [...allDataPoints].sort((a, b) => a - b);
-                const median =
-                    sortedData.length % 2 === 0
-                        ? (sortedData[sortedData.length / 2 - 1] + sortedData[sortedData.length / 2]) / 2
-                        : sortedData[Math.floor(sortedData.length / 2)];
-
-                const totalSum = allDataPoints.reduce((sum, val) => sum + val, 0);
-                const average = totalSum / allDataPoints.length;
-
-                const newChart: any = new Chart(ctx, {
-                    type: "bar",
+                const updatedDatasets = datasets.map((dataset) => {
+                    if (label === "Followers") {
+                        // Followers sebagai LINE dengan fill area
+                        return {
+                            ...dataset,
+                            type: "line",
+                            borderColor: "rgba(150, 100, 250, 0.7)", // Fill batang bar,
+                            backgroundColor: "rgba(150, 100, 250, 0.7)", // Fill batang bar
+                            fill: false,
+                            tension: 0.4, // Garis halus (curved)
+                            pointRadius: 0.2, // Titik terlihat
+                            pointHoverRadius: 6,
+                            borderWidth: 2,
+                        };
+                    }
+    
+                    // Dataset lain sebagai BAR chart dengan fill solid
+                    return {
+                        ...dataset,
+                        type: "bar",
+                        backgroundColor: "rgba(150, 100, 250, 0.7)", // Fill batang bar
+                        // borderColor: "rgba(150, 100, 250, 1)", // Outline batang
+                        borderWidth: 1,
+                        barThickness: 20,
+                    };
+                });
+    
+                const newChart = new Chart(ctx, {
                     data: {
                         labels: labels,
-                        datasets: datasets
+                        datasets: updatedDatasets,
                     },
                     options: {
                         interaction: {
@@ -76,16 +93,29 @@ const FairDetailCard = ({ platform, label, description }) => {
                         responsive: true,
                         scales: {
                             y: {
-                                beginAtZero: true,
+                                type: "logarithmic",
                                 ticks: {
                                     callback(value) {
-                                        return `${value} `;
+                                        const numericValue = Number(value);
+                                        if (numericValue >= 1_000_000_000) return (numericValue / 1_000_000_000).toFixed(0) + "B";
+                                        if (numericValue >= 1_000_000) return (numericValue / 1_000_000).toFixed(0) + "M";
+                                        if (numericValue >= 1_000) return (numericValue / 1_000).toFixed(0) + "K";
+                                        return value; // Nilai di bawah 1000 tampilkan angka aslinya
                                     },
                                 },
                             },
                             x: {
+                                title: {
+                                    display: true,
+                                    text: monthLabel, // Label untuk sumbu X
+                                    font: {
+                                        size: 14,
+                                        weight: "bold",
+                                    },
+                                    color: "#666", // Warna teks
+                                },
                                 ticks: {
-                                    callback: function (value, index, ticks) {
+                                    callback: function (_, index) {
                                         return `${moment(labels[index]).format("DD")}`;
                                     },
                                 },
@@ -102,11 +132,11 @@ const FairDetailCard = ({ platform, label, description }) => {
                         },
                     },
                 });
-
+    
                 setFairScoreChart(newChart);
             }
         }
-    };
+    };    
 
     useEffect(() => {
         if (authUser && period && platform) setIsLoading(true); {
@@ -145,7 +175,7 @@ const FairDetailCard = ({ platform, label, description }) => {
             datasetsBuilderOption,
         );
 
-        const datasetsWithColor = datasetsBuilded?.filter((v: any)=>v.label == selectedAccount).map((v: any, index: number) => {
+        const datasetsWithColor = datasetsBuilded?.filter((v: any) => v.label == selectedAccount).map((v: any, index: number) => {
             return {
                 ...v,
                 backgroundColor: createGradient(chartRef),
