@@ -54,8 +54,6 @@ const FairScoreCard = ({ platform, description }) => {
                 `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`,
             );
         }
-
-
         return response.data?.data;
     };
 
@@ -157,36 +155,36 @@ const FairScoreCard = ({ platform, description }) => {
                     plugins: [
                         {
                             id: "customLabels",
-                            afterDatasetsDraw(chart) {
-                                const { ctx } = chart;
-                                ctx.save();
-                                const datasets = chart.data.datasets;
-                                const chartArea = chart.chartArea;
+                            // afterDatasetsDraw(chart) {
+                            //     const { ctx } = chart;
+                            //     ctx.save();
+                            //     const datasets = chart.data.datasets;
+                            //     const chartArea = chart.chartArea;
 
-                                datasets.forEach((dataset, datasetIndex) => {
-                                    const lastPoint = dataset.data[dataset.data.length - 1];
-                                    const meta = chart.getDatasetMeta(datasetIndex);
+                            //     datasets.forEach((dataset, datasetIndex) => {
+                            //         const lastPoint = dataset.data[dataset.data.length - 1];
+                            //         const meta = chart.getDatasetMeta(datasetIndex);
 
-                                    if (meta.data.length) {
-                                        const lastElement = meta.data[meta.data.length - 1];
-                                        const x = lastElement.x;
-                                        const y = lastElement.y - 10;
+                            //         if (meta.data.length) {
+                            //             const lastElement = meta.data[meta.data.length - 1];
+                            //             const x = lastElement.x;
+                            //             const y = lastElement.y - 10;
 
-                                        ctx.font = "12px Arial";
-                                        ctx.fillStyle = dataset.borderColor.toString() || "black";
-                                        ctx.textAlign = "center";
-                                        ctx.textBaseline = "bottom";
+                            //             ctx.font = "12px Arial";
+                            //             ctx.fillStyle = dataset.borderColor.toString() || "black";
+                            //             ctx.textAlign = "center";
+                            //             ctx.textBaseline = "bottom";
 
-                                        ctx.fillText(
-                                            dataset.label || `Data ${datasetIndex + 1}`,
-                                            x,
-                                            y
-                                        );
-                                    }
-                                });
+                            //             ctx.fillText(
+                            //                 dataset.label || `Data ${datasetIndex + 1}`,
+                            //                 x,
+                            //                 y
+                            //             );
+                            //         }
+                            //     });
 
-                                ctx.restore();
-                            },
+                            //     ctx.restore();
+                            // },
                         },
                     ],
                 });
@@ -422,19 +420,14 @@ const FairScoreCard = ({ platform, description }) => {
     };
 
     useEffect(() => {
-        // I = Interactions
-        // R = Responsiveness
-
-        if (authUser && period && platform) setIsLoading(true); {
+        if (authUser && period && platform) {
+            setIsLoading(true);
             getFairScoreChartData(activeTab).then((v) => {
                 const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
-                    return {
-                        label: e[0],
-                        value: e[0]
-                    }
+                    return { value: e[0], label: e[0] };
                 });
                 setFairScoreData(v);
-                setOptions(groupedUsername)
+                setOptions(groupedUsername);
                 setIsLoading(false);
             });
         }
@@ -442,7 +435,7 @@ const FairScoreCard = ({ platform, description }) => {
 
     useEffect(() => {
         if (!selectedCompetitor?.length) {
-            setSelectedCompetitor(options);
+            setSelectedCompetitor([{ label: selectedAccount, value: selectedAccount }]);
         }
     }, [options]);
 

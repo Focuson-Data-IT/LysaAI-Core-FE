@@ -6,9 +6,9 @@ import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/PostDetailCard";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
-import OurDatePicker from "@/components/OurDatePicker";
-import OurSelect from "@/components/OurSelect";
-import request from "@/utils/request";
+// import OurDatePicker from "@/components/OurDatePicker";
+// import OurSelect from "@/components/OurSelect";
+// import request from "@/utils/request";
 import { useAuth } from "@/hooks/useAuth";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import OurLoading from "@/components/OurLoading";
@@ -22,43 +22,43 @@ const Competitor = () => {
     const { platform } = useParams();
     const { authUser } = useAuth();
 
-    const [accountOptions, setAccountOptions] = useState([]);
-    const [competitorOptions, setCompetitorOptions] = useState([]);
-    const [isShowDatepicker, setIsShowDatepicker] = useState(false);
+    // const [accountOptions, setAccountOptions] = useState([]);
+    // const [competitorOptions, setCompetitorOptions] = useState([]);
+    // const [isShowDatepicker, setIsShowDatepicker] = useState(false);
     const [showCombinedChart, setShowCombinedChart] = useState(false);
 
     const {
         period,
-        selectedCompetitor,
+        // selectedCompetitor,
         selectedAccount,
-        setPeriod,
-        setSelectedCompetitor,
-        setSelectedAccount,
+        // setPeriod,
+        // setSelectedCompetitor,
+        // setSelectedAccount,
     } = usePerformanceContext();
 
-    useEffect(() => {
-        const fetchUsernames = async () => {
-            if (authUser?.username) {
-                try {
-                    const response = await request.get(
-                        `/getAllUsername?kategori=${authUser.username}&platform=${platform}`
-                    );
-                    const usernames = response.data?.data || [];
-                    const formattedOptions = usernames.map((user: { username: string }) => ({
-                        label: user.username,
-                        value: user.username,
-                    }));
+    // useEffect(() => {
+    //     const fetchUsernames = async () => {
+    //         if (authUser?.username) {
+    //             try {
+    //                 const response = await request.get(
+    //                     `/getAllUsername?kategori=${authUser.username}&platform=${platform}`
+    //                 );
+    //                 const usernames = response.data?.data || [];
+    //                 const formattedOptions = usernames.map((user: { username: string }) => ({
+    //                     label: user.username,
+    //                     value: user.username,
+    //                 }));
 
-                    setAccountOptions(formattedOptions);
-                    setCompetitorOptions(formattedOptions);
-                } catch (error) {
-                    console.error("Error fetching usernames:", error);
-                }
-            }
-        };
+    //                 setAccountOptions(formattedOptions);
+    //                 setCompetitorOptions(formattedOptions);
+    //             } catch (error) {
+    //                 console.error("Error fetching usernames:", error);
+    //             }
+    //         }
+    //     };
 
-        fetchUsernames();
-    }, [authUser, platform]);
+    //     fetchUsernames();
+    // }, [authUser, platform]);
 
     const getIconComponent = (platform: string) => {
         const icons = {
@@ -90,7 +90,7 @@ const Competitor = () => {
                 </div>
 
                 {/* SELECTIONS */}
-                <div className="flex justify-between gap-5 items-center">
+                {/* <div className="flex justify-between gap-5 items-center">
                     <OurSelect
                         options={accountOptions}
                         value={accountOptions.find((option) => option.value === selectedAccount)}
@@ -102,7 +102,7 @@ const Competitor = () => {
                         disabled={!selectedAccount}
                         onClick={() => setIsShowDatepicker(!isShowDatepicker)}
                     />
-                </div>
+                </div> */}
             </div>
 
             {/* OVERLAY MESSAGE */}
