@@ -38,7 +38,8 @@ export const clientRoutes = [
 				title: 'TikTok',
 				link: '/performance/TikTok',
 				icon: FaTiktok,
-                dynamic: true
+                dynamic: true,
+                isStable: false
 			}
 		]
 	},
