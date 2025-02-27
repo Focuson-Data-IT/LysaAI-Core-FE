@@ -19,7 +19,7 @@ export default function UserNav() {
 
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
-                    className="w-56 bg-white dark:bg-gray-800 rounded-md shadow-md p-2"
+                    className="w-56 bg-white dark:bg-gray-800 rounded-md shadow-md p-2 z-[1000]"
                     align="end"
                 >
                     <DropdownMenu.Label className="font-normal p-2">

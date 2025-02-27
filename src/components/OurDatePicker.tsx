@@ -45,9 +45,9 @@ const DateRangePicker = ({ onClick, disabled }) => {
             boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
             padding: '10px',
         },
-        popper: {
-            zIndex: 9999,
-        },
+        // popper: {
+        //     zIndex: 9999,
+        // },
     };
 
     const StyledDatePicker = styled(DatePicker)`

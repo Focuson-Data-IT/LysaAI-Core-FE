@@ -24,7 +24,7 @@ import TooltipIcon from '@/components/TooltipIcon';
 import { IoInformationCircle } from "react-icons/io5";
 import { getIconByLabel } from "@/components/ui/iconHelper";
 import AiModal from "@/components/AiModal";
-import {primaryColors} from "@/constant/PerfomanceContants";
+import { primaryColors } from "@/constant/PerfomanceContants";
 
 const FairScoreCard = ({ platform, description }) => {
     const { authUser } = useAuth();
@@ -51,11 +51,9 @@ const FairScoreCard = ({ platform, description }) => {
             );
         } else {
             response = await request.get(
-                `/getDaily${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`,
+                `/get${label}?platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}`,
             );
         }
-
-
         return response.data?.data;
     };
 
@@ -127,7 +125,7 @@ const FairScoreCard = ({ platform, description }) => {
                                 display: false,
                             },
                             tooltip: {
-                                enabled: false,
+                                enabled: true,
                             },
                         },
                         layout: {
@@ -157,36 +155,36 @@ const FairScoreCard = ({ platform, description }) => {
                     plugins: [
                         {
                             id: "customLabels",
-                            afterDatasetsDraw(chart) {
-                                const { ctx } = chart;
-                                ctx.save();
-                                const datasets = chart.data.datasets;
-                                const chartArea = chart.chartArea;
+                            // afterDatasetsDraw(chart) {
+                            //     const { ctx } = chart;
+                            //     ctx.save();
+                            //     const datasets = chart.data.datasets;
+                            //     const chartArea = chart.chartArea;
 
-                                datasets.forEach((dataset, datasetIndex) => {
-                                    const lastPoint = dataset.data[dataset.data.length - 1];
-                                    const meta = chart.getDatasetMeta(datasetIndex);
+                            //     datasets.forEach((dataset, datasetIndex) => {
+                            //         const lastPoint = dataset.data[dataset.data.length - 1];
+                            //         const meta = chart.getDatasetMeta(datasetIndex);
 
-                                    if (meta.data.length) {
-                                        const lastElement = meta.data[meta.data.length - 1];
-                                        const x = lastElement.x;
-                                        const y = lastElement.y - 10;
+                            //         if (meta.data.length) {
+                            //             const lastElement = meta.data[meta.data.length - 1];
+                            //             const x = lastElement.x;
+                            //             const y = lastElement.y - 10;
 
-                                        ctx.font = "12px Arial";
-                                        ctx.fillStyle = dataset.borderColor.toString() || "black";
-                                        ctx.textAlign = "center";
-                                        ctx.textBaseline = "bottom";
+                            //             ctx.font = "12px Arial";
+                            //             ctx.fillStyle = dataset.borderColor.toString() || "black";
+                            //             ctx.textAlign = "center";
+                            //             ctx.textBaseline = "bottom";
 
-                                        ctx.fillText(
-                                            dataset.label || `Data ${datasetIndex + 1}`,
-                                            x,
-                                            y
-                                        );
-                                    }
-                                });
+                            //             ctx.fillText(
+                            //                 dataset.label || `Data ${datasetIndex + 1}`,
+                            //                 x,
+                            //                 y
+                            //             );
+                            //         }
+                            //     });
 
-                                ctx.restore();
-                            },
+                            //     ctx.restore();
+                            // },
                         },
                     ],
                 });
@@ -244,7 +242,7 @@ const FairScoreCard = ({ platform, description }) => {
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                display: false,
+                                display: true,
                                 position: 'bottom',
                             },
                         }
@@ -289,7 +287,7 @@ const FairScoreCard = ({ platform, description }) => {
                     },
                     plugins: {
                         legend: {
-                            display: false,
+                            display: true,
                             position: 'bottom',
                         },
                     },
@@ -337,7 +335,7 @@ const FairScoreCard = ({ platform, description }) => {
                         },
                         plugins: {
                             legend: {
-                                display: false,
+                                display: true,
                                 position: 'bottom',
                             },
                         },
@@ -422,19 +420,14 @@ const FairScoreCard = ({ platform, description }) => {
     };
 
     useEffect(() => {
-        // I = Interactions
-        // R = Responsiveness
-
-        if (authUser && period && platform) setIsLoading(true); {
+        if (authUser && period && platform) {
+            setIsLoading(true);
             getFairScoreChartData(activeTab).then((v) => {
                 const groupedUsername = Object.entries(groupDataByUsername(v))?.map((e) => {
-                    return {
-                        label: e[0],
-                        value: e[0]
-                    }
+                    return { value: e[0], label: e[0] };
                 });
                 setFairScoreData(v);
-                setOptions(groupedUsername)
+                setOptions(groupedUsername);
                 setIsLoading(false);
             });
         }
@@ -442,7 +435,7 @@ const FairScoreCard = ({ platform, description }) => {
 
     useEffect(() => {
         if (!selectedCompetitor?.length) {
-            setSelectedCompetitor(options);
+            setSelectedCompetitor([{ label: selectedAccount, value: selectedAccount }]);
         }
     }, [options]);
 
@@ -558,8 +551,6 @@ const FairScoreCard = ({ platform, description }) => {
             }
 
             if (activeTab == "Activities") {
-                const dateArray = buildLabels(period?.start, period?.end);
-                const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
                 const filterByUsername: any = selectedCompetitor?.map((v: any) => {
                     return v?.value;
                 });
@@ -568,11 +559,11 @@ const FairScoreCard = ({ platform, description }) => {
                     filterByUsername: filterByUsername,
                 };
 
-                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData);
 
                 let datasetsBuilded = buildDatasets(
                     dataGroupedByUsername,
-                    labels,
+                    filterByUsername, // Use usernames as labels
                     datasetsBuilderOption,
                 );
 
@@ -590,12 +581,10 @@ const FairScoreCard = ({ platform, description }) => {
                     };
                 });
                 const limitDatasets = datasetsWithColor.slice(0, 5);
-                drawRadarChart(labels, selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
+                drawRadarChart(filterByUsername, selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
             }
 
             if (activeTab == "Interactions") {
-                const dateArray = buildLabels(period?.start, period?.end);
-                const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
                 const filterByUsername: any = selectedCompetitor?.map((v: any) => {
                     return v?.value;
                 });
@@ -604,11 +593,11 @@ const FairScoreCard = ({ platform, description }) => {
                     filterByUsername: filterByUsername,
                 };
 
-                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData);
 
                 let datasetsBuilded = buildDatasets(
                     dataGroupedByUsername,
-                    labels,
+                    filterByUsername, // Use usernames as labels
                     datasetsBuilderOption,
                 );
 
@@ -620,7 +609,6 @@ const FairScoreCard = ({ platform, description }) => {
                     return {
                         ...v,
                         backgroundColor: createGradient(chartRef),
-                        // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
                         borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
                         pointBackgroundColor: generateColors(index),
                     };
@@ -628,7 +616,7 @@ const FairScoreCard = ({ platform, description }) => {
 
                 const limitDatasets = datasetsWithColor.slice(0, 5);
 
-                drawBarChart(labels, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
+                drawBarChart(filterByUsername, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
             }
 
             if (activeTab == "Responsiveness") {
@@ -716,26 +704,28 @@ const FairScoreCard = ({ platform, description }) => {
                         </div>
 
                         {/* Tabs */}
-                        <div className="flex space-x-4 mb-4">
+                        <div className="flex space-x-2 mb-4 border-b border-gray-300">
                             {["FAIR", "Followers", "Activities", "Interactions", "Responsiveness"].map((tab) => (
                                 <TooltipIcon key={tab} description={tabDescriptions[tab]}>
                                     <button
-                                        className={`px-4 py-2 ${activeTab === tab
-                                            ? "text-blue-500 border-b-2 border-blue-500"
-                                            : "text-gray-500"
+                                        className={`px-4 py-2 rounded-t-md font-medium transition-all
+                                                ${activeTab === tab
+                                                ? "bg-gray-100 dark:bg-gray-800 text-blue-500 border-x border-t border-blue-500 border-b-transparent"
+                                                : "text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700"
                                             }`}
                                         onClick={() => handleTabChange(tab)}
-                                    >
+                                        >
                                         {tab === "FAIR" ? tab : tab.slice(0, 1)}
                                     </button>
                                 </TooltipIcon>
                             ))}
                         </div>
+
                     </div>
 
                     {/* Kanan */}
                     <div className="absolute top-0 right-0">
-                        <TooltipIcon description="Artificial Intelligence which help you to summarize your current performance">
+                        <TooltipIcon description="Summarize the graphic ask Lysa">
                             <button
                                 onClick={fetchAISummary}
                                 className="flex items-center justify-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"

@@ -1,20 +1,67 @@
 "use client";
 
-import { useState } from "react";
+import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import request from "@/utils/request";
 import Nav from "@/components/Nav";
 import ModeToggle from "@/components/ModeToggle";
 import UserNav from "@/components/UserNav";
 import { Dot } from "lucide-react";
 import { getRoutesByRole } from "@/config/routes";
-import { TooltipProvider } from "@/components/ui/tooltip"; // Pastikan path benar!
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { usePerformanceContext } from "@/context/PerformanceContext";
+import dynamic from "next/dynamic";
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const OurDatePicker = dynamic(() => import("@/components/OurDatePicker"), { ssr: false });
+    const OurSelect = dynamic(() => import("@/components/OurSelect"), { ssr: false });
+    
     const { authUser } = useAuth();
+    const { platform } = useParams();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    const [accountOptions, setAccountOptions] = useState([]);
+        // const [competitorOptions, setCompetitorOptions] = useState([]);
+        const [isShowDatepicker, setIsShowDatepicker] = useState(false);
+        // const [showCombinedChart, setShowCombinedChart] = useState(false);
+    
+        const {
+            // period,
+            // selectedCompetitor,
+            selectedAccount,
+            // setPeriod,
+            // setSelectedCompetitor,
+            setSelectedAccount,
+        } = usePerformanceContext();
+
     const routes = getRoutesByRole(authUser?.role);
+
+    useEffect(() => {
+            const fetchUsernames = async () => {
+                if (authUser?.username) {
+                    try {
+                        const response = await request.get(
+                            `/getAllUsername?kategori=${authUser.username}&platform=${platform}`
+                        );
+                        const usernames = response.data?.data || [];
+                        const formattedOptions = usernames.map((user: { username: string }) => ({
+                            label: user.username,
+                            value: user.username,
+                        }));
+    
+                        setAccountOptions(formattedOptions);
+                        // setCompetitorOptions(formattedOptions);
+                    } catch (error) {
+                        console.error("Error fetching usernames:", error);
+                    }
+                }
+            };
+    
+            fetchUsernames();
+        }, [authUser, platform]);
 
     return (
         <TooltipProvider>
@@ -34,9 +81,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="w-full h-full bg-gray-200 dark:bg-gray-800">
                     {/* Header */}
                     <div className="flex items-center justify-between bg-gray-200 dark:bg-gray-800">
-                        <div className="flex h-[50px] w-[400px] items-center px-3 pt-2 font-bold">
-                            <Dot className="mr-2 h-3 w-3 rounded-full bg-[#0ED1D6] text-[#0ED1D6]" />
-                            {authUser?.username || ""}
+                        <div className="flex w-full z-50 items-center px-3 pt-3 pb-2">
+                            {/* <Dot className="mr-2 h-3 w-3 rounded-full bg-[#0ED1D6] text-[#0ED1D6]" /> */}
+                            {/* {authUser?.username || ""} */}
+                            
+                            {/* SELECTIONS */}
+                            <div className="flex justify-between gap-5 items-center">
+                                    <OurSelect
+                                        options={accountOptions}
+                                        value={accountOptions.find((option) => option.value === selectedAccount)}
+                                        onChange={(selected) => setSelectedAccount(selected?.value)}
+                                        isMulti={false}
+                                        placeholder="Type / Select Username"
+                                    />
+                                    <OurDatePicker
+                                        disabled={!selectedAccount}
+                                        onClick={() => setIsShowDatepicker(!isShowDatepicker)}
+                                    />
+                            </div>
+
                         </div>
                         <div className="ml-auto mr-2 mt-1 flex w-full items-center justify-end space-x-2 text-lg">
                             <ModeToggle />

@@ -64,7 +64,6 @@ export const buildDatasets = (groupedData, labels, options: any) => {
 			return {username, userData, totalValue, lastValue};
 		});
 
-
 	sortedData.sort((a, b) => b.lastValue - a.lastValue)
 		.slice(0, 5);
 
