@@ -18,7 +18,6 @@ const TopRankingCard = ({ platform = null, description }) => {
     const [fairRankingData, setFairRankingData] = useState([]);
     const [avatars, setAvatars] = useState({});
     const [stickyProfiles, setStickyProfiles] = useState([]);
-    // const [selectedCompetitors, setSelectedCompetitors] = useState([]);
 
     const monthLabel = `${moment(period?.end).format("MMMM")}`;
 
@@ -111,20 +110,32 @@ const TopRankingCard = ({ platform = null, description }) => {
         return { icon: <FaEquals />, color: "text-yellow-500", description: "Your FAIR Score remains the same compared last month" };
     };
 
-    const toggleCompetitorSelection = (username) => {
+    interface Competitor {
+        value: string;
+    }
+
+    const toggleCompetitorSelection = (username: string) => {
         if (username === selectedAccount) return;
 
-        const isSelected = selectedCompetitor.some((competitor) => competitor.value === username);
+        setSelectedCompetitor((prev: Competitor[]) => {
+            const isSelected = prev.some((competitor) => competitor.value === username);
 
-        if (isSelected) {
-            setSelectedCompetitor((prev) => prev.filter((competitor) => competitor.value !== username));
-        } else if (selectedCompetitor.length < 6) {
-            setSelectedCompetitor((prev) => [...prev, { value: username }]);
-        }
+            if (isSelected) {
+                return prev.filter((competitor) => competitor.value !== username);
+            } else if (prev.length < 5) {
+                return [...prev, { value: username }];
+            }
+
+            return prev;
+        });
     };
 
-    const isSelectable = (username) =>
-        selectedCompetitor.length < 6 || selectedCompetitor.some((competitor) => competitor.value === username) || username === selectedAccount;
+    interface SelectableProps {
+        username: string;
+    }
+
+    const isSelectable = (username: SelectableProps['username']): boolean =>
+        selectedCompetitor.length < 5 || selectedCompetitor.some((competitor: Competitor) => competitor.value === username) || username === selectedAccount;
 
     // const displayedProfiles = fairRankingData.filter(
     //     (item) => item.username === selectedAccount || selectedCompetitor.some((competitor) => competitor.value === item.username)
@@ -144,8 +155,9 @@ const TopRankingCard = ({ platform = null, description }) => {
                 <div className="mr-1 font-bold">FAIR Score</div>
             </div>
 
+
             {/* Ranking List */}
-            <div className="overflow-y-scroll h-[700px]">
+            <div className="overflow-y-auto h-[700px] relative">
                 {loading ? (
                     <OurLoading />
                 ) : fairRankingData.length === 0 ? (
@@ -158,98 +170,97 @@ const TopRankingCard = ({ platform = null, description }) => {
                         const isDisabled = !isSelected && !isSelectable(item.username);
 
                         return (
-                            <div
-                                key={item.username}
-                                className={`
-                                    max-h-[75px] mb-2 p-3 flex items-center justify-between rounded-md cursor-pointer transition-transform duration-150 ease-in-out hover:scale-95 active:scale-90
+                                <div
+                                    key={`${item.username}-${index}`}
+                                    className={`
+                                    max-h-[75px] mb-2 p-3 flex items-center justify-between rounded-md cursor-pointer transition-transform duration-150 ease-in-out hover:scale-90 active:scale-85 scale-95
                                     ${item.username === selectedAccount ? 'sticky top-0 bottom-0 bg-gray-500 text-[#0ED1D6] z-50' : ""}
                                     ${isDisabled ? 'opacity-30 pointer-events-none' : 'hover:bg-gray-300 dark:hover:bg-gray-400'}
                                     ${isSelected && item.username !== selectedAccount ? 'sticky top-0 bottom-0 bg-gray-700 z-30' : ''}
                                 `}
-                                onClick={() => toggleCompetitorSelection(item.username)}
-                                style={{
-                                    border: isSelected
-                                        ? `2px solid ${
-                                            item.username === selectedAccount
+                                    onClick={() => toggleCompetitorSelection(item.username)}
+                                    style={{
+                                        border: isSelected
+                                            ? `2px solid ${item.username === selectedAccount
                                                 ? primaryColors[0]
                                                 : primaryColors[selectedCompetitor.findIndex((competitor) => competitor.value === item.username) + 1]
-                                        }`
-                                        : 'none'
-                                }}
-                            >
+                                            }`
+                                            : 'none',
+                                    }}
+                                >
+                                    
+                                    {/* Indikator perubahan posisi (di atas & mepet ke kiri) */}
+                                    <div className="absolute left-0 top-0 w-10 h-10 flex items-center justify-center">
+                                        {(item.username === selectedAccount || selectedCompetitor.some((comp) => comp.value === item.username)) && (() => {
+                                            const { delta, icon, color } = getPositionChange(item.current_rank, item.previous_rank);
+                                            return (
+                                                <div className={`text-[10px] font-medium ${color} flex gap-1 items-center justify-between`}>
+                                                    <span>{delta}</span>
+                                                    <span className="text-[12px]">{icon}</span>
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
 
-                                {/* Ranking & Icon */}
-                                <div className="flex items-center w-[15%] text-right">
-                                    <div className="w-6 text-[16px]"
-                                        dangerouslySetInnerHTML={{ __html: getMedal(index) }}></div>
-                                </div>
+                                    {/* Ranking & Icon */}
+                                    <div className="ml-3 relative flex items-center w-[15%] text-right">
+                                        {/* Wrapper untuk Ranking dan Indikator Posisi */}
+                                        <div className="relative flex flex-col items-center">
+                                            {/* Ranking Number / Medal */}
+                                            <div
+                                                className={`w-6 text-[16px]`}
+                                                dangerouslySetInnerHTML={{ __html: getMedal(index) }}
+                                            />
+                                        </div>
+                                    </div>
 
-                                {/* Username & Avatar */}
-                                <div className="flex items-center flex-1 min-w-0 gap-x-2">
-                                    <img
-                                        src={avatars[item?.username] || '/default-avatar.png'}
-                                        className="w-9 h-9 object-cover rounded-full border border-gray-300"
-                                        alt={item?.username}
-                                    />
-                                    <div className="">
-                                        <div className="text-[14px] font-semibold truncate w-40">{item?.username}</div>
-                                        <div className="text-[11px] text-[#0ED1D6] truncate w-40">
-                                            <button
-                                                className="hover:text-gray-500 p-1 rounded dark:bg-gray-800 border-none cursor-pointer w-full"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    window.open(
-                                                        platform === "Instagram"
-                                                            ? `https://www.instagram.com/${item?.username}`
-                                                            : platform === "TikTok"
-                                                                ? `https://www.tiktok.com/@${item?.username}`
-                                                                : "#",
-                                                        "_blank"
-                                                    );
-                                                }}
-                                            >
-                                                View profile
-                                            </button>
+                                    {/* Username & Avatar */}
+                                    <div className="ml-1 flex items-center flex-1 min-w-0 gap-x-2">
+                                        <img
+                                            src={avatars[item?.username] || '/default-avatar.png'}
+                                            className="w-9 h-9 object-cover rounded-full border border-gray-300"
+                                            alt={item?.username}
+                                        />
+                                        <div className="ml-1">
+                                            <div className="text-[14px] font-semibold truncate w-40">{item?.username}</div>
+                                            <div className="text-[11px] text-[#0ED1D6] truncate w-40">
+                                                <button
+                                                    className="hover:text-gray-500 p-1 rounded dark:bg-gray-800 border-none cursor-pointer w-[85%]"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        window.open(
+                                                            platform === "Instagram"
+                                                                ? `https://www.instagram.com/${item?.username}`
+                                                                : platform === "TikTok"
+                                                                    ? `https://www.tiktok.com/@${item?.username}`
+                                                                    : "#",
+                                                            "_blank"
+                                                        );
+                                                    }}
+                                                >
+                                                    View profile
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Score & Position Change */}
+                                    <div className="w-20 text-right flex flex-col items-end">
+                                        {/* Skor */}
+                                        <div
+                                            className={`font-bold
+                                            ${index === 0 ? "text-[16px]" :
+                                                    index === 1 ? "text-[16px]" :
+                                                        index === 2 ? "text-[16px]" :
+                                                            "text-[16px]"
+                                                }
+                                            ${item.username === selectedAccount ? 'text-[#0ED1D6]' : ''}
+                                        `}
+                                        >
+                                            {scoreFormatter(item?.fair_score)}
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Score & Position Change */}
-                                <div className="w-20 text-right flex flex-col items-end">
-                                    {/* Skor */}
-                                    <div
-                                        className={`font-bold
-                                            ${index === 0 ? "text-[16px]" :
-                                            index === 1 ? "text-[16px]" :
-                                                index === 2 ? "text-[16px]" :
-                                                    "text-[16px]"
-                                        }
-                                            ${item.username === selectedAccount ? 'text-[#0ED1D6]' : ''}
-                                        `}
-                                    >
-                                        {scoreFormatter(item?.fair_score)}
-                                    </div>
-
-                                    {/* Perubahan Posisi */}
-                                    {item.username === selectedAccount && (() => {
-                                        const {
-                                            delta,
-                                            icon,
-                                            color,
-                                            description
-                                        } = getPositionChange(item.current_rank, item.previous_rank);
-                                        return (
-                                            <TooltipIcon description={description}>
-                                                <div
-                                                    className={`text-[14px] font-medium ${color} mt-1 flex items-center justify-end gap-1`}>
-                                                    <span>{delta}</span>
-                                                    <span className="text-[18px]">{icon}</span>
-                                                </div>
-                                            </TooltipIcon>
-                                        );
-                                    })()}
-                                </div>
-                            </div>
                         );
                     }))
                 }

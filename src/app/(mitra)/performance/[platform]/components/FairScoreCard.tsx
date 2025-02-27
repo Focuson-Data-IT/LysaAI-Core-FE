@@ -38,7 +38,7 @@ const FairScoreCard = ({ platform, description }) => {
     const [fairScoreData, setFairScoreData] = useState<any>(null);
     const [options, setOptions] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<string>("FAIR");
-    const [limitDatasets, setLimitDatasets] = useState(null);
+    const [limitDatasets, setLimitDatasets] = useState<any>(null);
 
 
     const getFairScoreChartData = async (label: string) => {
@@ -82,17 +82,6 @@ const FairScoreCard = ({ platform, description }) => {
             }
 
             if (ctx) {
-                const allDataPoints = datasets.flatMap((dataset) => dataset.data);
-
-                const sortedData = [...allDataPoints].sort((a, b) => a - b);
-                const median =
-                    sortedData.length % 2 === 0
-                        ? (sortedData[sortedData.length / 2 - 1] + sortedData[sortedData.length / 2]) / 2
-                        : sortedData[Math.floor(sortedData.length / 2)];
-
-                const totalSum = allDataPoints.reduce((sum, val) => sum + val, 0);
-                const average = totalSum / allDataPoints.length;
-
                 const newChart: any = new Chart(ctx, {
                     type: "line",
                     data: {
@@ -152,43 +141,8 @@ const FairScoreCard = ({ platform, description }) => {
                             },
                         },
                     },
-                    plugins: [
-                        {
-                            id: "customLabels",
-                            // afterDatasetsDraw(chart) {
-                            //     const { ctx } = chart;
-                            //     ctx.save();
-                            //     const datasets = chart.data.datasets;
-                            //     const chartArea = chart.chartArea;
-
-                            //     datasets.forEach((dataset, datasetIndex) => {
-                            //         const lastPoint = dataset.data[dataset.data.length - 1];
-                            //         const meta = chart.getDatasetMeta(datasetIndex);
-
-                            //         if (meta.data.length) {
-                            //             const lastElement = meta.data[meta.data.length - 1];
-                            //             const x = lastElement.x;
-                            //             const y = lastElement.y - 10;
-
-                            //             ctx.font = "12px Arial";
-                            //             ctx.fillStyle = dataset.borderColor.toString() || "black";
-                            //             ctx.textAlign = "center";
-                            //             ctx.textBaseline = "bottom";
-
-                            //             ctx.fillText(
-                            //                 dataset.label || `Data ${datasetIndex + 1}`,
-                            //                 x,
-                            //                 y
-                            //             );
-                            //         }
-                            //     });
-
-                            //     ctx.restore();
-                            // },
-                        },
-                    ],
+                    plugins: [],
                 });
-
                 setFairScoreChart(newChart);
             }
         }
@@ -434,224 +388,149 @@ const FairScoreCard = ({ platform, description }) => {
     }, [authUser, period, platform, activeTab]);
 
     useEffect(() => {
-        if (!selectedCompetitor?.length) {
-            setSelectedCompetitor([{ label: selectedAccount, value: selectedAccount }]);
+        if (fairScoreData && selectedAccount) {
+            const groupedUsernames = Object.entries(groupDataByUsername(fairScoreData))?.map(([key]) => key);
+    
+            const validSelectedCompetitors = selectedCompetitor.filter(comp =>
+                groupedUsernames.includes(comp.value)
+            );
+    
+            if (validSelectedCompetitors.length === 0) {
+                setSelectedCompetitor([{ label: selectedAccount, value: selectedAccount }]);
+            } else if (JSON.stringify(validSelectedCompetitors) !== JSON.stringify(selectedCompetitor)) {
+                setSelectedCompetitor(validSelectedCompetitors);
+            }
         }
-    }, [options]);
+    }, [fairScoreData, selectedAccount]);    
 
     useEffect(() => {
-        if (selectedAccount) {
-            if (activeTab == "FAIR") {
+        if (selectedAccount && fairScoreData) {
+            if (activeTab === "FAIR") {
                 const dateArray = buildLabels(period?.start, period?.end);
                 const labels = dateArray.map((date: any) => date.format("YYYY-MM-DD"));
-                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
-                    return v?.value;
-                });
-
-                let datasetsBuilderOption = {
-                    filterByUsername: filterByUsername,
-                };
-
-                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
-
-                let datasetsBuilded = buildDatasets(
-                    dataGroupedByUsername,
-                    labels,
-                    datasetsBuilderOption,
-                );
-
-                const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+                const filterByUsername = selectedCompetitor.map((v) => v.value);
+    
+                let datasetsBuilderOption = { filterByUsername };
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData);
+    
+                let datasetsBuilded = buildDatasets(dataGroupedByUsername, labels, datasetsBuilderOption);
+    
+                const datasetsWithColor = datasetsBuilded.map((v) => {
+                    const competitorIndex = selectedCompetitor.findIndex((competitor) => competitor.value === v.label);
+                    
                     return {
                         ...v,
                         backgroundColor: createGradient(chartRef),
-                        borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
-                        pointBackgroundColor: generateColors(index),
-                        borderWidth: v.label == selectedAccount ? 5 : 3,
+                        borderColor: v.label === selectedAccount 
+                            ? primaryColors[0] 
+                            : primaryColors[competitorIndex + 1] || primaryColors[1], // Fallback jika tidak ditemukan
+                        pointBackgroundColor: primaryColors[competitorIndex + 1] || primaryColors[1],
+                        borderWidth: v.label === selectedAccount ? 5 : 3,
                     };
-                });
-
-                if (limitDatasets?.length === 0 || limitDatasets === null) {
-                    setLimitDatasets(datasetsWithColor.slice(0, 5));
-
-                    drawLineChart(
-                        labels,
-                        !datasetsWithColor.slice(0, 5)?.find(dataset => dataset.label === selectedAccount)
-                            ? [...datasetsWithColor.map((v, index) => {
-                                if (v.label === selectedAccount) {
-                                    return {
-                                        ...v,
-                                        borderWidth: 5,
-                                        borderColor: generateColors(index)
-                                    }
-                                } else {
-                                    return {
-                                        ...v,
-                                        borderWidth: 3,
-                                        borderColor: generateColors(index, "33")
-                                    };
-                                }
-                            }).slice(0, 5), datasetsWithColor.find(dataset => dataset.label === selectedAccount)]
-                            : datasetsWithColor.slice(0, 5));
-                } else {
-                    drawLineChart(
-                        labels,
-                        !limitDatasets?.find(dataset => dataset.label === selectedAccount)
-                            ? [...limitDatasets.map((v, index) => {
-                                if (v.label === selectedAccount) {
-                                    return {
-                                        ...v,
-                                        borderWidth: 5,
-                                        borderColor: generateColors(index)
-                                    }
-                                } else {
-                                    return {
-                                        ...v,
-                                        borderWidth: 3,
-                                        borderColor: generateColors(index, "33")
-                                    };
-                                }
-                            }), datasetsWithColor.find(dataset => dataset.label === selectedAccount)]
-                                .filter(dataset => selectedCompetitor.some(comp => comp.value === dataset.label))
-                            : limitDatasets.filter(dataset => selectedCompetitor.some(comp => comp.value === dataset.label)));
-                }
+                });                
+    
+                drawLineChart(
+                    labels,
+                    datasetsWithColor.filter((dataset) => 
+                        selectedCompetitor.some((comp) => comp.value === dataset.label)
+                    )
+                );
             }
 
-            if (activeTab == "Followers") {
-                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
-                    return v?.value;
-                });
-
-                let datasetsBuilderOption = {
-                    filterByUsername: filterByUsername,
-                };
-
-                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
-
-                let datasetsBuilded = buildDatasetsPie(
-                    dataGroupedByUsername,
-                    datasetsBuilderOption,
-                );
-
-                // TODO: urutkan dulu berdasarkan data labels fair score
+            if (activeTab === "Followers") {
+                const filterByUsername = selectedCompetitor.map((v) => v.value);
+                const datasetsBuilderOption = { filterByUsername };
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData);
+            
+                let datasetsBuilded = buildDatasetsPie(dataGroupedByUsername, datasetsBuilderOption);
+            
                 const sortedIndices = datasetsBuilded.labels.slice(0, 5).map(label =>
                     datasetsBuilded.labels.indexOf(label)
                 );
-
+            
                 const limitDatasets = {
                     labels: sortedIndices.map(index => datasetsBuilded.labels[index]),
                     datasets: [{
-                        backgroundColor: sortedIndices.map(index =>
-                            datasetsBuilded.labels[index] == selectedAccount ? generateColors(index) : generateColors(index, "33")
-                        ),
+                        backgroundColor: sortedIndices.map(index => {
+                            const competitorIndex = selectedCompetitor.findIndex((comp) => comp.value === datasetsBuilded.labels[index]);
+                            return datasetsBuilded.labels[index] === selectedAccount 
+                                ? primaryColors[0] 
+                                : primaryColors[competitorIndex + 1] || primaryColors[1];
+                        }),
                         data: sortedIndices.map(index => datasetsBuilded.datasets[0].data[index])
                     }]
                 };
-
+            
                 drawPieChart(selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
             }
-
-            if (activeTab == "Activities") {
-                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
-                    return v?.value;
-                });
-
-                let datasetsBuilderOption = {
-                    filterByUsername: filterByUsername,
-                };
-
+            
+            if (activeTab === "Activities") {
+                const filterByUsername = selectedCompetitor.map((v) => v.value);
+                const datasetsBuilderOption = { filterByUsername };
                 const dataGroupedByUsername = groupDataByUsername(fairScoreData);
-
-                let datasetsBuilded = buildDatasets(
-                    dataGroupedByUsername,
-                    filterByUsername, // Use usernames as labels
-                    datasetsBuilderOption,
-                );
-
-                const generateColors = (index, opacity?) => {
-                    return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
-                };
-
-                const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+                let datasetsBuilded = buildDatasets(dataGroupedByUsername, filterByUsername, datasetsBuilderOption);
+            
+                const datasetsWithColor = datasetsBuilded.map((v) => {
+                    const competitorIndex = selectedCompetitor.findIndex((comp) => comp.value === v.label);
                     return {
-                        label: v.label,
-                        data: v.data,
-                        fill: true,
-                        backgroundColor: v.label == selectedAccount ? generateColors(index, "B3") : generateColors(index, "20"),
-                        borderColor: v.label == selectedAccount ? generateColors(index, "B3") : generateColors(index, "20"),
+                        ...v,
+                        backgroundColor: v.label === selectedAccount 
+                            ? primaryColors[0] + "B3" 
+                            : primaryColors[competitorIndex + 1] || primaryColors[1] + "20",
+                        borderColor: v.label === selectedAccount 
+                            ? primaryColors[0] + "B3" 
+                            : primaryColors[competitorIndex + 1] || primaryColors[1] + "20",
                     };
                 });
+            
                 const limitDatasets = datasetsWithColor.slice(0, 5);
-                drawRadarChart(filterByUsername, selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
+                drawRadarChart(filterByUsername, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
             }
-
-            if (activeTab == "Interactions") {
-                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
-                    return v?.value;
-                });
-
-                let datasetsBuilderOption = {
-                    filterByUsername: filterByUsername,
-                };
-
+            
+            if (activeTab === "Interactions") {
+                const filterByUsername = selectedCompetitor.map((v) => v.value);
+                const datasetsBuilderOption = { filterByUsername };
                 const dataGroupedByUsername = groupDataByUsername(fairScoreData);
-
-                let datasetsBuilded = buildDatasets(
-                    dataGroupedByUsername,
-                    filterByUsername, // Use usernames as labels
-                    datasetsBuilderOption,
-                );
-
-                const generateColors = (index, opacity?) => {
-                    return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
-                };
-
-                const datasetsWithColor = datasetsBuilded?.map((v: any, index: number) => {
+                let datasetsBuilded = buildDatasets(dataGroupedByUsername, filterByUsername, datasetsBuilderOption);
+            
+                const datasetsWithColor = datasetsBuilded.map((v) => {
+                    const competitorIndex = selectedCompetitor.findIndex((comp) => comp.value === v.label);
                     return {
                         ...v,
                         backgroundColor: createGradient(chartRef),
-                        borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
-                        pointBackgroundColor: generateColors(index),
+                        borderColor: v.label === selectedAccount 
+                            ? primaryColors[0] 
+                            : primaryColors[competitorIndex + 1] || primaryColors[1] + "33",
+                        pointBackgroundColor: primaryColors[competitorIndex + 1] || primaryColors[1],
                     };
                 });
-
+            
                 const limitDatasets = datasetsWithColor.slice(0, 5);
-
                 drawBarChart(filterByUsername, selectedCompetitor.length > 5 ? datasetsWithColor : limitDatasets);
             }
-
-            if (activeTab == "Responsiveness") {
-                const filterByUsername: any = selectedCompetitor?.map((v: any) => {
-                    return v?.value;
-                });
-
-                let datasetsBuilderOption = {
-                    filterByUsername: filterByUsername,
-                };
-
-                const dataGroupedByUsername = groupDataByUsername(fairScoreData)
-
-                let datasetsBuilded = buildDatasetsPie(
-                    dataGroupedByUsername,
-                    datasetsBuilderOption,
-                );
-                const generateColors = (index, opacity?) => {
-                    return index < primaryColors.length ? primaryColors[index] + (opacity ? opacity : "") : "#BDC3C7" + (opacity ? opacity : "");
-                };
-
+            
+            if (activeTab === "Responsiveness") {
+                const filterByUsername = selectedCompetitor.map((v) => v.value);
+                const datasetsBuilderOption = { filterByUsername };
+                const dataGroupedByUsername = groupDataByUsername(fairScoreData);
+                let datasetsBuilded = buildDatasetsPie(dataGroupedByUsername, datasetsBuilderOption);
+            
                 const limitDatasets = {
                     labels: datasetsBuilded.labels.slice(0, 5),
                     datasets: [{
-                        backgroundColor: datasetsBuilded.datasets[0].backgroundColor.map((_, index) => {
-                            return datasetsBuilded.labels[index] == selectedAccount ? generateColors(index) : generateColors(index, "33")
-                        }
-                        ),
-                        borderColor: '#00FF00',
+                        backgroundColor: datasetsBuilded.labels.slice(0, 5).map((label) => {
+                            const competitorIndex = selectedCompetitor.findIndex((comp) => comp.value === label);
+                            return label === selectedAccount 
+                                ? primaryColors[0] 
+                                : primaryColors[competitorIndex + 1] || primaryColors[1] + "33";
+                        }),
+                        borderColor: "#00FF00",
                         data: datasetsBuilded.datasets[0].data.slice(0, 5)
                     }]
                 };
-
+            
                 drawPolarChart(selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
-            }
+            }            
         }
     }, [fairScoreData, selectedAccount, selectedCompetitor, activeTab]);
 
