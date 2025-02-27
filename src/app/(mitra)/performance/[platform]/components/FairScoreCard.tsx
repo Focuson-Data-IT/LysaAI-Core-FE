@@ -74,7 +74,7 @@ const FairScoreCard = ({ platform, description }) => {
     };
 
     const drawLineChart = (labels: any, datasets: any) => {
-        if (chartRef && chartRef.current && datasets.data) {
+        if (chartRef && chartRef.current) {
             const ctx = chartRef.current?.getContext("2d");
 
             if (fairScoreChart) {
@@ -167,15 +167,6 @@ const FairScoreCard = ({ platform, description }) => {
             if (ctx) {
                 const limitedPieDatasets = data.datasets[0].data.slice(0, 5);
                 console.info(data)
-                // console.info(limitDatasets)
-
-                // limitedPieDatasets
-                //     .map(([username, userData]) => {
-                //         const totalValue = userData.reduce((sum, item) => sum + parseFloat(String(item.value || 0)), 0);
-                //         return { username, totalValue };
-                //     })
-                //     .sort((a, b) => b.totalValue - a.totalValue)
-                //     .slice(0, 10);
 
                 const newChart: any = new Chart(ctx, {
                     type: "pie",
