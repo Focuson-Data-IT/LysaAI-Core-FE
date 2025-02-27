@@ -13,6 +13,7 @@ interface Route {
     link: string;
     icon?: React.ElementType;
     children?: Route[];
+    isStable?: boolean;
 }
 
 interface SidebarProps {
@@ -69,39 +70,42 @@ export default function Nav({ isCollapsed, setIsCollapsed }: SidebarProps) {
             <div data-collapsed={isCollapsed} className="group flex flex-col gap-2 py-2 flex-grow">
                 <nav className="grid gap-2 px-2">
                     {routes.map((route) => {
-                        const isActive = isRouteActiveParent(pathname, route.link, route.children);
-                        const isLoading = isRouteLoading(route.link);
-    
-                        return (
-                            <div key={route.link} className="relative">
-                                {isCollapsed ? (
-                                    <div className="flex justify-center">
-                                        <NavItemTooltips isActive={isActive} isLoading={isLoading} route={route} />
-                                    </div>
-                                ) : (
-                                    <NavItemButton isActive={isActive} isLoading={isLoading} route={route} />
-                                )}
-    
-                                {route.children && route.children.length > 0 && isActive && (
-                                    <div className={`ml-5 transition-all duration-300 ${isCollapsed ? "hidden" : "block"}`}>
-                                        {route.children.map((routeChild) => {
-                                            const isActiveChild = isRouteActiveChild(pathname, routeChild.link);
-                                            return (
-                                                <div key={routeChild.link}>
-                                                    {isCollapsed ? (
-                                                        <div className="flex justify-center">
-                                                            <NavItemTooltips isActive={isActiveChild} isLoading={isLoading} route={routeChild} isChild />
+                        console.info(route)
+                            const isActive = isRouteActiveParent(pathname, route.link, route.children);
+                            const isLoading = isRouteLoading(route.link);
+
+                            return (
+                                <div key={route.link} className="relative">
+                                    {isCollapsed ? (
+                                        <div className="flex justify-center">
+                                            <NavItemTooltips isActive={isActive} isLoading={isLoading} route={route} />
+                                        </div>
+                                    ) : (
+                                        <NavItemButton isActive={isActive} isLoading={isLoading} route={route} />
+                                    )}
+
+                                    {route.children && route.children.length > 0 && isActive && (
+                                        <div className={`ml-5 transition-all duration-300 ${isCollapsed ? "hidden" : "block"}`}>
+                                            {route.children.map((routeChild) => {
+                                                if (routeChild?.isStable !== false) {
+                                                    const isActiveChild = isRouteActiveChild(pathname, routeChild.link);
+                                                    return (
+                                                        <div key={routeChild.link}>
+                                                            {isCollapsed ? (
+                                                                <div className="flex justify-center">
+                                                                    <NavItemTooltips isActive={isActiveChild} isLoading={isLoading} route={routeChild} isChild />
+                                                                </div>
+                                                            ) : (
+                                                                <NavItemButton isActive={isActiveChild} isLoading={isLoading} route={routeChild} isChild />
+                                                            )}
                                                         </div>
-                                                    ) : (
-                                                        <NavItemButton isActive={isActiveChild} isLoading={isLoading} route={routeChild} isChild />
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        );
+                                                    );
+                                                }
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            );
                     })}
                 </nav>
             </div>

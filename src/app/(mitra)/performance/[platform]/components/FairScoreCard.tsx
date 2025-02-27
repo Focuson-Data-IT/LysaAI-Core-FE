@@ -74,7 +74,7 @@ const FairScoreCard = ({ platform, description }) => {
     };
 
     const drawLineChart = (labels: any, datasets: any) => {
-        if (chartRef && chartRef.current) {
+        if (chartRef && chartRef.current && datasets.data) {
             const ctx = chartRef.current?.getContext("2d");
 
             if (fairScoreChart) {
