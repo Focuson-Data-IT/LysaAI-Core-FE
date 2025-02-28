@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
-import PostsTable from "./components/PostDetailCard";
+import PostsTable from "./components/ContentPerformance";
 import { FaInstagram, FaTiktok, FaColumns, FaLayerGroup } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { usePerformanceContext } from "@/context/PerformanceContext";
