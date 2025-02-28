@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
-import PostsTable from "./components/PostDetailCard";
+import PostsTable from "./components/ContentPerformance";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
 // import OurDatePicker from "@/components/OurDatePicker";
 // import OurSelect from "@/components/OurSelect";
