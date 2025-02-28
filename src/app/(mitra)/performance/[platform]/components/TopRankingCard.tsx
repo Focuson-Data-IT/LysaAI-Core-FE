@@ -122,7 +122,7 @@ const TopRankingCard = ({ platform = null, description }) => {
 
             if (isSelected) {
                 return prev.filter((competitor) => competitor.value !== username);
-            } else if (prev.length < 5) {
+            } else if (prev.length < 6) {
                 return [...prev, { value: username }];
             }
 
@@ -135,7 +135,7 @@ const TopRankingCard = ({ platform = null, description }) => {
     }
 
     const isSelectable = (username: SelectableProps['username']): boolean =>
-        selectedCompetitor.length < 5 || selectedCompetitor.some((competitor: Competitor) => competitor.value === username) || username === selectedAccount;
+        selectedCompetitor.length < 6 || selectedCompetitor.some((competitor: Competitor) => competitor.value === username) || username === selectedAccount;
 
     // const displayedProfiles = fairRankingData.filter(
     //     (item) => item.username === selectedAccount || selectedCompetitor.some((competitor) => competitor.value === item.username)
