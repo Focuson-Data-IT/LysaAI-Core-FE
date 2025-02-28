@@ -14,6 +14,7 @@ import { FaUserCircle } from "react-icons/fa"
 import TooltipIcon from "@/components/TooltipIcon";
 import { IoInformationCircle } from "react-icons/io5";
 import { getIconByLabel } from "@/components/ui/iconHelper";
+import OurInput from "@/components/OurInput";
 
 interface Post {
     username: string;
@@ -49,6 +50,7 @@ const PostsTable = ({ platform = null }) => {
     const [perPage] = useState(5); // Default 5 per load
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [totalRows, setTotalRows] = useState(0);
 
     const [avatars, setAvatars] = useState<{ [key: string]: string | null }>({});
     const [searchQuery, setSearchQuery] = useState("");
@@ -59,68 +61,43 @@ const PostsTable = ({ platform = null }) => {
 
         setLoading(true);
         try {
-            const response = await request.get(`/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=${sortConfig.key}&direction=${sortConfig.direction}`);
+            const response = await request.get(
+                `/getAllPost?perPage=${perPage}&page=${currentPage}&platform=${platform}&kategori=${authUser?.username}&start_date=${period?.start}&end_date=${period?.end}&orderBy=${sortConfig.key}&direction=${sortConfig.direction}&username=${searchQuery}`);
 
             let newPosts = performanceBuilder(response.data?.data);
+
 
             // Hindari duplikasi dengan menyaring data yang sudah ada
             setPosts((prev) => {
                 const existingIds = new Set(prev.map((post) => post.post_code));
-                return [...prev, ...newPosts.filter((post) => !existingIds.has(post.post_code))];
+                return [...prev?.filter((v) => v.username.includes(searchQuery)), ...newPosts.filter((post) => !existingIds.has(post.post_code))];
             });
 
+            setTotalRows(response.data?.totalRows);
             setHasMore(response.data?.hasMore);
 
             // ✅ Pastikan `currentPage` bertambah setelah load sukses
-            setCurrentPage((prev) => prev + 1);
+            setCurrentPage((prev) => hasMore ? prev + 1 : prev);
 
         } catch (error) {
-            console.error("Error fetching posts:", error);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        const fetchAvatars = async () => {
-            const newAvatars = { ...avatars };
+    const getUsernames = async () => {
+        setLoading(true);
+        try {
+            const response = await request.get(
+                `/getAllSearchUsername?&platform=${platform}&kategori=${authUser?.username}&search=${searchQuery}`);
 
-            for (const post of posts) {
-                if (!newAvatars[post.username]) {
-                    try {
-                        console.log(`Fetching avatar for: ${post.username}`);
-
-                        const response = await request.get(
-                            `/getPictureData?kategori=${authUser?.username}&platform=${platform}&username=${post.username}`
-                        );
-
-                        console.log("Avatar response:", response.data);
-
-                        if (response.data?.data[0]?.profile_pic_url) {
-                            newAvatars[post.username] = `${response.data.data[0].profile_pic_url}`;
-                            console.log(`Avatar URL for ${post.username}:`, response.data.data[0].profile_pic_url);
-                        } else {
-                            console.warn(`No avatar found for ${post.username}`);
-                            newAvatars[post.username] = null;
-                        }
-                    } catch (error) {
-                        console.error("Error fetching avatar:", error);
-                        newAvatars[post.username] = null;
-                    }
-                }
-            }
-
-            setAvatars((prevAvatars) => ({ ...prevAvatars, ...newAvatars }));
-        };
-
-        if (posts.length > 0) {
-            console.log("Fetching avatars...");
-            fetchAvatars();
+            const newResponse = response.data?.data.map((username) => username.username);
+            return newResponse;
+        } catch (error) {
+        } finally {
+            setLoading(false);
         }
-
-        const filtered = posts.filter(post => post.username.toLowerCase().includes(searchQuery.toLowerCase()));
-        setFilteredPosts(filtered);
-    }, [searchQuery, posts]);
+    }
 
     // Handle sorting
     const requestSort = (key: string) => {
@@ -134,47 +111,73 @@ const PostsTable = ({ platform = null }) => {
         setHasMore(true); // Reset load more state
     };
 
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const bottom =
+            e.currentTarget.scrollHeight - e.currentTarget.scrollTop <=
+            e.currentTarget.clientHeight + 50;
+        if (bottom && !loading) {
+            setCurrentPage((prev) => hasMore ? prev + 1 : prev);
+            getPosts();
+        }
+    };
+
+    const getSearchResult = () => {
+        return ["test1", "test2"]
+    }
+
+    const fetchAvatars = async () => {
+        const newAvatars = { ...avatars };
+
+        for (const post of posts) {
+            if (!newAvatars[post.username]) {
+                try {
+                    const response = await request.get(
+                        `/getPictureData?kategori=${authUser?.username}&platform=${platform}&username=${post.username}`
+                    );
+
+                    if (response.data?.data[0]?.profile_pic_url) {
+                        newAvatars[post.username] = `${response.data.data[0].profile_pic_url}`;
+                    } else {
+                        newAvatars[post.username] = null;
+                    }
+                } catch (error) {
+                    newAvatars[post.username] = null;
+                }
+            }
+        }
+
+        setAvatars((prevAvatars) => ({ ...prevAvatars, ...newAvatars }));
+    };
+
     useEffect(() => {
-        if (authUser && period && platform && selectedCompetitor && sortConfig) setLoading(true); {
+        setCurrentPage(1)
+        if (authUser && period && platform && selectedCompetitor && sortConfig) {
+            setPosts([])
             getPosts().then(()=>{
                 setLoading(false);
             });
         }
-    }, [authUser, platform, period, selectedCompetitor, sortConfig]);
+    }, [authUser, platform, period, selectedCompetitor, sortConfig, searchQuery]);
 
     if (!authUser || !period || !platform || !selectedCompetitor) {
         return <OurLoading />;
     }
 
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const bottom =
-        e.currentTarget.scrollHeight - e.currentTarget.scrollTop <=
-        e.currentTarget.clientHeight + 50;
-        if (bottom && !loading) {
-            setCurrentPage((prev) => prev + 1);
-            getPosts();
-        }
-    };
-
-    const onLoadMore = () => {
-        setCurrentPage((prev) => prev + 1);
-        getPosts();
-    }
-
     return (
         <div className="box box-sizing overflow-x-hidden py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
             <div className="flex justify-between">
-                <div >
-                    <input
-                        type="text"
+                <div className={"z-100"}>
+                    <OurInput
                         placeholder="Search Username..."
-                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg ml-5"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        withSearchResult={true}
+                        searchResult={async () => await getUsernames()}
+                        setSearchQuery={setSearchQuery}
                     />
                 </div>
 
-                <div className="info flex justify-end items-center px-4 py-2 space-x-4 mr-5 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg">
+                <div className="z-1 info flex justify-end items-center px-4 py-2 space-x-4 mr-5 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg">
                     <TooltipIcon description="Post performance is measured based on the weight of engagement elements">
                         <IoInformationCircle size={18} className="cursor-pointer text-gray-500" />
                     </TooltipIcon>
@@ -197,7 +200,7 @@ const PostsTable = ({ platform = null }) => {
 
             </div>
 
-            <div className="m-3 table-content flex-grow overflow-y-auto max-h-[650px]" onScroll={handleScroll}>
+            <div className="z-1 m-3 table-content flex-grow overflow-y-auto max-h-[650px]" onScroll={hasMore ? handleScroll : undefined}>
                 <table className="w-full table-fixed border-collapse border-gray-300 dark:border-gray-700 p-2">
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">
@@ -221,10 +224,11 @@ const PostsTable = ({ platform = null }) => {
                                         onClick={() => requestSort(key)}
                                     >
                                         <div className="relative group flex justify-center items-center gap-2">
-                                        <TooltipIcon description={description}>
-                                            {label}
-                                        </TooltipIcon>
-                                            <span className="ml-1 flex">
+                                            <TooltipIcon description={description}>
+                                                {label}
+                                            </TooltipIcon>
+                                            <p>{description}</p>
+                                            <span className="ml-1 p-1 rounded flex hover:bg-[#050708]/80">
                                                 <span className="ml-1 flex">
                                                     {sortConfig.key === key && sortConfig.direction === "asc"
                                                         ? getIconByLabel("SortUp")
@@ -241,7 +245,7 @@ const PostsTable = ({ platform = null }) => {
                     </thead>
                     <tbody className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
                         {
-                            filteredPosts.length === 0 ? (
+                            posts?.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="text-center p-5">
                                         <OurEmptyData width={100} />
@@ -253,7 +257,7 @@ const PostsTable = ({ platform = null }) => {
                                         <p className={"text-sm w-full"}>Please fill your account first</p>
                                     </td>
                                 </tr>
-                            ) : filteredPosts.map((post, key) => (
+                            ) : posts?.map((post, key) => (
                                     <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
 
                                         {/* Kolom gabungan Username + Caption */}
@@ -318,7 +322,7 @@ const PostsTable = ({ platform = null }) => {
                                         {platform === "Instagram" && <td className="px-2 py-4 text-center">{post.media_name ? post.media_name.charAt(0).toUpperCase() + post.media_name.slice(1) : ""}</td>}
                                         <td className="px-2 py-4 text-center">{post.likes ? new Intl.NumberFormat('id-ID').format(post.likes) : 0}</td>
                                         <td className="px-2 py-4 text-center">{post.comments ? new Intl.NumberFormat('id-ID').format(post.comments) : 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : "Post is Not Reels"}</td>
+                                        <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : "-"}</td>
                                         {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.shareCount ? new Intl.NumberFormat('id-ID').format(post.shareCount) : 0}</td>}
                                         {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.collectCount ? new Intl.NumberFormat('id-ID').format(post.collectCount) : 0}</td>}
                                         {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.downloadCount ? new Intl.NumberFormat('id-ID').format(post.downloadCount) : 0}</td>}
@@ -330,7 +334,7 @@ const PostsTable = ({ platform = null }) => {
                                     </tr>
                                 ))
                             }
-                            {loading && filteredPosts.length !== 0 &&
+                            {loading && posts?.length !== 0 &&
                                 <tr>
                                     <td colSpan={9} className="p-5">
                                         <div className="flex items-center justify-center">
@@ -356,6 +360,10 @@ const PostsTable = ({ platform = null }) => {
                     </button>
                 </div>
             )} */}
+
+            <div className="flex justify-end mt-4 p-3 text-sm mr-5">
+                {`Show ${posts?.length} of ${totalRows} posts`}
+            </div>
         </div>
     );
 };
