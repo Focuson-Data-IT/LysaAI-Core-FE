@@ -159,44 +159,46 @@ const FairScoreCard = ({ platform, description }) => {
     ) => {
         if (chartRef && chartRef.current) {
             const ctx = chartRef.current?.getContext("2d");
-
+    
             if (fairScoreChart) {
                 fairScoreChart.destroy();
             }
-
-            if (ctx) {
-                const limitedPieDatasets = data.datasets[0].data.slice(0, 5);
-                console.info(data)
-
-                const newChart: any = new Chart(ctx, {
-                    type: "pie",
-                    data: {
-                        labels: data.labels,
-                        datasets: [
-                            {
-                                label: "Followers",
-                                data: limitedPieDatasets,
-                                backgroundColor: limitedPieDatasets.map((v, index) => {
-                                    return limitDatasets[index].borderColor;
-                                })
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'bottom',
-                            },
-                        }
-                    }
-                });
-                setFairScoreChart(newChart);
+    
+            if (!data.datasets || data.datasets.length === 0 || !data.datasets[0].data) {
+                console.error("Invalid dataset in drawPieChart", data);
+                return;
             }
+    
+            const limitedPieDatasets = data.datasets[0]?.data?.slice(0, 5) || [];
+            console.info("Drawing chart with data:", data);
+    
+            const newChart: any = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: data.labels.slice(0, 5), // Batasi hanya 5 label teratas
+                    datasets: [
+                        {
+                            label: "Followers",
+                            data: limitedPieDatasets,
+                            backgroundColor: data.datasets[0].backgroundColor.slice(0, 5), // Pastikan warna sesuai data yang terbatas
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        },
+                    }
+                }
+            });
+    
+            setFairScoreChart(newChart);
         }
-    };
+    };     
 
     const drawRadarChart = (
         labels: any,
@@ -429,31 +431,74 @@ const FairScoreCard = ({ platform, description }) => {
             }
 
             if (activeTab === "Followers") {
+                if (!fairScoreData || fairScoreData.length === 0) {
+                    console.error("fairScoreData is empty or undefined", fairScoreData);
+                    return;
+                }
+            
+                console.log("Raw Fair Score Data:", fairScoreData);
+            
                 const filterByUsername = selectedCompetitor.map((v) => v.value);
-                const datasetsBuilderOption = { filterByUsername };
+            
+                if (!filterByUsername || filterByUsername.length === 0) {
+                    console.error("selectedCompetitor is empty", selectedCompetitor);
+                    return;
+                }
+            
+                let datasetsBuilderOption = { filterByUsername };
                 const dataGroupedByUsername = groupDataByUsername(fairScoreData);
             
-                let datasetsBuilded = buildDatasetsPie(dataGroupedByUsername, datasetsBuilderOption);
+                console.log("Grouped Data:", dataGroupedByUsername);
             
-                const sortedIndices = datasetsBuilded.labels.slice(0, 5).map(label =>
-                    datasetsBuilded.labels.indexOf(label)
-                );
+                const datasetsBuilded = selectedCompetitor
+                    .map((comp) => {
+                        const username = comp.value;
+                        return {
+                            label: username,
+                            data: [
+                                Array.isArray(dataGroupedByUsername[username])
+                                    ? dataGroupedByUsername[username].reduce((acc, val) => acc + (val.value || 0), 0)
+                                    : 0
+                            ],
+                        };
+                    })
+                    .filter((dataset) => dataset.data[0] > 0); // Hapus dataset yang tidak memiliki data
             
-                const limitDatasets = {
-                    labels: sortedIndices.map(index => datasetsBuilded.labels[index]),
+                console.log("Updated Datasets Built:", datasetsBuilded);
+            
+                if (!datasetsBuilded || datasetsBuilded.length === 0) {
+                    console.error("datasetsBuilded is empty or null", datasetsBuilded);
+                    return;
+                }
+            
+                console.log("Datasets Built:", datasetsBuilded);
+            
+                const datasetsWithColor = datasetsBuilded.map((v, index) => ({
+                    ...v,
+                    backgroundColor: v.label === selectedAccount ? primaryColors[0] : primaryColors[index + 1] || primaryColors[1],
+                    borderColor: v.label === selectedAccount ? primaryColors[0] : primaryColors[index + 1] || primaryColors[1],
+                    pointBackgroundColor: v.label === selectedAccount ? primaryColors[0] : primaryColors[index + 1] || primaryColors[1],
+                    borderWidth: v.label === selectedAccount ? 5 : 3,
+                }));
+            
+                console.log("Datasets with Color:", datasetsWithColor);
+            
+                drawPieChart({
+                    labels: datasetsWithColor.map((d) => d.label),
                     datasets: [{
-                        backgroundColor: sortedIndices.map(index => {
-                            const competitorIndex = selectedCompetitor.findIndex((comp) => comp.value === datasetsBuilded.labels[index]);
-                            return datasetsBuilded.labels[index] === selectedAccount 
-                                ? primaryColors[0] 
-                                : primaryColors[competitorIndex + 1] || primaryColors[1];
-                        }),
-                        data: sortedIndices.map(index => datasetsBuilded.datasets[0].data[index])
+                        data: datasetsWithColor.map((d) => d.data[0]), // Pastikan hanya data yang dipilih yang masuk ke Pie Chart
+                        backgroundColor: datasetsWithColor.map((d) => d.backgroundColor),
                     }]
-                };
+                });
             
-                drawPieChart(selectedCompetitor.length > 5 ? datasetsBuilded : limitDatasets);
-            }
+                console.log("Final Data for Pie Chart:", {
+                    labels: datasetsWithColor.map((d) => d.label),
+                    datasets: [{
+                        data: datasetsWithColor.map((d) => d.data[0]),
+                        backgroundColor: datasetsWithColor.map((d) => d.backgroundColor),
+                    }]
+                });
+            }                                                      
             
             if (activeTab === "Activities") {
                 const filterByUsername = selectedCompetitor.map((v) => v.value);
