@@ -16,3 +16,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
 }
+
+.grid-cols-16 {
+    grid-template-columns: repeat(16, minmax(0, 1fr));
+}

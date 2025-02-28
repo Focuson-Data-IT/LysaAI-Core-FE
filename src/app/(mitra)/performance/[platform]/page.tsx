@@ -1,14 +1,11 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import FairScoreCard from "./components/FairScoreCard";
 import TopRankingCard from "./components/TopRankingCard";
 import PostsTable from "./components/ContentPerformance";
-import { FaInstagram, FaTiktok } from "react-icons/fa";
-// import OurDatePicker from "@/components/OurDatePicker";
-// import OurSelect from "@/components/OurSelect";
-// import request from "@/utils/request";
+import { FaInstagram, FaTiktok, FaColumns, FaLayerGroup } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import OurLoading from "@/components/OurLoading";
@@ -16,61 +13,22 @@ import InstagramChart from "./components/charts/GrowthChart";
 import TikTokChart from "./components/charts/GrowthChartTiktok";
 import OurEmptyData from "@/components/OurEmptyData";
 import FairDetailCard from "./components/FairDetailCard";
-import {FaColumns, FaLayerGroup} from "react-icons/fa";
+import { motion } from "framer-motion";
 
 const Competitor = () => {
     const { platform } = useParams();
     const { authUser } = useAuth();
-
-    // const [accountOptions, setAccountOptions] = useState([]);
-    // const [competitorOptions, setCompetitorOptions] = useState([]);
-    // const [isShowDatepicker, setIsShowDatepicker] = useState(false);
     const [showCombinedChart, setShowCombinedChart] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
-    const {
-        period,
-        // selectedCompetitor,
-        selectedAccount,
-        // setPeriod,
-        // setSelectedCompetitor,
-        // setSelectedAccount,
-    } = usePerformanceContext();
-
-    // useEffect(() => {
-    //     const fetchUsernames = async () => {
-    //         if (authUser?.username) {
-    //             try {
-    //                 const response = await request.get(
-    //                     `/getAllUsername?kategori=${authUser.username}&platform=${platform}`
-    //                 );
-    //                 const usernames = response.data?.data || [];
-    //                 const formattedOptions = usernames.map((user: { username: string }) => ({
-    //                     label: user.username,
-    //                     value: user.username,
-    //                 }));
-
-    //                 setAccountOptions(formattedOptions);
-    //                 setCompetitorOptions(formattedOptions);
-    //             } catch (error) {
-    //                 console.error("Error fetching usernames:", error);
-    //             }
-    //         }
-    //     };
-
-    //     fetchUsernames();
-    // }, [authUser, platform]);
+    const { period, selectedAccount } = usePerformanceContext();
 
     const getIconComponent = (platform: string) => {
-        const icons = {
-            Instagram: FaInstagram,
-            TikTok: FaTiktok,
-        };
+        const icons = { Instagram: FaInstagram, TikTok: FaTiktok };
         return icons[platform] || null;
     };
 
     const IconComponent = getIconComponent(Array.isArray(platform) ? platform[0] : platform);
-
-    const toggleChartView = () => setShowCombinedChart((prev) => !prev);
 
     if (!authUser || !period || !platform) {
         return <OurLoading />;
@@ -88,21 +46,6 @@ const Competitor = () => {
                         Monitor your competitors every single day
                     </p>
                 </div>
-
-                {/* SELECTIONS */}
-                {/* <div className="flex justify-between gap-5 items-center">
-                    <OurSelect
-                        options={accountOptions}
-                        value={accountOptions.find((option) => option.value === selectedAccount)}
-                        onChange={(selected) => setSelectedAccount(selected?.value)}
-                        isMulti={false}
-                        placeholder="Type / Select Username"
-                    />
-                    <OurDatePicker
-                        disabled={!selectedAccount}
-                        onClick={() => setIsShowDatepicker(!isShowDatepicker)}
-                    />
-                </div> */}
             </div>
 
             {/* OVERLAY MESSAGE */}
@@ -124,75 +67,70 @@ const Competitor = () => {
 
             {/* CONTENT */}
             <div
-                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount || (!period.start && !period.end) ? "blur-sm" : ""
-                    }`}
+                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount || (!period.start && !period.end) ? "blur-sm" : ""}`}
             >
                 {selectedAccount && period.start && period.end && (
                     <>
                         {/* FAIR Score & Top Ranking */}
                         <div className="grid grid-cols-12 gap-4 mt-4">
                             <div className="lg:col-span-9 rounded-lg">
-                                <FairScoreCard
-                                    platform={platform}
-                                    description="A measurement for assessing account performance on social media."
-                                />
+                                <FairScoreCard platform={platform} description="A measurement for assessing account performance on social media." />
                             </div>
                             <div className="lg:col-span-3 rounded-lg">
-                                <TopRankingCard
-                                    platform={platform}
-                                    description="Jumlah orang yang mengikuti akun."
-                                />
+                                <TopRankingCard platform={platform} description="Jumlah orang yang mengikuti akun." />
                             </div>
                         </div>
 
                         {/* Header & Toggle */}
                         <div className="lg:col-span-12 flex justify-between items-center my-4">
-                            
-                                {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" />}
-                                <div className="mx-3 w-auto text-lg font-bold">Growth Metrics</div>
-                                
-                                {/* Toggle Button */}
-                            <button
-                                onClick={toggleChartView}
-                                className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                                title={showCombinedChart ? "Switch to Separate Charts" : "Switch to Combined Chart"}
-                            >
-                                {showCombinedChart ? (
-                                    <FaColumns className="h-6 w-6 text-[#41c2cb]" /> // Pisah
-                                ) : (
-                                    <FaLayerGroup className="h-6 w-6 text-[#41c2cb]" /> // Gabungan
-                                )}
-                            </button>
+                            {IconComponent && <IconComponent className="h-7 w-7 text-[#41c2cb]" />}
+                            <div className="mx-3 w-auto text-lg font-bold">Growth Metrics</div>
                             <hr className="flex-1 border-t-2 border-t-[#41c2cb] h-[1px]" />
 
+                            {/* Toggle Button dengan Animasi */}
+                            <button
+                                onClick={() => setShowCombinedChart(prev => !prev)}
+                                className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg active:scale-90"
+                                title={showCombinedChart ? "Switch to Separate Charts" : "Switch to Combined Chart"}
+                                onMouseEnter={() => setIsHovered(true)}
+                                onMouseLeave={() => setIsHovered(false)}
+                            >
+                                <motion.div
+                                    key={showCombinedChart ? "columns" : "layer"}
+                                    initial={{ opacity: 0 }}
+                                    animate={{
+                                        opacity: isHovered ? 5 : [1, 0, 1],
+                                    }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{
+                                        duration: isHovered ? 0 : 1.5,
+                                        ease: "easeInOut",
+                                        repeat: isHovered ? 0 : Infinity,
+                                    }}
+                                >
+                                    {showCombinedChart ? (
+                                        <FaColumns className="h-6 w-6 text-[#41c2cb]" />
+                                    ) : (
+                                        <FaLayerGroup className="h-6 w-6 text-[#41c2cb]" />
+                                    )}
+                                </motion.div>
+                            </button>
                         </div>
 
                         {/* Konten Berdasarkan Toggle */}
                         {showCombinedChart ? (
-                            // ✅ Tampilan Gabungan
                             <div className="grid lg:col-span-12 gap-4 mt-4">
                                 <div className="rounded-lg bg-gray-100 dark:bg-gray-900 p-3">
                                     {platform === "Instagram" ? (
-                                        <InstagramChart
-                                            username={selectedAccount}
-                                            startDate={period.start}
-                                            endDate={period.end}
-                                            platform="Instagram"
-                                        />
+                                        <InstagramChart username={selectedAccount} startDate={period.start} endDate={period.end} platform="Instagram" />
                                     ) : platform === "TikTok" ? (
-                                        <TikTokChart
-                                            username={selectedAccount}
-                                            startDate={period.start}
-                                            endDate={period.end}
-                                            platform="TikTok"
-                                        />
+                                        <TikTokChart username={selectedAccount} startDate={period.start} endDate={period.end} platform="TikTok" />
                                     ) : (
                                         <OurEmptyData width={100} />
                                     )}
                                 </div>
                             </div>
                         ) : (
-                            // ✅ Tampilan Pisah (FairDetailCard)
                             <div className="grid grid-cols-12 gap-4 mt-4">
                                 {platform === "Instagram" && (
                                     <>
@@ -200,17 +138,6 @@ const Competitor = () => {
                                         <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />
                                         <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />
                                         <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />
-                                    </>
-                                )}
-
-                                {platform === "TikTok" && (
-                                    <>
-                                        <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />
-                                        <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />
-                                        <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />
-                                        <FairDetailCard platform={platform} label="Saves" description="Number of Save Counts" />
-                                        <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />
-                                        <FairDetailCard platform={platform} label="Shares" description="Number of Shares" />
                                     </>
                                 )}
                             </div>
@@ -232,7 +159,7 @@ const Competitor = () => {
                 )}
             </div>
         </div>
-    )
+    );
 };
 
 export default Competitor;
