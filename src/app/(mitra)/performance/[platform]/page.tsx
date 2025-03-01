@@ -132,14 +132,24 @@ const Competitor = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-12 gap-4 mt-4">
-                                {platform === "Instagram" && (
+                                {platform === "Instagram" ? (
                                     <>
                                         <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />
                                         <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />
                                         <FairDetailCard platform={platform} label="Views" description="Number of View Counts" />
                                         <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />
                                     </>
-                                )}
+                                ) : platform === "TikTok" ? (
+                                    <>
+                                        <FairDetailCard platform={platform} label="Followers" description="Number of Followers" />
+                                        <FairDetailCard platform={platform} label="Likes" description="Number of Likes" />
+                                        <FairDetailCard platform={platform} label="Views" description="Number of Views" />
+                                        <FairDetailCard platform={platform} label="Comments" description="Number of Comments" />
+                                        <FairDetailCard platform={platform} label="Saves" description="Number of Saves" />
+                                        <FairDetailCard platform={platform} label="Shares" description="Number of Shares" />
+                                        
+                                    </>
+                                ) : null }
                             </div>
                         )}
 
