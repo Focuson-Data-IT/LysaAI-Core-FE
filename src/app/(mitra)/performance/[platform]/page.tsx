@@ -1,19 +1,19 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState } from "react";
-import FairScoreCard from "./components/FairScoreCard";
-import TopRankingCard from "./components/TopRankingCard";
-import PostsTable from "./components/ContentPerformance";
-import { FaInstagram, FaTiktok, FaColumns, FaLayerGroup } from "react-icons/fa";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import OurLoading from "@/components/OurLoading";
+import FairScoreContainer from "./components/FairScoreContainer";
+import TopRankingCard from "./components/TopRankingCard";
+import PostsTable from "./components/ContentPerformance";
+import { FaInstagram, FaTiktok, FaColumns, FaLayerGroup } from "react-icons/fa";
+import { motion } from "framer-motion";
+import FairDetailCard from "./components/FairDetailCard";
+import OurEmptyData from "@/components/OurEmptyData";
 import InstagramChart from "./components/charts/GrowthChart";
 import TikTokChart from "./components/charts/GrowthChartTiktok";
-import OurEmptyData from "@/components/OurEmptyData";
-import FairDetailCard from "./components/FairDetailCard";
-import { motion } from "framer-motion";
 
 const Competitor = () => {
     const { platform } = useParams();
@@ -21,7 +21,9 @@ const Competitor = () => {
     const [showCombinedChart, setShowCombinedChart] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
-    const { period, selectedAccount } = usePerformanceContext();
+    const { 
+        period, selectedAccount, setSelectedAccount, setPeriod
+    } = usePerformanceContext();
 
     const getIconComponent = (platform: string) => {
         const icons = { Instagram: FaInstagram, TikTok: FaTiktok };
@@ -30,7 +32,13 @@ const Competitor = () => {
 
     const IconComponent = getIconComponent(Array.isArray(platform) ? platform[0] : platform);
 
-    if (!authUser || !period || !platform) {
+    // 🔥 Reset `selectedAccount` dan `period` saat `platform` berubah
+    useEffect(() => {
+        setSelectedAccount(null);
+        setPeriod(null);
+    }, [platform]);
+
+    if (!authUser || !platform) {
         return <OurLoading />;
     }
 
@@ -57,7 +65,7 @@ const Competitor = () => {
                 </div>
             )}
 
-            {selectedAccount && (!period.start || !period.end) && (
+            {selectedAccount && (!period?.start || !period?.end) && (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
                     <p className="text-lg font-semibold text-black dark:text-white bg-white/80 dark:bg-black/60 px-4 py-2 rounded-lg shadow-lg">
                         Please select a month to continue...
@@ -67,14 +75,14 @@ const Competitor = () => {
 
             {/* CONTENT */}
             <div
-                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount || (!period.start && !period.end) ? "blur-sm" : ""}`}
+                className={`mt-4 min-h-screen transition-all duration-300 ease-in-out relative ${!selectedAccount || (!period?.start && !period?.end) ? "blur-sm" : ""}`}
             >
-                {selectedAccount && period.start && period.end && (
+                {selectedAccount && period?.start && period?.end && (
                     <>
                         {/* FAIR Score & Top Ranking */}
                         <div className="grid grid-cols-12 gap-4 mt-4">
                             <div className="lg:col-span-9 rounded-lg">
-                                <FairScoreCard platform={platform} description="A measurement for assessing account performance on social media." />
+                                <FairScoreContainer platform={platform} description="A measurement for assessing account performance on social media." />
                             </div>
                             <div className="lg:col-span-3 rounded-lg">
                                 <TopRankingCard platform={platform} description="Jumlah orang yang mengikuti akun." />

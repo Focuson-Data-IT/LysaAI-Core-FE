@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation"; // Import usePathname
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -8,60 +8,48 @@ import request from "@/utils/request";
 import Nav from "@/components/Nav";
 import ModeToggle from "@/components/ModeToggle";
 import UserNav from "@/components/UserNav";
-import { Dot } from "lucide-react";
-import { getRoutesByRole } from "@/config/routes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import dynamic from "next/dynamic";
 
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const OurDatePicker = dynamic(() => import("@/components/OurDatePicker"), { ssr: false });
     const OurSelect = dynamic(() => import("@/components/OurSelect"), { ssr: false });
-    
+
     const { authUser } = useAuth();
     const { platform } = useParams();
+    const pathname = usePathname(); // 🔥 Ambil pathname
+
     const [isCollapsed, setIsCollapsed] = useState(false);
-
     const [accountOptions, setAccountOptions] = useState([]);
-        // const [competitorOptions, setCompetitorOptions] = useState([]);
-        const [isShowDatepicker, setIsShowDatepicker] = useState(false);
-        // const [showCombinedChart, setShowCombinedChart] = useState(false);
-    
-        const {
-            // period,
-            // selectedCompetitor,
-            selectedAccount,
-            // setPeriod,
-            // setSelectedCompetitor,
-            setSelectedAccount,
-        } = usePerformanceContext();
+    const [isShowDatepicker, setIsShowDatepicker] = useState(false);
 
-    const routes = getRoutesByRole(authUser?.role);
+    const { selectedAccount, setSelectedAccount } = usePerformanceContext();
+
+    const isPerformancePage = pathname.startsWith("/performance"); // 🔥 Cek apakah di halaman Performance
 
     useEffect(() => {
-            const fetchUsernames = async () => {
-                if (authUser?.username) {
-                    try {
-                        const response = await request.get(
-                            `/getAllUsername?kategori=${authUser.username}&platform=${platform}`
-                        );
-                        const usernames = response.data?.data || [];
-                        const formattedOptions = usernames.map((user: { username: string }) => ({
-                            label: user.username,
-                            value: user.username,
-                        }));
-    
-                        setAccountOptions(formattedOptions);
-                        // setCompetitorOptions(formattedOptions);
-                    } catch (error) {
-                        console.error("Error fetching usernames:", error);
-                    }
+        const fetchUsernames = async () => {
+            if (authUser?.username) {
+                try {
+                    const response = await request.get(
+                        `/getAllUsername?kategori=${authUser.username}&platform=${platform}`
+                    );
+                    const usernames = response.data?.data || [];
+                    const formattedOptions = usernames.map((user: { username: string }) => ({
+                        label: user.username,
+                        value: user.username,
+                    }));
+
+                    setAccountOptions(formattedOptions);
+                } catch (error) {
+                    console.error("Error fetching usernames:", error);
                 }
-            };
-    
-            fetchUsernames();
-        }, [authUser, platform]);
+            }
+        };
+
+        fetchUsernames();
+    }, [authUser, platform]);
 
     return (
         <TooltipProvider>
@@ -73,8 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         isCollapsed ? "w-[57px]" : "sm:w-[250px]"
                     )}
                 >
-
-                    <Nav isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} routes={routes} />
+                    <Nav isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
                 </div>
 
                 {/* Main Content */}
@@ -82,11 +69,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {/* Header */}
                     <div className="flex items-center justify-between bg-gray-200 dark:bg-gray-800">
                         <div className="flex w-full z-50 items-center px-3 pt-3 pb-2">
-                            {/* <Dot className="mr-2 h-3 w-3 rounded-full bg-[#0ED1D6] text-[#0ED1D6]" /> */}
-                            {/* {authUser?.username || ""} */}
-                            
-                            {/* SELECTIONS */}
-                            <div className="flex justify-between gap-5 items-center">
+                            {/* 🔥 Tampilkan SELECTIONS hanya jika di halaman Performance */}
+                            {isPerformancePage && (
+                                <div className="flex justify-between gap-5 items-center">
                                     <OurSelect
                                         options={accountOptions}
                                         value={accountOptions.find((option) => option.value === selectedAccount)}
@@ -98,9 +83,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         disabled={!selectedAccount}
                                         onClick={() => setIsShowDatepicker(!isShowDatepicker)}
                                     />
-                            </div>
-
+                                </div>
+                            )}
                         </div>
+
                         <div className="ml-auto mr-2 mt-1 flex w-full items-center justify-end space-x-2 text-lg">
                             <ModeToggle />
                             <UserNav />
@@ -117,3 +103,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </TooltipProvider>
     );
 }
+

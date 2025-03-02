@@ -178,11 +178,9 @@ const FairDetailCard = ({ platform, label, description }) => {
         const datasetsWithColor = datasetsBuilded?.filter((v: any) => v.label == selectedAccount).map((v: any, index: number) => {
             return {
                 ...v,
-                backgroundColor: createGradient(chartRef),
-                // HEX 33 equivalent to 0.2 opacity. src: https://stackoverflow.com/questions/7015302/css-hexadecimal-rgba
-                // TODO: Kalo ingin warnanya sama, harus sorting selectedCompetitor berdasarkan FAIR SCORE pada saat setSelectedCompetitor di context
-                borderColor: v.label == selectedAccount ? generateColors(index) : generateColors(index, "33"),
-                pointBackgroundColor: generateColors(index),
+                backgroundColor: "rgba(150, 100, 250, 0.7)",
+                borderColor: v.label == "rgba(150, 100, 250, 0.7)", // Fill batang bar,
+                pointBackgroundColor: "rgba(150, 100, 250, 0.7)",
             };
         });
 
