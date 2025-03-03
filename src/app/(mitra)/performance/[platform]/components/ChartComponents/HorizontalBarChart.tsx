@@ -17,7 +17,7 @@ const HorizontalBarChart = ({ data, selectedCompetitor, selectedAccount }) => {
         );
 
         const options = {
-            title: { text: "Responsiveness Rate (Log Scale)" },
+            // title: { text: "Responsiveness Rate (Log Scale)" },
             tooltip: { 
                 trigger: "item",
                 formatter: (params) => `${params.name}: ${params.value.toFixed(2)}%` // Format angka dengan 2 desimal

@@ -17,8 +17,21 @@ const PieChart = ({ data, selectedCompetitor, selectedAccount }) => {
         );
 
         const options = {
-            title: { text: "Followers Distribution" },
-            tooltip: { trigger: "item" },
+            // title: { text: "Followers Distribution" },
+            tooltip: { 
+                trigger: "item",
+                formatter: (params) => {
+                    let formattedValue = new Intl.NumberFormat('id-ID', { 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 0 
+                    }).format(params.value);
+            
+                    return `${params.name}: ${formattedValue}`;
+                },
+            },
+            toolbox: { 
+                feature: { saveAsImage: {} } // 🔥 Tambahkan fitur save image langsung dari toolbox
+            },
             series: [
                 {
                     name: "Followers",

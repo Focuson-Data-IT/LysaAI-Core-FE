@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef } from "react";
 import * as echarts from "echarts";
-import { primaryColors } from "@/constant/PerfomanceContants";
 
 const RadarChart = ({ data, selectedCompetitor }) => {
     const chartRef = useRef(null);
@@ -16,13 +15,26 @@ const RadarChart = ({ data, selectedCompetitor }) => {
             data.filter(d => d.username === label).reduce((sum, d) => sum + d.value, 0)
         );
 
-        const maxValue = Math.max(...datasetData) || 10; // Jika kosong, set default max 10
+        const maxValue = Math.max(...datasetData) || 0; // Jika kosong, set default max 10
 
         const options = {
-            title: { text: "Activity Score" },
-            tooltip: { trigger: "item" },
+            // title: { text: "Activity Score" },
+            tooltip: { 
+                trigger: "item",
+                formatter: (params) => {
+                    let dataValues = params.value.map((val, index) => {
+                        let formattedVal = new Intl.NumberFormat('id-ID', { 
+                            minimumFractionDigits: 1, 
+                            maximumFractionDigits: 1 
+                        }).format(val);
+                        return `${labels[index]}: ${formattedVal}`;
+                    }).join("<br/>"); 
+            
+                    return `<b>Activities</b><br/>${dataValues}`;
+                },
+            },                     
             toolbox: { 
-                feature: { saveAsImage: {} } // 🔥 Tambahkan fitur save image langsung dari toolbox
+                feature: { saveAsImage: {} }
             },
             radar: {
                 indicator: labels.map(label => ({ name: label, max: maxValue })),
@@ -36,14 +48,14 @@ const RadarChart = ({ data, selectedCompetitor }) => {
                         {
                             value: datasetData,
                             itemStyle: { 
-                                color: "#FFFFFF" // Ambil warna peach terang atau fallback
+                                color: "#FFFFFF"
                             },
                             lineStyle: {
                                 width: 2,
-                                color: "#FFFFFF" // Garis juga menggunakan warna peach
+                                color: "#FFFFFF"
                             },
                             areaStyle: {
-                                opacity: 0.3, // Area lebih transparan untuk efek lebih halus
+                                opacity: 0.3,
                                 color: "#FFFFFF"
                             }
                         }

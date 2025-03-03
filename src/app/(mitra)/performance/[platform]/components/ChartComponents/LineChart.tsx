@@ -35,24 +35,48 @@ const LineChart = ({ data, selectedCompetitor, selectedAccount, period }) => {
             endLabel: { 
                 show: true, 
                 formatter: "{a}", 
-                distance: 20,
-                color: "WHITE"
-                },
+                distance: 15,
+                color: "#FFF", // Warna teks label di ujung garis
+                fontWeight: "bold",
+                fontSize: 12,
+            },
             lineStyle: { 
-                width:4,
+                width: 3,
             },
             itemStyle: {
-                width: name === selectedAccount ? 5 : 5,
+                width: 6, // Besar titik data
                 color: name === selectedAccount ? primaryColors[0] : primaryColors[index + 1] || primaryColors[1],
             },
             data: values
-        }));
+        }));        
 
         const options = {
-            title: { text: "Performance Trend (Daily Data)" },
-            tooltip: { trigger: "axis" },
+            // title: { text: "" },
+            tooltip: { 
+                trigger: "axis",
+                backgroundColor: "#fff", // Warna latar belakang tooltip
+                borderColor: "#ddd", // Warna border tooltip
+                borderWidth: 1,
+                textStyle: {
+                    color: "#333" // Warna teks dalam tooltip
+                },
+                formatter: function (params) {
+                    let content = `<div style="font-size:14px; font-weight: bold;">${params[0].axisValue}</div>`;
+                    params.forEach(param => {
+                        let formattedValue = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(param.value);
+                        content += `
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 4px;">
+                                <span style="width: 10px; height: 10px; background:${param.color}; display: inline-block; border-radius: 50%;"></span>
+                                <span style="color:#666;">${param.seriesName}</span>
+                                <span style="font-weight:bold; margin-left: auto;">${formattedValue}</span>
+                            </div>
+                        `;
+                    });
+                    return `<div style="padding:10px; border-radius:5px;">${content}</div>`;
+                }
+            },            
             toolbox: { 
-                feature: { saveAsImage: {} } // 🔥 Tambahkan fitur save image langsung dari toolbox
+                feature: { saveAsImage: {} }
             },
             xAxis: { type: "category", data: days },
             yAxis: { type: "value" },

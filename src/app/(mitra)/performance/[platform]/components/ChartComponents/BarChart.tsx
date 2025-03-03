@@ -22,14 +22,21 @@ const BarChart = ({ data, selectedCompetitor, selectedAccount }) => {
         );
 
         const options = {
-            title: { text: "Interaction Rate (Log Scale)" },
+            // title: { text: "Interaction Rate (Log Scale)" },
             tooltip: { 
                 trigger: "item",
-                formatter: (params) => `${params.name}: ${params.value}`
+                formatter: (params) => {
+                    let formattedValue = new Intl.NumberFormat('id-ID', { 
+                        minimumFractionDigits: 1, 
+                        maximumFractionDigits: 1 
+                    }).format(params.value);
+            
+                    return `${params.name}: ${formattedValue}`;
+                },
             },
             grid: { left: 50, right: 30, bottom: 50, containLabel: true },
             toolbox: { 
-                feature: { saveAsImage: {} } // 🔥 Tambahkan fitur save image langsung dari toolbox
+                feature: { saveAsImage: {} }
             },
             xAxis: { 
                 type: "category", 
@@ -53,6 +60,7 @@ const BarChart = ({ data, selectedCompetitor, selectedAccount }) => {
                 {
                     name: "Interactions",
                     type: "bar",
+                    smooth: true,
                     barWidth: 30,
                     data: labels.map((label, index) => ({
                         value: datasetData[index],

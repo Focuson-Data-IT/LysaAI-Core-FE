@@ -12,8 +12,8 @@ import { FaInstagram, FaTiktok, FaColumns, FaLayerGroup } from "react-icons/fa";
 import { motion } from "framer-motion";
 import FairDetailCard from "./components/FairDetailCard";
 import OurEmptyData from "@/components/OurEmptyData";
-import InstagramChart from "./components/charts/GrowthChart";
-import TikTokChart from "./components/charts/GrowthChartTiktok";
+import InstagramChart from "./components/Charts/GrowthChart";
+import TikTokChart from "./components/Charts/GrowthChartTiktok";
 
 const Competitor = () => {
     const { platform } = useParams();
