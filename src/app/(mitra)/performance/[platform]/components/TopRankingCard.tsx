@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import request from "@/utils/request";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useAuth } from "@/hooks/useAuth";
-import { scoreFormatter } from "@/utils/numberFormatter";
+import { numberFormatter } from "@/utils/numberFormatter";
 import OurLoading from "@/components/OurLoading";
 import OurEmptyData from "@/components/OurEmptyData";
 import { FaEquals, FaArrowUp, FaArrowDown } from "react-icons/fa";
@@ -178,10 +178,6 @@ const TopRankingCard = ({ platform = null, description = null }) => {
                     fairRankingData.map((item, index) => {
                         const isSelected = item.username === selectedAccount || selectedCompetitor.some((competitor) => competitor.value === item.username);
                         const isDisabled = !isSelected && !isSelectable(item.username);
-
-                        function numberFormatter(value: any): React.ReactNode {
-                            throw new Error('Function not implemented.');
-                        }
 
                         return (
                                 <div
