@@ -24,9 +24,11 @@ export const singleMonthPeriodInitialValue: TSingleMonthPeriod = moment().format
 export const performanceContextInitialValue: TPerformanceContext = {
     period: periodInitialValue,
     platform: "Instagram",
+    activeTab: "FAIR",
     selectedCompetitor: [],
     selectedAccount: null,
     setPeriod: () => {},
+    setActiveTab:() => {},
     setPlatform: () => {},
     setSelectedCompetitor: () => {},
     setSelectedAccount: () => {}
