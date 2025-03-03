@@ -9,6 +9,7 @@ const PerformanceContextProvider = ({ children }) => {
     const [platform, setPlatform] = useState<string>("Instagram");
     const [selectedCompetitor, setSelectedCompetitor] = useState<TOption[]>([]);
     const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<string | null>("FAIR");
 
     useEffect(() => {
         if (selectedAccount) {
@@ -17,7 +18,7 @@ const PerformanceContextProvider = ({ children }) => {
     }, [selectedAccount]);
 
     return (
-        <PerformanceContext.Provider value={{ period, platform, selectedCompetitor, selectedAccount, setPeriod, setPlatform, setSelectedCompetitor, setSelectedAccount }}>
+        <PerformanceContext.Provider value={{ period, platform, selectedCompetitor, selectedAccount, setPeriod, setPlatform, setSelectedCompetitor, setSelectedAccount, activeTab, setActiveTab }}>
             {children}
         </PerformanceContext.Provider>
     );

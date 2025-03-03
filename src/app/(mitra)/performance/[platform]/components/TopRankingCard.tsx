@@ -10,9 +10,9 @@ import TooltipIcon from '@/components/TooltipIcon';
 import { primaryColors } from "@/constant/PerfomanceContants";
 import moment from "moment";
 
-const TopRankingCard = ({ platform = null, description }) => {
+const TopRankingCard = ({ platform = null, description = null }) => {
     const { authUser } = useAuth();
-    const { period, selectedAccount, selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
+    const { period, activeTab, selectedAccount, selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
 
     const [loading, setLoading] = useState(true);
     const [fairRankingData, setFairRankingData] = useState([]);
@@ -21,18 +21,36 @@ const TopRankingCard = ({ platform = null, description }) => {
 
     const monthLabel = `${moment(period?.end).format("MMMM")}`;
 
+    // ✅ Label Map untuk API Request
+    const labelMap = {
+        FAIR: "FairScores",
+        Followers: "Followers",
+        Activities: "Activities",
+        Interactions: "Interactions",
+        Responsiveness: "Responsiveness"
+    };
+
+    const label = labelMap[activeTab] || "FairScores"; // ✅ Default harus "FairScores"
+
     const getFairRanking = async () => {
-        if (!authUser?.username || !period?.start || !period?.end || !platform || !description) {
-            console.warn("Required data is missing, skipping API request.");
-            return;
-        }
+        if (!authUser?.username || !period?.start || !period?.end || !platform) return;
 
+        setLoading(true);
         try {
-            const response = await request.get(
-                `/getFairRanking?platform=${platform}&kategori=${authUser.username}&start_date=${period.start}&end_date=${period.end}`
-            );
+            let response;
+            let rankingData = [];
 
-            const rankingData = response.data?.data || [];
+            if (activeTab === "FAIR") {
+                response = await request.get(
+                    `/getFairRanking?platform=${platform}&kategori=${authUser.username}&start_date=${period.start}&end_date=${period.end}`
+                );
+            } else {
+                response = await request.get(
+                    `/get${label}Ranking?platform=${platform}&kategori=${authUser.username}&start_date=${period.start}&end_date=${period.end}`
+                );
+            }
+
+            rankingData = response.data?.data || [];
             setFairRankingData(rankingData);
 
             if (rankingData.length > 0) {
@@ -48,36 +66,29 @@ const TopRankingCard = ({ platform = null, description }) => {
     const fetchAvatars = async (rankingData) => {
         const newAvatars = { ...avatars };
 
-        for (const user of rankingData) {
+        const avatarPromises = rankingData.map(async (user) => {
             if (!newAvatars[user.username]) {
                 try {
-                    console.log(`Fetching avatar for: ${user.username}`);
-
                     const response = await request.get(
                         `/getPictureData?kategori=${authUser?.username}&platform=${platform}&username=${user.username}`
                     );
-
-                    if (response.data?.data[0]?.profile_pic_url) {
-                        newAvatars[user.username] = response.data.data[0].profile_pic_url;
-                    } else {
-                        newAvatars[user.username] = null;
-                    }
+                    newAvatars[user.username] = response.data?.data[0]?.profile_pic_url || null;
                 } catch (error) {
                     console.error("Error fetching avatar:", error);
                     newAvatars[user.username] = null;
                 }
             }
-        }
+        });
 
+        await Promise.all(avatarPromises);
         setAvatars((prevAvatars) => ({ ...prevAvatars, ...newAvatars }));
     };
 
     useEffect(() => {
         if (authUser && period && platform) {
-            setLoading(true);
-            getFairRanking();
+            getFairRanking(); // ✅ Jangan pass `labelMap[activeTab]`, sudah ditangani di dalam fungsi
         }
-    }, [authUser, platform, period]);
+    }, [authUser, platform, period, activeTab]);
 
     useEffect(() => {
         if (selectedCompetitor?.length > 0) {
@@ -134,12 +145,11 @@ const TopRankingCard = ({ platform = null, description }) => {
         username: string;
     }
 
-    const isSelectable = (username: SelectableProps['username']): boolean =>
-        selectedCompetitor.length < 6 || selectedCompetitor.some((competitor: Competitor) => competitor.value === username) || username === selectedAccount;
-
-    // const displayedProfiles = fairRankingData.filter(
-    //     (item) => item.username === selectedAccount || selectedCompetitor.some((competitor) => competitor.value === item.username)
-    // );
+    const isSelectable = (username) => 
+        (selectedCompetitor?.length < 6 || 
+        selectedCompetitor?.some((competitor) => competitor.value === username) || 
+        username === selectedAccount);
+    
 
     if (!authUser || !period || !platform || !description) {
         return <OurLoading />;
@@ -152,7 +162,7 @@ const TopRankingCard = ({ platform = null, description }) => {
                 <div className="flex items-center space-x-2">
                     <div className="font-bold">{monthLabel} Leaderboard</div>
                 </div>
-                <div className="mr-1 font-bold">FAIR Score</div>
+                <div className="mr-1 font-bold">{label}</div>
             </div>
 
 
@@ -168,6 +178,10 @@ const TopRankingCard = ({ platform = null, description }) => {
                     fairRankingData.map((item, index) => {
                         const isSelected = item.username === selectedAccount || selectedCompetitor.some((competitor) => competitor.value === item.username);
                         const isDisabled = !isSelected && !isSelectable(item.username);
+
+                        function numberFormatter(value: any): React.ReactNode {
+                            throw new Error('Function not implemented.');
+                        }
 
                         return (
                                 <div
@@ -257,7 +271,7 @@ const TopRankingCard = ({ platform = null, description }) => {
                                             ${item.username === selectedAccount ? 'text-[#0ED1D6]' : ''}
                                         `}
                                         >
-                                            {scoreFormatter(item?.fair_score)}
+                                            {numberFormatter(item?.value)}
                                         </div>
                                     </div>
                                 </div>

@@ -20,14 +20,23 @@ import HorizontalBarChart from "./ChartComponents/HorizontalBarChart";
 
 const FairScoreContainer = ({ platform, description }) => {
     const { authUser } = useAuth();
-    const { period, selectedAccount, selectedCompetitor, setSelectedCompetitor } = usePerformanceContext();
+    const { period, activeTab, selectedAccount, selectedCompetitor, setSelectedCompetitor, setActiveTab } = usePerformanceContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [aiData, setAiData] = useState(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fairScoreData, setFairScoreData] = useState<any>(null);
-    const [activeTab, setActiveTab] = useState<string>("FAIR");
 
-    const getFairScoreChartData = async (label: string) => {
+    const labelMap = {
+        FAIR: "FairScores",
+        Followers: "Followers",
+        Activities: "Activities",
+        Interactions: "Interactions",
+        Responsiveness: "Responsiveness"
+    };
+
+    const label = labelMap[activeTab] || "FairScores";
+
+    const getFairScoreChartData = async () => {
         if (!authUser || !period || !platform || !description) return [];
         let response;
 
@@ -47,14 +56,16 @@ const FairScoreContainer = ({ platform, description }) => {
     useEffect(() => {
         if (authUser && period && platform) {
             setIsLoading(true);
-            getFairScoreChartData(activeTab).then((data) => {
+            getFairScoreChartData().then((data) => {
                 setFairScoreData(data);
                 setIsLoading(false);
             });
         }
     }, [authUser, period, platform, activeTab]);
 
-    const handleTabChange = (tab: string) => setActiveTab(tab);
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+    };
 
     const getIconComponent = (platform: string) => {
         const icons = { Instagram: FaInstagram, TikTok: FaTiktok };

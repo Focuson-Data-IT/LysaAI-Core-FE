@@ -3,10 +3,12 @@ export type TPerformanceContext = {
     platform: string;
     selectedCompetitor: Array<TOption>;
     selectedAccount: string | null;
+    activeTab:string;
     setPeriod: (period: TPeriod) => void;
     setPlatform: (platform: string) => void;
     setSelectedCompetitor: (selectedCompetitor) => void;
     setSelectedAccount: (selectedAccount: string) => void;
+    setActiveTab: (activeTab: string) => void;
 };
 
 export type TPeriod = {
