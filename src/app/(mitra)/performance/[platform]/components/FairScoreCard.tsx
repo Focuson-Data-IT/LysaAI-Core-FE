@@ -76,17 +76,21 @@ const FairScoreCard = ({ platform, description }) => {
     const drawLineChart = (labels: any, datasets: any) => {
         if (chartRef && chartRef.current) {
             const ctx = chartRef.current?.getContext("2d");
-
+    
             if (fairScoreChart) {
                 fairScoreChart.destroy();
             }
-
+    
             if (ctx) {
                 const newChart: any = new Chart(ctx, {
                     type: "line",
                     data: {
                         labels: labels,
-                        datasets: datasets,
+                        datasets: datasets.map((dataset: any) => ({
+                            ...dataset,
+                            borderColor: dataset.borderColor || "rgba(75, 192, 192, 1)",
+                            backgroundColor: dataset.backgroundColor || "rgba(75, 192, 192, 0.2)",
+                        })),
                     },
                     options: {
                         responsive: true,
@@ -140,13 +144,30 @@ const FairScoreCard = ({ platform, description }) => {
                                 },
                             },
                         },
+                        onHover: (event, chartElements) => {
+                            if (chartElements.length > 0) {
+                                const datasetIndex = chartElements[0].datasetIndex;
+                                newChart.data.datasets.forEach((dataset: any, index: number) => {
+                                    dataset.borderColor = index === datasetIndex
+                                        ? dataset.borderColor.replace(/[\d\.]+\)$/g, "1)") // Full opacity
+                                        : dataset.borderColor.replace(/[\d\.]+\)$/g, "0.2)"); // Reduced opacity
+                                });
+                                newChart.update();
+                            } else {
+                                // Reset all colors when no hover
+                                newChart.data.datasets.forEach((dataset: any) => {
+                                    dataset.borderColor = dataset.borderColor.replace(/[\d\.]+\)$/g, "1)");
+                                });
+                                newChart.update();
+                            }
+                        },
                     },
                     plugins: [],
                 });
                 setFairScoreChart(newChart);
             }
         }
-    };
+    };    
 
     const drawPieChart = (
         data: {
@@ -516,7 +537,7 @@ const FairScoreCard = ({ platform, description }) => {
                         pointBackgroundColor: primaryColors[competitorIndex + 1] || primaryColors[1],
                         borderWidth: v.label === selectedAccount ? 5 : 3,
                     };
-                });                
+                });
     
                 drawLineChart(
                     labels,

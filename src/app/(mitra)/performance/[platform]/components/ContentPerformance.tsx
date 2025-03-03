@@ -4,13 +4,11 @@ import React, { useEffect, useState } from "react";
 import moment from "moment";
 import OurEmptyData from "@/components/OurEmptyData";
 import OurLoading from "@/components/OurLoading";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import request from "@/utils/request";
 import { usePerformanceContext } from "@/context/PerformanceContext";
 import { useAuth } from "@/hooks/useAuth";
 import { performanceBuilder } from "@/resolver";
-import { FaUserCircle } from "react-icons/fa"
+import { FaHashtag, FaUserCircle } from "react-icons/fa"
 import TooltipIcon from "@/components/TooltipIcon";
 import { IoInformationCircle } from "react-icons/io5";
 import { getIconByLabel } from "@/components/ui/iconHelper";
@@ -153,7 +151,7 @@ const PostsTable = ({ platform = null }) => {
         setCurrentPage(1)
         if (authUser && period && platform && selectedCompetitor && sortConfig) {
             setPosts([])
-            getPosts().then(()=>{
+            getPosts().then(() => {
                 setLoading(false);
             });
         }
@@ -163,6 +161,7 @@ const PostsTable = ({ platform = null }) => {
         return <OurLoading />;
     }
 
+    let index = 0
     return (
         <div className="box box-sizing overflow-x-hidden py-5 h-[750px] flex flex-col space-y-5 rounded-lg w-full bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
             <div className="flex justify-between">
@@ -205,8 +204,9 @@ const PostsTable = ({ platform = null }) => {
                     <thead className="h-[50px] bg-gray-100 dark:bg-gray-700 text-black dark:text-white sticky top-0 z-10">
                         <tr className="text-center">
                             {[
-                                { key: "caption", label: getIconByLabel("Captions"), width: "w-[250px]", description: "Caption" },
-                                { key: "created_at", label: getIconByLabel("Dates"), width: "w-[150px]", description: "Date" },
+                                { key: "index", label: <FaHashtag className="text-gray-500 text-sm"/>, width: "w-[20px]", description: "Index" },
+                                { key: "caption", label: getIconByLabel("Captions"), width: "w-[200px]", description: "Caption" },
+                                { key: "created_at", label: getIconByLabel("Dates"), width: "w-[100px]", description: "Date" },
                                 platform === "Instagram" && { key: "media_names", label: getIconByLabel("Contents"), width: "w-[100px]", description: "Content Type" },
                                 { key: "likes", label: getIconByLabel("Likes"), width: "w-[100px]", description: "Likes" },
                                 { key: "comments", label: getIconByLabel("Comments"), width: "w-[100px]", description: "Comments" },
@@ -217,29 +217,41 @@ const PostsTable = ({ platform = null }) => {
                                 { key: "performa_konten", label: getIconByLabel("Performances"), width: "w-[100px]", description: "Performance" },
                             ]
                                 .filter(Boolean) // Hapus nilai null dari mapping
-                                .map(({ key, label, width, description }) => (
-                                    <th
-                                        key={key}
-                                        className={`px-4 py-2 text-sm font-bold w-full dark:border-gray-600 cursor-pointer ${width}`}
-                                        onClick={() => requestSort(key)}
-                                    >
-                                        <div className="relative group flex justify-center items-center gap-2">
-                                            <TooltipIcon description={description}>
-                                                {label}
-                                            </TooltipIcon>
-                                            <p>{description}</p>
-                                            <span className="ml-1 p-1 rounded flex hover:bg-[#050708]/80">
-                                                <span className="ml-1 flex">
-                                                    {sortConfig.key === key && sortConfig.direction === "asc"
-                                                        ? getIconByLabel("SortUp")
-                                                        : sortConfig.key === key && sortConfig.direction === "desc"
-                                                            ? getIconByLabel("SortDown")
-                                                            : getIconByLabel("Sort")}
-                                                </span>
-                                            </span>
-                                        </div>
-                                    </th>
-                                ))}
+                                .map(({ key, label, width, description }) => {
+                                    if (key === "index") {
+                                        return (
+                                            <th key={key} className={`px-4 py-2 text-sm font-bold dark:border-gray-600 ${width}`}>
+                                                <div className="flex justify-center items-center">
+                                                    {label}
+                                                </div>
+                                            </th>
+                                        );
+                                    } else {
+                                        return (
+                                            <th
+                                                key={key}
+                                                className={`px-4 py-2 text-sm font-bold dark:border-gray-600 cursor-pointer ${width}`}
+                                                onClick={() => requestSort(key)}
+                                            >
+                                                <div className="relative group flex justify-center items-center gap-2">
+                                                    <TooltipIcon description={description}>
+                                                        {label}
+                                                    </TooltipIcon>
+                                                    <p>{description}</p>
+                                                    <span className="ml-1 p-1 rounded flex hover:bg-[#050708]/80">
+                                                        <span className="ml-1 flex">
+                                                            {sortConfig.key === key && sortConfig.direction === "asc"
+                                                                ? getIconByLabel("SortUp")
+                                                                : sortConfig.key === key && sortConfig.direction === "desc"
+                                                                    ? getIconByLabel("SortDown")
+                                                                    : getIconByLabel("Sort")}
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </th>
+                                        );
+                                    }
+                                })}
                         </tr>
 
                     </thead>
@@ -247,119 +259,106 @@ const PostsTable = ({ platform = null }) => {
                         {
                             posts?.length === 0 ? (
                                 <tr>
-                                    <td colSpan={9} className="text-center p-5">
+                                    <td colSpan={10} className="text-center p-5">
                                         <OurEmptyData width={100} />
                                     </td>
                                 </tr>
                             ) : selectedAccount == null ? (
                                 <tr>
-                                    <td colSpan={9} className="text-center justify-center items-center w-full p-5 text-white rounded-lg">
+                                    <td colSpan={10} className="text-center justify-center items-center w-full p-5 text-white rounded-lg">
                                         <p className={"text-sm w-full"}>Please fill your account first</p>
                                     </td>
                                 </tr>
                             ) : posts?.map((post, key) => (
-                                    <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                <tr key={key} className="h-[30px] border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                    <td className="mr-5 ml-5 text-center text-sm text-gray-500">{index +++ 1}</td>
+                                    {/* Kolom gabungan Username + Caption */}
+                                    <td className="px-4 py-4 text-left text-sm w-[300px]">
+                                        <div className="flex items-start gap-2">
+                                            {/* Avatar / Ikon User */}
+                                            <div className="flex-shrink-0 w-10 h-10">
+                                                {avatars[post.username] ? (
+                                                    <>
+                                                        <img
+                                                            src={avatars[post.username]}
+                                                            className="w-full h-full object-cover rounded-full"
+                                                            alt={"avatar_user"} />
+                                                    </>
+                                                ) : (
+                                                    <FaUserCircle className="text-gray-500 w-10 h-10" />
+                                                )}
+                                            </div>
 
-                                        {/* Kolom gabungan Username + Caption */}
-                                        <td className="px-4 py-4 text-left text-sm w-[300px]">
-                                            <div className="flex items-start gap-2">
-                                                {/* Avatar / Ikon User */}
-                                                <div className="flex-shrink-0 w-10 h-10">
-                                                    {avatars[post.username] ? (
-                                                        <>
-                                                            <img
-                                                                src={avatars[post.username]}
-                                                                className="w-full h-full object-cover rounded-full"
-                                                                alt={"avatar_user"} />
-                                                        </>
-                                                    ) : (
-                                                        <FaUserCircle className="text-gray-500 w-10 h-10" />
-                                                    )}
+                                            {/* Info Username + Caption */}
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-semibold text-black dark:text-white">{post.username}</span>
                                                 </div>
 
-                                                {/* Info Username + Caption */}
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-semibold text-black dark:text-white">{post.username}</span>
+                                                {/* Caption */}
+                                                <p className="text-gray-700 dark:text-gray-300 text-sm leading-tight mt-1">
+                                                    {post.caption.length > 50 ? `${post.caption.substring(0, 50)}...` : post.caption}
+                                                </p>
+
+                                                {/* Link ke Original Post dengan Thumbnail Tooltip */}
+                                                <div className="relative group inline-block">
+                                                    <a
+                                                        href={
+                                                            post.platform === "Instagram"
+                                                                ? `https://www.instagram.com/p/${post.post_code}`
+                                                                : `https://www.tiktok.com/@${post.username}/video/${post.unique_id_post}`
+                                                        }
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 dark:text-blue-300 text-sm font-semibold mt-1 block"
+                                                    >
+                                                        Original Post
+                                                    </a>
+
+                                                    {/* Tooltip untuk Thumbnail */}
+                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex w-40 h-40 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 z-50">
+                                                        <img
+                                                            src={`${post.thumbnail_url}`}
+                                                            alt="Thumbnail"
+                                                            className="w-full h-full object-cover rounded-md"
+                                                        />
                                                     </div>
 
-                                                    {/* Caption */}
-                                                    <p className="text-gray-700 dark:text-gray-300 text-sm leading-tight mt-1">
-                                                        {post.caption.length > 50 ? `${post.caption.substring(0, 50)}...` : post.caption}
-                                                    </p>
-
-                                                    {/* Link ke Original Post dengan Thumbnail Tooltip */}
-                                                    <div className="relative group inline-block">
-                                                        <a
-                                                            href={
-                                                                post.platform === "Instagram"
-                                                                    ? `https://www.instagram.com/p/${post.post_code}`
-                                                                    : `https://www.tiktok.com/@${post.username}/video/${post.unique_id_post}`
-                                                            }
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-blue-500 dark:text-blue-300 text-sm font-semibold mt-1 block"
-                                                        >
-                                                            Original Post
-                                                        </a>
-
-                                                        {/* Tooltip untuk Thumbnail */}
-                                                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex w-40 h-40 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 z-50">
-                                                            <img
-                                                                src={`${post.thumbnail_url}`}
-                                                                alt="Thumbnail"
-                                                                className="w-full h-full object-cover rounded-md"
-                                                            />
-                                                        </div>
-
-                                                    </div>
                                                 </div>
                                             </div>
-                                        </td>
-
-                                        {/* Kolom Lainnya */}
-                                        <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
-                                        {platform === "Instagram" && <td className="px-2 py-4 text-center">{post.media_name ? post.media_name.charAt(0).toUpperCase() + post.media_name.slice(1) : ""}</td>}
-                                        <td className="px-2 py-4 text-center">{post.likes ? new Intl.NumberFormat('id-ID').format(post.likes) : 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.comments ? new Intl.NumberFormat('id-ID').format(post.comments) : 0}</td>
-                                        <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : "-"}</td>
-                                        {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.shareCount ? new Intl.NumberFormat('id-ID').format(post.shareCount) : 0}</td>}
-                                        {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.collectCount ? new Intl.NumberFormat('id-ID').format(post.collectCount) : 0}</td>}
-                                        {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.downloadCount ? new Intl.NumberFormat('id-ID').format(post.downloadCount) : 0}</td>}
-
-                                        {/* Indikator Performa */}
-                                        <td className="px-2 py-4 items-center justify-center h-full w-full">
-                                            <div className={`w-4 h-4 mx-auto rounded-full bg-${post.performa_color}-500`}></div>
-                                        </td>
-                                    </tr>
-                                ))
-                            }
-                            {loading && posts?.length !== 0 &&
-                                <tr>
-                                    <td colSpan={9} className="p-5">
-                                        <div className="flex items-center justify-center">
-                                            Loading...
                                         </div>
                                     </td>
+
+                                    {/* Kolom Lainnya */}
+                                    <td className="px-2 py-4 text-center">{moment(post.created_at).format("DD MMM YYYY")}</td>
+                                    {platform === "Instagram" && <td className="px-2 py-4 text-center">{post.media_name ? post.media_name.charAt(0).toUpperCase() + post.media_name.slice(1) : ""}</td>}
+                                    <td className="px-2 py-4 text-center">{post.likes ? new Intl.NumberFormat('id-ID').format(post.likes) : 0}</td>
+                                    <td className="px-2 py-4 text-center">{post.comments ? new Intl.NumberFormat('id-ID').format(post.comments) : 0}</td>
+                                    <td className="px-2 py-4 text-center">{post.playCount ? new Intl.NumberFormat('id-ID').format(post.playCount) : "-"}</td>
+                                    {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.shareCount ? new Intl.NumberFormat('id-ID').format(post.shareCount) : 0}</td>}
+                                    {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.collectCount ? new Intl.NumberFormat('id-ID').format(post.collectCount) : 0}</td>}
+                                    {platform === "TikTok" && <td className="px-2 py-4 text-center">{post.downloadCount ? new Intl.NumberFormat('id-ID').format(post.downloadCount) : 0}</td>}
+
+                                    {/* Indikator Performa */}
+                                    <td className="px-2 py-4 items-center justify-center h-full w-full">
+                                        <div className={`w-4 h-4 mx-auto rounded-full bg-${post.performa_color}-500`}></div>
+                                    </td>
                                 </tr>
-                            }
+                            ))
+                        }
+                        {loading && posts?.length !== 0 &&
+                            <tr>
+                                <td colSpan={9} className="p-5">
+                                    <div className="flex items-center justify-center">
+                                        Loading...
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
 
                 </table>
             </div>
-
-            {/* Load More Button */}
-            {/* {hasMore && selectedAccount != null && (
-                <div className="flex justify-center mt-4">
-                    <button
-                        onClick={onLoadMore}
-                        className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                        disabled={loading}
-                    >
-                        {loading ? "Loading..." : "Load More"}
-                    </button>
-                </div>
-            )} */}
 
             <div className="flex justify-end mt-4 p-3 text-sm mr-5">
                 {`Show ${posts?.length} of ${totalRows} posts`}

@@ -2,12 +2,14 @@ import {TOption, TPerformanceContext, TPeriod, TSingleMonthPeriod} from "@/types
 import moment from "moment/moment";
 
 export const primaryColors = [
-    "#6A5ACD", // Untuk selectedAccount
-    "#FFB347",
-    "#20B2AA",
-    "#FF6347",
-    "#FFD700",
-    "#8A2BE2"  // Warna tambahan untuk kompetitor ke-5
+    "#8A2BE2", // Blue Violet (Ungu tua)
+    "#1E90FF", // Dodger Blue (Biru terang)
+    "#32CD32", // Lime Green (Hijau terang)
+    "#FFD700", // Gold (Kuning keemasan)
+    "#FF4500", // Orange Red (Merah-oranye cerah)
+    "#1E90FF", // Dodger Blue (Biru terang)
+    "#00CED1", // Dark Turquoise (Biru toska cerah)
+    "#DC143C"  // Crimson (Merah tua mencolok)
 ];
 
 export const periodInitialValue: TPeriod =  {
